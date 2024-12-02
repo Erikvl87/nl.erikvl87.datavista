@@ -1,7 +1,7 @@
 import type HomeyWidget from 'homey/lib/HomeyWidget';
-import type { progressBarWidgetPayload } from '../api.mjs';
+import type { toggleSwitchWidgetPayload } from '../api.mjs';
 import type { BaseSettings } from '../../../datavistasettings/baseSettings.mjs';
-import type { PercentageData } from '../../../datavistasettings/percentageSettings.mjs';
+import { BooleanData } from '../../../datavistasettings/booleanSettings.mjs';
 
 type Settings = {
 	datasource?: {
@@ -13,20 +13,17 @@ type Settings = {
 	};
 	transparent: boolean;
 	refreshSeconds: number;
-	color1: string;
-	color2: string;
 	showIcon: boolean;
-	showName: boolean;
 	overwriteName: string;
 };
 
-class ProgressBarWidgetScript {
+class toggleSwitchWidgetScript {
 	private homey: HomeyWidget;
 	private settings: Settings;
-	progressBarEl!: HTMLProgressElement;
+	switchEl!: HTMLInputElement;
 	private refreshInterval: NodeJS.Timeout | null = null;
 	private configurationAnimationTimeout: NodeJS.Timeout | null | undefined;
-	private data: number = 0;
+	private data: boolean = false;
 	private iconUrl: string | null = null;
 
 	/**
@@ -50,86 +47,27 @@ class ProgressBarWidgetScript {
 		await this.homey.api('POST', '/log', { message, optionalParams });
 	}
 
-	private updateProgress(value: number): void {
+	private updateState(value: boolean): void {
 		if (value === this.data) return;
 
-		const previousValue = this.data;
+		// const previousValue = this.data;
 		this.data = value;
-
-		const progressBar = document.getElementById('progressBar')!;
-		const progressPercentage = document.getElementById('progressPercentage')!;
-
-		const startColor = ProgressBarWidgetScript.hexToRgb(this.settings.color1);
-		const endColor = ProgressBarWidgetScript.hexToRgb(this.settings.color2);
-
-		// Animate percentage display
-		const duration = 500; // Duration of the animation in milliseconds
-		const startTime = performance.now();
-
-		const animate = (currentTime: number): void => {
-			const elapsedTime = currentTime - startTime;
-			const progress = Math.min(elapsedTime / duration, 1);
-			const currentPercentage = Math.round(previousValue + (value - previousValue) * progress);
-
-			progressPercentage.textContent = `${currentPercentage}%`;
-
-			if (progress < 1) {
-				requestAnimationFrame(animate);
-			}
-		};
-
-		requestAnimationFrame(animate);
-
-		// Set width of progress bar
-		progressBar.style.width = `${this.data}%`;
-
-		// Calculate intermediate color
-		const intermediateColor = ProgressBarWidgetScript.interpolateColor(startColor, endColor, this.data / 100);
-		progressBar.style.backgroundColor = intermediateColor;
+		this.switchEl.checked = value;
+		this.switchEl.dispatchEvent(new Event('change')); // todo check if needed
 	}
 
-	private async syncData(): Promise<void> {
-		const type = this.settings.datasource!.type;
-
-		let payload;
-		if (type === 'capability') {
-			const capabilityId = this.settings.datasource?.id;
-			const deviceId = this.settings.datasource?.deviceId;
-			payload = (await this.homey.api(
-				'GET',
-				`/capability?deviceId=${deviceId}&capabilityId=${capabilityId}`,
-				{},
-			)) as progressBarWidgetPayload | null;
-
-			if (payload?.iconUrl != null) {
-				await this.updateIcon(payload.iconUrl);
-			}
-		} else if (type === 'advanced') {
-			payload = (await this.homey.api(
-				'GET',
-				`/advanced?key=${this.settings.datasource!.id}`,
-			)) as progressBarWidgetPayload | null;
-		} else {
-			await this.startConfigurationAnimation();
-			return;
-		}
-
-		if (payload !== null && payload.value !== null) {
-			await this.log('Received payload', payload);
-			await this.stopConfigurationAnimation();
-			this.updateName(payload.name);
-			this.updateProgress(payload.value);
-		} else {
-			await this.log('The payload is null');
-			await this.startConfigurationAnimation();
-		}
+	updateName(name: string): void {
+		const titleEl = document.querySelector('.title')! as HTMLElement;
+		name = this.settings.overwriteName ? this.settings.overwriteName : name;
+		titleEl.textContent = name;
 	}
 
 	async updateIcon(iconUrl: string): Promise<void> {
 		if (this.settings.showIcon === false) return;
 		if (this.iconUrl === iconUrl) return;
 		this.iconUrl = iconUrl;
-		
+
+		await this.log('Fetching icon', iconUrl);
 		const response = await fetch(iconUrl);
 		if (!response.ok || !response.headers.get('content-type')?.includes('image/svg+xml')) {
 			// throw new Error('Invalid response while fetching icon');
@@ -185,64 +123,49 @@ class ProgressBarWidgetScript {
 		}
 	}
 
-	updateName(name: string): void {
-		const titleEl = document.querySelector('.title')! as HTMLElement;
+	private async syncData(): Promise<void> {
+		const type = this.settings.datasource!.type;
 
-		name = this.settings.overwriteName ? this.settings.overwriteName : name;
+		let payload;
+		if (type === 'capability') {
+			const capabilityId = this.settings.datasource?.id;
+			const deviceId = this.settings.datasource?.deviceId;
+			payload = (await this.homey.api(
+				'GET',
+				`/capability?deviceId=${deviceId}&capabilityId=${capabilityId}`,
+				{},
+			)) as toggleSwitchWidgetPayload | null;
 
-		if (this.settings.showName === true) {
-			titleEl.textContent = name;
-			titleEl.style.display = 'block';
+			if (payload?.iconUrl != null) {
+				await this.updateIcon(payload.iconUrl);
+			}
+		} else if (type === 'advanced') {
+			payload = (await this.homey.api(
+				'GET',
+				`/advanced?key=${this.settings.datasource!.id}`,
+			)) as toggleSwitchWidgetPayload | null;
 		} else {
-			titleEl.style.display = 'none';
+			await this.startConfigurationAnimation();
+			return;
+		}
+
+		if (payload !== null && payload.value != null) {
+			await this.log('Received payload', payload);
+			await this.stopConfigurationAnimation();
+			this.updateName(payload.name);
+			this.updateState(payload.value);
+		} else {
+			await this.log('The payload is null');
+			await this.startConfigurationAnimation();
 		}
 	}
 
 	private async startConfigurationAnimation(): Promise<void> {
-		if (this.configurationAnimationTimeout != null) return;
-		const interval = 1500;
-		let value = 0;
-		const step = 25;
-		let direction = 1;
-		const update = async (): Promise<void> => {
-			value += step * direction;
-			if (value >= 100 || value <= 0) {
-				direction *= -1;
-			}
-
-			this.updateProgress(value);
-			this.configurationAnimationTimeout = setTimeout(update, interval);
-		};
-		this.updateName('Configure me');
-		this.configurationAnimationTimeout = setTimeout(update, interval);
-	}
-
-	private static hexToRgb(hex: string): number[] {
-		// Convert hex to RGB
-		const r = parseInt(hex.slice(1, 3), 16);
-		const g = parseInt(hex.slice(3, 5), 16);
-		const b = parseInt(hex.slice(5, 7), 16);
-		return [r, g, b];
 	}
 
 	private async stopConfigurationAnimation(): Promise<void> {
 		if (this.configurationAnimationTimeout !== null) clearTimeout(this.configurationAnimationTimeout);
 		this.configurationAnimationTimeout = null;
-	}
-
-	private static interpolateColor(
-		color1: number[] | [any, any, any],
-		color2: number[] | [any, any, any],
-		factor: number,
-	): string {
-		const [r1, g1, b1] = color1;
-		const [r2, g2, b2] = color2;
-
-		const r = Math.round(r1 + factor * (r2 - r1));
-		const g = Math.round(g1 + factor * (g2 - g1));
-		const b = Math.round(b1 + factor * (b2 - b1));
-
-		return `rgb(${r},${g},${b})`;
 	}
 
 	/**
@@ -256,11 +179,10 @@ class ProgressBarWidgetScript {
 			document.querySelector('.homey-widget')!.setAttribute('style', `background-color: ${widgetBackgroundColor};`);
 		}
 
-		this.progressBarEl = document.getElementById('progress')! as HTMLProgressElement;
+		this.switchEl = document.getElementById('switch')! as HTMLInputElement;
 
 		if (this.settings.datasource != null) await this.syncData();
-
-		this.homey.ready({ height: this.settings.showName ? 65 : 40 });
+		this.homey.ready();
 
 		if (this.settings.datasource == null) {
 			await this.startConfigurationAnimation();
@@ -273,14 +195,14 @@ class ProgressBarWidgetScript {
 				await this.syncData();
 			}, this.settings.refreshSeconds * 1000);
 		} else if (this.settings.datasource.type === 'advanced') {
-			this.homey.on(`settings/${this.settings.datasource.id}`, async (data: BaseSettings<PercentageData> | null) => {
+			this.homey.on(`settings/${this.settings.datasource.id}`, async (data: BaseSettings<BooleanData> | null) => {
 				if (data === null) {
 					await this.startConfigurationAnimation();
 					return;
 				}
 
 				await this.stopConfigurationAnimation();
-				this.updateProgress(data.settings.percentage);
+				this.updateState(data.settings.value);
 			});
 		}
 	}
@@ -293,4 +215,4 @@ interface ModuleWindow extends Window {
 declare const window: ModuleWindow;
 
 window.onHomeyReady = async (homey: HomeyWidget): Promise<void> =>
-	await new ProgressBarWidgetScript(homey).onHomeyReady();
+	await new toggleSwitchWidgetScript(homey).onHomeyReady();

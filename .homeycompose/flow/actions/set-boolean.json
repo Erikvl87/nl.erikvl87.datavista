@@ -1,0 +1,31 @@
+{
+	"title": {
+		"en": "Set boolean",
+		"nl": "Zet boolean"
+	},
+	"titleFormatted": {
+		"en": "[Boolean] Set [[value]] for [[identifier]]",
+		"nl": "[Boolean] Zet [[value]] voor [[identifier]]"
+	},
+	"hint": {
+		"en": "Set a boolean that can be used in Toggle Switch widgets.",
+		"nl": "Zet een boolean die gebruikt kan worden in Schakelaar widgets."
+	},
+
+	"args": [
+		{
+			"type": "checkbox",
+			"name": "value",
+			"title": {
+				"en": "value"
+			}
+		},
+		{
+			"type": "text",
+			"name": "identifier",
+			"placeholder": {
+				"en": "identifier"
+			}
+		}
+	]
+}

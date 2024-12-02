@@ -1,0 +1,67 @@
+{
+	"name": {
+		"en": "Toggle switch"
+	},
+	"transparent": true,
+	"height": 65,
+	"settings": [
+		{
+			"id": "datasource",
+			"type": "autocomplete",
+			"title": {
+				"en": "Datasource",
+				"nl": "Databron"
+			}
+		},
+		{
+			"id": "refreshSeconds",
+			"type": "number",
+			"title": {
+				"en": "Refresh interval (seconds)",
+				"nl": "Verversingsinterval (seconden)"
+			},
+			"min": 2,
+			"value": 5
+		},
+		{
+			"id": "overwriteName",
+			"type": "text",
+			"title": {
+				"en": "Overwrite name",
+				"nl": "Naam overschrijven"
+			}
+		},
+		{
+			"id": "showIcon",
+			"type": "checkbox",
+			"title": {
+				"en": "Show icon (if available)",
+				"nl": "Toon icoon (indien beschikbaar)"
+			},
+			"value": true
+		},
+		{
+			"id": "transparent",
+			"type": "checkbox",
+			"title": {
+				"en": "Transparent background",
+				"nl": "Transparante achtergrond"
+			},
+			"value": false
+		}
+	],
+	"api": {
+		"getCapabilityBoolean": {
+			"method": "GET",
+			"path": "/capability"
+		},
+		"getAdvancedBoolean": {
+			"method": "GET",
+			"path": "/advanced"
+		},
+		"log": {
+			"method": "POST",
+			"path": "/log"
+		}
+	}
+}

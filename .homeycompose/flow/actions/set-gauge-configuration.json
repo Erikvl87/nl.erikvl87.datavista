@@ -3,8 +3,7 @@
 		"en": "Set gauge configuration"
 	},
 	"titleFormatted": {
-		"en": "[Gauge configuration] Set axes color to [[color1]] at value [[colorOffset1]], [[color2]] at [[colorOffset2]], [[color3]] value [[colorOffset3]], [[color4]] at [[colorOffset4]], [[color5]]  at [[colorOffset5]] for configuration id [[identifier]]",
-		"nl": "[Meter configuratie] Zet as kleuren naar [[color1]] op waarde [[colorOffset1]], [[color2]] at [[colorOffset2]], [[color3]] at [[colorOffset3]], [[color4]] at [[colorOffset4]], [[color5]] at [[colorOffset5]] voor configuratie id [[identifier]]"
+		"en": "[Gauge configuration] Set axes color to [[color1]] at value [[colorOffset1]], [[color2]] at [[colorOffset2]], [[color3]] value [[colorOffset3]], [[color4]] at [[colorOffset4]], [[color5]]  at [[colorOffset5]] for configuration id [[identifier]]"
 	},
 	"hint": {
 		"en": "Set configuration that can be used in Advanced Gauge widgets.",

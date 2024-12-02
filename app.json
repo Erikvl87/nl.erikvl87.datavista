@@ -2,7 +2,7 @@
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "nl.erikvl87.datavista",
   "version": "0.3.1",
-  "support": "https://github.com/Erikvl87/nl.erikvl87.datavista",
+  "support": "https://datavista.erikvl87.nl/",
   "homeyCommunityTopicId": 121482,
   "bugs": {
     "url": "https://github.com/Erikvl87/nl.erikvl87.datavista/issues"
@@ -70,11 +70,41 @@
     "actions": [
       {
         "title": {
+          "en": "Set boolean",
+          "nl": "Zet boolean"
+        },
+        "titleFormatted": {
+          "en": "[Boolean] Set [[value]] for [[identifier]]",
+          "nl": "[Boolean] Zet [[value]] voor [[identifier]]"
+        },
+        "hint": {
+          "en": "Set a boolean that can be used in Toggle Switch widgets.",
+          "nl": "Zet een boolean die gebruikt kan worden in Schakelaar widgets."
+        },
+        "args": [
+          {
+            "type": "checkbox",
+            "name": "value",
+            "title": {
+              "en": "value"
+            }
+          },
+          {
+            "type": "text",
+            "name": "identifier",
+            "placeholder": {
+              "en": "identifier"
+            }
+          }
+        ],
+        "id": "set-boolean"
+      },
+      {
+        "title": {
           "en": "Set gauge configuration"
         },
         "titleFormatted": {
-          "en": "[Gauge configuration] Set axes color to [[color1]] at value [[colorOffset1]], [[color2]] at [[colorOffset2]], [[color3]] value [[colorOffset3]], [[color4]] at [[colorOffset4]], [[color5]]  at [[colorOffset5]] for configuration id [[identifier]]",
-          "nl": "[Meter configuratie] Zet as kleuren naar [[color1]] op waarde [[colorOffset1]], [[color2]] at [[colorOffset2]], [[color3]] at [[colorOffset3]], [[color4]] at [[colorOffset4]], [[color5]] at [[colorOffset5]] voor configuratie id [[identifier]]"
+          "en": "[Gauge configuration] Set axes color to [[color1]] at value [[colorOffset1]], [[color2]] at [[colorOffset2]], [[color3]] value [[colorOffset3]], [[color4]] at [[colorOffset4]], [[color5]]  at [[colorOffset5]] for configuration id [[identifier]]"
         },
         "hint": {
           "en": "Set configuration that can be used in Advanced Gauge widgets.",
@@ -198,8 +228,7 @@
           "en": "Set range"
         },
         "titleFormatted": {
-          "en": "[Range] Set range from [[min]] to [[max]] with value [[value]] (label [[label]]) for [[identifier]]",
-          "nl": "[Bereik] Zet bereik van [[min]] tot [[max]] met waarde [[value]] (label [[label]]) voor [[identifier]]"
+          "en": "[Range] Set range from [[min]] to [[max]] with value [[value]] (label [[label]]) for [[identifier]]"
         },
         "hint": {
           "en": "Set a range that can be used in Advanced Gauge widgets.",
@@ -1295,6 +1324,74 @@
         }
       },
       "id": "simple-gauge"
+    },
+    "toggle-switch": {
+      "name": {
+        "en": "Toggle switch"
+      },
+      "transparent": true,
+      "height": 65,
+      "settings": [
+        {
+          "id": "datasource",
+          "type": "autocomplete",
+          "title": {
+            "en": "Datasource",
+            "nl": "Databron"
+          }
+        },
+        {
+          "id": "refreshSeconds",
+          "type": "number",
+          "title": {
+            "en": "Refresh interval (seconds)",
+            "nl": "Verversingsinterval (seconden)"
+          },
+          "min": 2,
+          "value": 5
+        },
+        {
+          "id": "overwriteName",
+          "type": "text",
+          "title": {
+            "en": "Overwrite name",
+            "nl": "Naam overschrijven"
+          }
+        },
+        {
+          "id": "showIcon",
+          "type": "checkbox",
+          "title": {
+            "en": "Show icon (if available)",
+            "nl": "Toon icoon (indien beschikbaar)"
+          },
+          "value": true
+        },
+        {
+          "id": "transparent",
+          "type": "checkbox",
+          "title": {
+            "en": "Transparent background",
+            "nl": "Transparante achtergrond"
+          },
+          "value": false
+        }
+      ],
+      "api": {
+        "getCapabilityBoolean": {
+          "method": "GET",
+          "path": "/capability"
+        },
+        "getAdvancedBoolean": {
+          "method": "GET",
+          "path": "/advanced"
+        },
+        "log": {
+          "method": "POST",
+          "path": "/log"
+        }
+      },
+      "id": "toggle-switch"
     }
   }
 }

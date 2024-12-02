@@ -3,8 +3,7 @@
 		"en": "Set range"
 	},
 	"titleFormatted": {
-		"en": "[Range] Set range from [[min]] to [[max]] with value [[value]] (label [[label]]) for [[identifier]]",
-		"nl": "[Bereik] Zet bereik van [[min]] tot [[max]] met waarde [[value]] (label [[label]]) voor [[identifier]]"
+		"en": "[Range] Set range from [[min]] to [[max]] with value [[value]] (label [[label]]) for [[identifier]]"
 	},
 	"hint": {
 		"en": "Set a range that can be used in Advanced Gauge widgets.",
