@@ -1,0 +1,137 @@
+{
+	"name": {
+		"en": "Metric bar"
+	},
+	
+	"settings": [
+		{
+			"id": "datasource",
+			"type": "autocomplete",
+			"title": {
+				"en": "Datasource",
+				"nl": "Databron"
+			}
+		},
+		{
+			"id": "refreshSeconds",
+			"type": "number",
+			"title": {
+				"en": "Refresh interval (seconds)",
+				"nl": "Verversingsinterval (seconden)"
+			},
+			"min": 2,
+			"value": 5
+		},
+		{
+			"id": "transparent",
+			"type": "checkbox",
+			"title": {
+				"en": "Transparent background",
+				"nl": "Transparante achtergrond"
+			},
+			"value": false
+		},
+		{
+			"id": "showIcon",
+			"type": "checkbox",
+			"title": {
+				"en": "Show icon (if available)",
+				"nl": "Toon icoon (indien beschikbaar)"
+			},
+			"value": true
+		},
+		{
+			"id": "showName",
+			"type": "checkbox",
+			"title": {
+				"en": "Show name",
+				"nl": "Toon naam"
+			},
+			"value": true
+		},
+		{
+			"id": "overwriteName",
+			"type": "text",
+			"title": {
+				"en": "Overwrite name",
+				"nl": "Naam overschrijven"
+			}
+		},
+		{
+			"id": "color1",
+			"type": "dropdown",
+			"title": {
+				"en": "Color 1",
+				"nl": "Kleur 1"
+			},
+			"value": "#ff0000",
+			"values": [
+				{ "id": "#00ff00", "title": { "en": "Green", "nl": "Groen" } },
+				{ "id": "#ff0000", "title": { "en": "Red", "nl": "Rood" } },
+				{ "id": "#ffff00", "title": { "en": "Yellow", "nl": "Geel" } },
+				{ "id": "#0000ff", "title": { "en": "Blue", "nl": "Blauw" } },
+				{ "id": "#ffa500", "title": { "en": "Orange", "nl": "Oranje" } },
+				{ "id": "#808080", "title": { "en": "Gray", "nl": "Grijs" } },
+				{ "id": "#800080", "title": { "en": "Purple", "nl": "Paars" } },
+				{ "id": "#a52a2a", "title": { "en": "Brown", "nl": "Bruin" } },
+				{ "id": "#ffffff", "title": { "en": "White", "nl": "Wit" } },
+				{ "id": "#000000", "title": { "en": "Black", "nl": "Zwart" } },
+				{ "id": "#00ffff", "title": { "en": "Cyan", "nl": "Cyaan" } },
+				{ "id": "#ff00ff", "title": { "en": "Magenta", "nl": "Magenta" } },
+				{ "id": "#32cd32", "title": { "en": "Lime Green", "nl": "Limoengroen" } },
+				{ "id": "#ff4500", "title": { "en": "Orange Red", "nl": "Oranjerood" } },
+				{ "id": "#1e90ff", "title": { "en": "Dodger Blue", "nl": "Hemelsblauw" } },
+				{ "id": "#4b0082", "title": { "en": "Indigo", "nl": "Indigo" } },
+				{ "id": "#daa520", "title": { "en": "Goldenrod", "nl": "Goudgeel" } },
+				{ "id": "#8b4513", "title": { "en": "Saddle Brown", "nl": "Zadelbruin" } },
+				{ "id": "#48d1cc", "title": { "en": "Medium Turquoise", "nl": "Turkoois" } },
+				{ "id": "#ff1493", "title": { "en": "Deep Pink", "nl": "Dieproze" } }
+			]
+		},
+		{
+			"id": "color2",
+			"type": "dropdown",
+			"title": {
+				"en": "Color 2",
+				"nl": "Kleur 2"
+			},
+			"value": "#00ff00",
+			"values": [
+				{ "id": "#00ff00", "title": { "en": "Green", "nl": "Groen" } },
+				{ "id": "#ff0000", "title": { "en": "Red", "nl": "Rood" } },
+				{ "id": "#ffff00", "title": { "en": "Yellow", "nl": "Geel" } },
+				{ "id": "#0000ff", "title": { "en": "Blue", "nl": "Blauw" } },
+				{ "id": "#ffa500", "title": { "en": "Orange", "nl": "Oranje" } },
+				{ "id": "#808080", "title": { "en": "Gray", "nl": "Grijs" } },
+				{ "id": "#800080", "title": { "en": "Purple", "nl": "Paars" } },
+				{ "id": "#a52a2a", "title": { "en": "Brown", "nl": "Bruin" } },
+				{ "id": "#ffffff", "title": { "en": "White", "nl": "Wit" } },
+				{ "id": "#000000", "title": { "en": "Black", "nl": "Zwart" } },
+				{ "id": "#00ffff", "title": { "en": "Cyan", "nl": "Cyaan" } },
+				{ "id": "#ff00ff", "title": { "en": "Magenta", "nl": "Magenta" } },
+				{ "id": "#32cd32", "title": { "en": "Lime Green", "nl": "Limoengroen" } },
+				{ "id": "#ff4500", "title": { "en": "Orange Red", "nl": "Oranjerood" } },
+				{ "id": "#1e90ff", "title": { "en": "Dodger Blue", "nl": "Hemelsblauw" } },
+				{ "id": "#4b0082", "title": { "en": "Indigo", "nl": "Indigo" } },
+				{ "id": "#daa520", "title": { "en": "Goldenrod", "nl": "Goudgeel" } },
+				{ "id": "#8b4513", "title": { "en": "Saddle Brown", "nl": "Zadelbruin" } },
+				{ "id": "#48d1cc", "title": { "en": "Medium Turquoise", "nl": "Turkoois" } },
+				{ "id": "#ff1493", "title": { "en": "Deep Pink", "nl": "Dieproze" } }
+			]
+		}
+	],
+	"api": {
+		"datasource": {
+			"method": "POST",
+			"path": "/datasource"
+		},
+		"getIcon": {
+			"method": "GET",
+			"path": "/icon"
+		},
+		"log": {
+			"method": "POST",
+			"path": "/log"
+		}
+	}
+}

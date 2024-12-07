@@ -14,6 +14,7 @@ import progressBarWidget from './widgets/progress-bar/progressBarWidget.mjs';
 import toggleSwitchWidget from './widgets/toggle-switch/toggleSwitchWidget.mjs';
 import actionSetDataBoolean from './actions/actionSetDataBoolean.mjs';
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
+import metricBarWidget from './widgets/metric-bar/metricBarWidget.mjs';
 
 export default class DataVista extends Homey.App {
 	homeyApi!: ExtendedHomeyAPIV3Local;
@@ -31,6 +32,7 @@ export default class DataVista extends Homey.App {
 		await AdvancedGaugeWidget.initialize(this.homey, this.homeyApi, this.log, this.error);
 		await progressBarWidget.initialize(this.homey, this.homeyApi, this.log, this.error);
 		await toggleSwitchWidget.initialize(this.homey, this.homeyApi, this.log, this.error);
+		await metricBarWidget.initialize(this.homey, this.homeyApi, this.log, this.error);
 
 		await ActionSetDataPercentage.initialize(this.homey, this.log, this.error);
 		await ActionSetRange.initialize(this.homey, this.log, this.error);

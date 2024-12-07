@@ -32,7 +32,7 @@
 				font-family: Arial, sans-serif;
 			}
 
-			.progress-container {
+			.metric-container {
 				width: 100%;
 				text-align: center;
 			}
@@ -40,7 +40,18 @@
 			#progressPercentage {
 				font-size: 14px;
 				margin-right: 10px;
-				width: 35px;
+				height: 23px;
+				position: absolute;
+				left: 50%;
+				top: 6px;
+				transform: translateX(-50%);
+				z-index: 1;
+				color: var(--homey-text-color);
+				background-color: var(--homey-color-mono-000);
+				border-radius: 1em;
+				padding: 0 10px;
+				opacity: 0.7;
+				white-space: nowrap;
 			}
 
 			.bar-container {
@@ -49,15 +60,17 @@
 				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 			}
 
-			#progressBackground {
-				height: 5px;
+			#metricBackground {
+				height: 35px;
 				width: 100%;
+				position: relative;
 			}
 
-			#progressBar {
-				height: 5px;
+			#metricBar {
+				height: 35px;
 				width: 0%;
 				transition: width 0.5s ease-in-out;
+				background-color: var(--homey-color-primary);
 			}
 
 			#icon {
@@ -74,18 +87,18 @@
 	<body class="homey-widget">
 		<div class="container">
 			<div style="display: flex; align-items: center">
-				<div id="icon" style="display: none;"></div>
-				<div id="progressPercentage" class="homey-text-small-light">0%</div>
+				<div id="icon" style="display: none"></div>
 			</div>
-			<div class="progress-container">
+			<div class="metric-container">
 				<div class="bar-container" style="background-color: var(--homey-color-mono-200)">
-					<div id="progressBackground" style="background-color: var(--homey-color-mono-200)">
-						<div id="progressBar"></div>
+					<div id="metricBackground" style="background-color: var(--homey-color-mono-200)">
+						<div id="metricBar"></div>
+						<div id="progressPercentage" class="homey-text-small-light">0%</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="title homey-text-small-light" style="display: none;"></div>
+		<div class="title homey-text-small-light" style="display: none"></div>
 		<script defer src="script.mjs"></script>
 	</body>
 </html>
