@@ -1,0 +1,76 @@
+{
+	"name": {
+		"en": "Label"
+	},
+	"height": 74,
+	"transparent": true,
+	"settings": [
+		{
+			"id": "datasource",
+			"type": "autocomplete",
+			"title": {
+				"en": "Datasource",
+				"nl": "Databron"
+			}
+		},
+		{
+			"id": "refreshSeconds",
+			"type": "number",
+			"title": {
+				"en": "Refresh interval (seconds)",
+				"nl": "Verversingsinterval (seconden)"
+			},
+			"min": 2,
+			"value": 5
+		},
+		{
+			"id": "showIcon",
+			"type": "checkbox",
+			"title": {
+				"en": "Show icon (if available)",
+				"nl": "Toon icoon (indien beschikbaar)"
+			},
+			"value": true
+		},
+		{
+			"id": "showName",
+			"type": "checkbox",
+			"title": {
+				"en": "Show name",
+				"nl": "Toon naam"
+			},
+			"value": true
+		},
+		{
+			"id": "overwriteName",
+			"type": "text",
+			"title": {
+				"en": "Overwrite name",
+				"nl": "Naam overschrijven"
+			}
+		},
+		{
+			"id": "transparent",
+			"type": "checkbox",
+			"title": {
+			  "en": "Transparent background",
+			  "nl": "Transparante achtergrond"
+			},
+			"value": false
+		  }
+	],
+	"api": {
+		"datasource": {
+			"method": "POST",
+			"path": "/datasource"
+		},
+		"getIcon": {
+			"method": "GET",
+			"path": "/icon"
+		},
+		"log": {
+			"method": "POST",
+			"path": "/log"
+		}
+	}
+}

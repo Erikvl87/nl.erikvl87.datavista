@@ -11,9 +11,11 @@ import {
 } from './datavistasettings/advancedGaugeWidgetSettings.mjs';
 import progressBarWidget from './widgets/progress-bar/progressBarWidget.mjs';
 import toggleSwitchWidget from './widgets/toggle-switch/toggleSwitchWidget.mjs';
-import actionSetDataBoolean from './actions/actionSetDataBoolean.mjs';
+import ActionSetDataBoolean from './actions/actionSetDataBoolean.mjs';
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
 import DataVistaLogger from './dataVistaLogger.mjs';
+import labelWidget from './widgets/label/labelWidget.mjs';
+import ActionSetDataString from './actions/actionSetDataString.mjs';
 
 export default class DataVista extends Homey.App {
 	homeyApi!: ExtendedHomeyAPIV3Local;
@@ -31,11 +33,13 @@ export default class DataVista extends Homey.App {
 		await AdvancedGaugeWidget.initialize(this.homey, this.homeyApi, this.logger);
 		await progressBarWidget.initialize(this.homey, this.homeyApi, this.logger);
 		await toggleSwitchWidget.initialize(this.homey, this.homeyApi, this.logger);
+		await labelWidget.initialize(this.homey, this.homeyApi, this.logger);
 
 		await ActionSetDataPercentage.initialize(this.homey, this.logger);
 		await ActionSetRange.initialize(this.homey, this.logger);
 		await ActionSetGaugeConfiguration.initialize(this.homey, this.logger);
-		await actionSetDataBoolean.initialize(this.homey, this.logger);
+		await ActionSetDataBoolean.initialize(this.homey, this.logger);
+		await ActionSetDataString.initialize(this.homey, this.logger);
 	}
 
 	/**

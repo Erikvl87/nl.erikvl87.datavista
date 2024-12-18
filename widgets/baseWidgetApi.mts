@@ -64,6 +64,7 @@ export class BaseWidgetApi {
 	 * Check if the payload is of a certain data type.
 	 */
 	protected static isDataType(payload: WidgetDataPayload, options: {
+		string?: boolean;
 		boolean?: boolean;
 		percentage?: boolean;
 		number?: boolean;
@@ -76,12 +77,14 @@ export class BaseWidgetApi {
 				if (options.percentage && capability.type === 'number' && capability.units === '%') return true;
 				if (options.number && capability.type === 'number') return true;
 				if (options.range && capability.type === 'number' && capability.min !== undefined && capability.max !== undefined) return true;
+				if (options.string && capability.type === 'string') return true;
 				return false;
 			}
 			case 'variable': {
 				const variable = payload.data as ExtendedVariable;
 				if (options.boolean && variable.type === 'boolean') return true;
 				if (options.number && variable.type === 'number') return true;
+				if (options.string && variable.type === 'string') return true;
 				return false;
 			}
 			case 'advanced': {
@@ -90,6 +93,7 @@ export class BaseWidgetApi {
 				if (options.number && advanced.type === 'number') return true;
 				if (options.percentage && advanced.type === 'percentage') return true;
 				if (options.range && advanced.type === 'range') return true;
+				if (options.string && advanced.type === 'string') return true;
 				return false;
 			}
 			default:

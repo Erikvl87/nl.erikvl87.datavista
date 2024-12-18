@@ -7,9 +7,11 @@ import { BaseSettings } from '../datavistasettings/baseSettings.mjs';
 import { PercentageData } from '../datavistasettings/percentageSettings.mjs';
 import { RangeData } from '../datavistasettings/rangeSettings.mjs';
 import DataVistaLogger from '../dataVistaLogger.mjs';
+import { StringData } from '../datavistasettings/stringSettings.mjs';
 
 type autocompleteQueryOptions = {
 	query?: string | null;
+	includeStrings?: boolean;
 	includeBooleans?: boolean;
 	includePercentages?: boolean;
 	includeRanges?: boolean;
@@ -87,6 +89,22 @@ export class BaseWidget {
 							});
 							break;
 						}
+						case DATA_TYPE_IDS.STRING: {
+							if (!options.includeStrings) break;
+							const rangeData: BaseSettings<StringData> = this.homey.settings.get(key);
+							let description = `${DATAVISTA_APP_NAME} ${this.homey.__('string')}`;
+							if (rangeData.settings.value != null && rangeData.settings.value != '')
+								description += ` (${rangeData.settings.value})`;
+
+							results.push({
+								name: rangeData.identifier,
+								description: description,
+								id: key,
+								type: 'advanced',
+								deviceName: DATAVISTA_APP_NAME,
+							});
+							break;
+						}
 					}
 				});
 			}
@@ -150,6 +168,17 @@ export class BaseWidget {
 											deviceId: device.id,
 											type: 'capability',
 										});
+									} else if (options.includeStrings && capability.type === 'string') {
+										let description = device.name;
+										if (capability.value != null && capability.value != '') description += ` (${capability.value})`;
+										results.push({
+											name: capability.title ?? '[No name]',
+											description: description,
+											deviceName: device.name,
+											id: capability.id,
+											deviceId: device.id,
+											type: 'capability',
+										});
 									}
 								} catch (e) {
 									void this.logger.logException(e);
@@ -177,6 +206,16 @@ export class BaseWidget {
 						results.push({
 							name: variable.name,
 							description: `${this.homey.__('homey_variable')} (${variable.value ?? '0'})`,
+							id: variable.id,
+							type: 'variable',
+							deviceName: HOMEY_LOGIC,
+						});
+					} else if (options.includeStrings && variable.type === 'string') {
+						let description = `${this.homey.__('homey_variable')}`;
+						if (variable.value != null && variable.value != '') description += ` (${variable.value})`;
+						results.push({
+							name: variable.name,
+							description: description,
 							id: variable.id,
 							type: 'variable',
 							deviceName: HOMEY_LOGIC,

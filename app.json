@@ -312,6 +312,37 @@
           }
         ],
         "id": "set-range"
+      },
+      {
+        "title": {
+          "en": "Set string",
+          "nl": "Zet tekst"
+        },
+        "titleFormatted": {
+          "en": "[String] Set [[value]] for [[identifier]]",
+          "nl": "[Tekst] Zet [[value]] voor [[identifier]]"
+        },
+        "hint": {
+          "en": "Set a string that can be used in DataVista widgets.",
+          "nl": "Zet een tekst die gebruikt kan worden in DataVista widgets."
+        },
+        "args": [
+          {
+            "type": "text",
+            "name": "value",
+            "title": {
+              "en": "value"
+            }
+          },
+          {
+            "type": "text",
+            "name": "identifier",
+            "placeholder": {
+              "en": "identifier"
+            }
+          }
+        ],
+        "id": "set-string"
       }
     ]
   },
@@ -396,6 +427,83 @@
         }
       },
       "id": "advanced-gauge"
+    },
+    "label": {
+      "name": {
+        "en": "Label"
+      },
+      "height": 74,
+      "transparent": true,
+      "settings": [
+        {
+          "id": "datasource",
+          "type": "autocomplete",
+          "title": {
+            "en": "Datasource",
+            "nl": "Databron"
+          }
+        },
+        {
+          "id": "refreshSeconds",
+          "type": "number",
+          "title": {
+            "en": "Refresh interval (seconds)",
+            "nl": "Verversingsinterval (seconden)"
+          },
+          "min": 2,
+          "value": 5
+        },
+        {
+          "id": "showIcon",
+          "type": "checkbox",
+          "title": {
+            "en": "Show icon (if available)",
+            "nl": "Toon icoon (indien beschikbaar)"
+          },
+          "value": true
+        },
+        {
+          "id": "showName",
+          "type": "checkbox",
+          "title": {
+            "en": "Show name",
+            "nl": "Toon naam"
+          },
+          "value": true
+        },
+        {
+          "id": "overwriteName",
+          "type": "text",
+          "title": {
+            "en": "Overwrite name",
+            "nl": "Naam overschrijven"
+          }
+        },
+        {
+          "id": "transparent",
+          "type": "checkbox",
+          "title": {
+            "en": "Transparent background",
+            "nl": "Transparante achtergrond"
+          },
+          "value": false
+        }
+      ],
+      "api": {
+        "datasource": {
+          "method": "POST",
+          "path": "/datasource"
+        },
+        "getIcon": {
+          "method": "GET",
+          "path": "/icon"
+        },
+        "log": {
+          "method": "POST",
+          "path": "/log"
+        }
+      },
+      "id": "label"
     },
     "progress-bar": {
       "name": {

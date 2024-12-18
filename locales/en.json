@@ -2,5 +2,6 @@
 	"range": "range",
 	"percentage": "percentage",
 	"boolean": "boolean",
+	"string": "string",
 	"homey_variable": "Homey variable"
 }
