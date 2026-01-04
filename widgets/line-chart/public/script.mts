@@ -479,14 +479,23 @@ class LineChartWidgetScript {
 	 * @returns True if the data might not be complete, otherwise false.
 	 */
 	private potentiallyNotComplete(): boolean {
-		if (
-			['hour', 'day', 'week', 'month', 'year'].includes(this.settings.timeframe) &&
-			this.settings.datasource1?.id &&
-			this.settings.period1 === 'this' &&
-			(!this.settings.datasource2?.id || (this.settings.datasource2?.id && this.settings.period2 === 'this'))
-		)
-			return true;
-		return false;
+		if (!['hour', 'day', 'week', 'month', 'year'].includes(this.settings.timeframe)) {
+			return false;
+		}
+
+		// Check all configured datasources - if any has 'this' period, data might be incomplete
+		const datasourcePeriodPairs = [
+			{ datasource: this.settings.datasource1, period: this.settings.period1 },
+			{ datasource: this.settings.datasource2, period: this.settings.period2 },
+			{ datasource: this.settings.datasource3, period: this.settings.period3 },
+			{ datasource: this.settings.datasource4, period: this.settings.period4 },
+		];
+
+		const activeDatasources = datasourcePeriodPairs.filter(pair => pair.datasource?.id);
+		if (activeDatasources.length === 0) return false;
+
+		// If any active datasource uses 'this' period, the data is potentially incomplete
+		return activeDatasources.some(pair => pair.period === 'this');
 	}
 
 	/**
