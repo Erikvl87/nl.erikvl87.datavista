@@ -148,11 +148,6 @@ class LineChartWidgetScript {
 		if (!this.settings.color3 || this.settings.color3 === 'contrast') this.settings.color3 = contrastColor;
 		if (!this.settings.color4 || this.settings.color4 === 'contrast') this.settings.color4 = contrastColor;
 
-		// If no datasource2 is set, use datasource1 so the 2nd dataset can be the previous period.
-		if (!this.settings.datasource2?.id && this.settings.period1 !== this.settings.period2) {
-			this.settings.datasource2 = this.settings.datasource1;
-		}
-
 		this.homey = homey;
 		this.resolution1 = LineChartWidgetScript.getResolution(this.settings.timeframe, this.settings.period1);
 		this.resolution2 = LineChartWidgetScript.getResolution(this.settings.timeframe, this.settings.period2);
