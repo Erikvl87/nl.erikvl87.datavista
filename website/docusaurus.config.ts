@@ -1,6 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import path from 'path';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -26,6 +27,23 @@ const config: Config = {
   projectName: 'nl.erikvl87.datavista', // Usually your repo name.
 
   onBrokenLinks: 'throw',
+
+  plugins: [
+    function homeycomposeAliasPlugin() {
+      return {
+        name: 'homeycompose-alias-plugin',
+        configureWebpack() {
+          return {
+            resolve: {
+              alias: {
+                '@homeycompose': path.resolve(__dirname, '../.homeycompose'),
+              },
+            },
+          };
+        },
+      };
+    },
+  ],
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you

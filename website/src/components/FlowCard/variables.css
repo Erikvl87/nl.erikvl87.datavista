@@ -1,0 +1,39 @@
+/* FlowCard CSS Variables - matches Homey's design system */
+
+:root {
+  /* Border radius */
+  --flowcard-border-radius-small: 5px;
+  --flowcard-border-radius-regular: 10px;
+
+  /* Colors */
+  --flowcard-color-component: #ffffff;
+  --flowcard-color-text-light: #93939a;
+  --flowcard-color-text-body-light: #7a7a7f;
+  --flowcard-color-text-title: #333333;
+  --flowcard-color-icon-light: #c8c8d0;
+
+  /* Arg badge */
+  --flowcard-arg-border: #eeeeee;
+  --flowcard-arg-background: #f9f9f9;
+
+  /* Box shadows */
+  --flowcard-box-shadow: 0 10px 44px 0 rgba(0,0,0,0.07), 0 2px 12px 0 rgba(0,0,0,0.1), 0 2px 4px 0 rgba(0,0,0,0.04);
+  --flowcard-box-shadow-light: 0 5px 22px 0 rgba(0,0,0,0.035), 0 2px 6px 0 rgba(0,0,0,0.05), 0 2px 2px 0 rgba(0,0,0,0.02);
+
+  /* Timing */
+  --flowcard-duration-fast: 200ms;
+  --flowcard-curve-fast-in: cubic-bezier(.25,0,.5,1);
+}
+
+/* Dark mode overrides */
+[data-theme='dark'] {
+  --flowcard-color-component: #1f2029;
+  --flowcard-color-text-light: #80818e;
+  --flowcard-color-text-body-light: #999aa3;
+  --flowcard-color-text-title: #e4e4e7;
+  --flowcard-color-icon-light: #4f515f;
+
+  /* Arg badge - dark mode */
+  --flowcard-arg-border: #3b3d4a;
+  --flowcard-arg-background: #2b2c36;
+}

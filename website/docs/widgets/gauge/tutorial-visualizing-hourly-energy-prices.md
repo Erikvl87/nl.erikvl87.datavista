@@ -3,6 +3,8 @@ sidebar_position: 2
 title: Visualizing Hourly Energy Prices
 ---
 
+import FlowCard from '@site/src/components/FlowCard';
+
 # Tutorial: Visualizing Hourly Energy Prices with a Gauge
 
 The [Gauge](./index.md) widget can display hourly energy prices. This guide walks through configuring a gauge that updates with real-time price data.
@@ -27,7 +29,7 @@ Optionally run an action card (for example from [Better Logic Library](https://h
 
 Use the DataVista range action card to define the datasource.
 
-![Range action card](/img/docs/datavista-action-card-set-range-flow.png)
+<FlowCard source="actions/set-range.json" />
 
 1. Choose an identifier, such as **Hourly energy price**.
 2. Set the minimum and maximum values using the lowest and highest prices, or fixed values like `0` and `2`.
@@ -43,7 +45,7 @@ Overwrite the label when you want to show qualitative values (for example *Low*,
 
 Use the DataVista gauge configuration action card to define the color bands.
 
-![Gauge configuration action card](/img/docs/datavista-action-card-set-gauge-config-flow.jpg)
+<FlowCard source="actions/set-gauge-configuration.json" />
 
 1. Create an identifier such as **Visualization for hourly energy price**.
 2. Add axes colors for your thresholds, for example green at `0`, yellow at `0.10`, orange at `0.30`, and red at `1`.

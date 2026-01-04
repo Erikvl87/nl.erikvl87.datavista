@@ -3,6 +3,8 @@ sidebar_position: 5
 title: Toggle Switch
 ---
 
+import FlowCard from '@site/src/components/FlowCard';
+
 # Toggle Switch
 
 The **Toggle Switch** widget provides a minimal display for boolean states such as on/off, open/closed, or active/inactive. Supply the value from device capabilities, Homey variables, or DataVista action cards.
@@ -36,7 +38,7 @@ The **Toggle Switch** widget provides a minimal display for boolean states such 
 :::warning
 To use a **DataVista boolean value**, run the DataVista action card that sets the value at least once so it appears in the widget settings.
 
-![Set boolean action card](/img/docs/datavista-action-card-set-boolean.png)
+<FlowCard source="actions/set-boolean.json" />
 :::
 
 ## FAQ

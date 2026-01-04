@@ -3,6 +3,8 @@ sidebar_position: 1
 title: Progress Bar
 ---
 
+import FlowCard from '@site/src/components/FlowCard';
+
 # Progress Bar
 
 The **Progress Bar** widget offers a minimal way to display percentage-based values such as battery level or capacity. Advanced users can supply percentages through DataVista action cards. Configure up to three colors to visualize low, medium, and high values with smooth transitions.
@@ -36,14 +38,15 @@ The **Progress Bar** widget offers a minimal way to display percentage-based val
 :::warning
 To use DataVista percentage or range values, run the corresponding DataVista action card at least once so the value appears in the widget settings list.
 
-![Set percentage action card](/img/docs/datavista-action-card-set-percentage.jpg)
-![Set range action card](/img/docs/datavista-action-card-set-range-flow.png)
+<FlowCard source="actions/set-percentage.json" />
+<FlowCard source="actions/set-range.json" />
+
 :::
 
 :::warning
 The **configuration source** requires a DataVista action card that defines colors and offsets. Run it once before selecting it in the widget settings. When used, it overwrites the manual color settings.
 
-![Progress bar configuration action card](/img/docs/datavista-action-card-configure-progress-bar.png)
+<FlowCard source="actions/set-progress-bar-configuration.json" />
 :::
 
 :::info

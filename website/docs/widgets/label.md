@@ -3,6 +3,8 @@ sidebar_position: 2
 title: Label
 ---
 
+import FlowCard from '@site/src/components/FlowCard';
+
 # Label
 
 The **Label** widget shows short text values with optional horizontal scrolling for longer messages. Use it for quick status updates or contextual information driven by device capabilities, Homey variables, or DataVista action cards.
@@ -35,7 +37,7 @@ The **Label** widget shows short text values with optional horizontal scrolling 
 :::warning
 To use a **DataVista text value**, create a flow that sets the value via a DataVista action card and run it once so the value becomes selectable in the widget settings.
 
-![Set text action card](/img/docs/datavista-action-card-set-text.png)
+<FlowCard source="actions/set-text.json" />
 :::
 
 ## FAQ

@@ -3,6 +3,8 @@ sidebar_position: 3
 title: Visualizing Wind Direction
 ---
 
+import FlowCard from '@site/src/components/FlowCard';
+
 # Tutorial: Visualizing Wind Directions with a Gauge
 
 Configure the [Gauge](./index.md) widget to act as a compass that follows wind direction in real time.
@@ -59,7 +61,7 @@ return direction;
 
 Use the DataVista range action card to define the datasource.
 
-![Range action card](/img/docs/datavista-action-card-set-range-flow.png)
+<FlowCard source="actions/set-range.json" />
 
 1. Pick an identifier such as **Wind gauge**.
 2. Set the minimum and maximum to `0` and `360`.
@@ -71,7 +73,7 @@ Use the DataVista range action card to define the datasource.
 
 Use the DataVista gauge configuration action card if you want to customize colors.
 
-![Gauge configuration action card](/img/docs/datavista-action-card-set-gauge-config-flow.jpg)
+<FlowCard source="actions/set-gauge-configuration.json" />
 
 1. Create an identifier such as **Visualization for wind gauge**.
 2. Configure your preferred color stops (for example, blue at position `0`).

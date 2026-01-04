@@ -3,6 +3,8 @@ sidebar_position: 4
 title: Status Badge
 ---
 
+import FlowCard from '@site/src/components/FlowCard';
+
 # Status Badge
 
 The **Status Badge** widget displays compact status updates with optional pulsing animations. Choose between **Badge**, **Bullet**, or **Named bullet** styles and customize colors to match your dashboard.
@@ -38,7 +40,7 @@ Drive the widget with boolean capabilities, Homey variables, or DataVista action
 :::warning
 To use a **DataVista value**, run the DataVista Status action card at least once so the value appears in the widget settings.
 
-![Set status action card](/img/docs/datavista-action-card-set-status.png)
+<FlowCard source="actions/set-status.json" />
 :::
 
 ## FAQ

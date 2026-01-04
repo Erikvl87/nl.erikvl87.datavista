@@ -1,0 +1,56 @@
+---
+sidebar_position: 6
+title: Flow Cards
+---
+
+import FlowCard from '@site/src/components/FlowCard';
+
+# Flow Cards
+
+DataVista provides several flow cards for your Homey flows. Use them to display values in widgets or customize their appearance.
+
+:::note
+Identifiers you define in these flow cards only become available in widget settings after the card has been triggered at least once. This is because the data is only saved when the flow actually runs.
+:::
+
+## Text
+
+This card allows you to set a text value that can be displayed in the [Label](widgets/label) widget.
+
+<FlowCard source="actions/set-text.json" />
+
+## Boolean
+
+This card sets a true/false value, useful for widgets like the [Toggle Switch](widgets/toggle-switch) and [Status Badge](widgets/status-badge) that visualize on/off states.
+
+<FlowCard source="actions/set-boolean.json" />
+
+## Percentage
+
+This card sets a percentage value between 0 and 100, ideal for widgets like the [Simple Gauge](widgets/gauge), [Advanced Gauge](widgets/gauge), or [Progress Bar](widgets/progress-bar).
+
+<FlowCard source="actions/set-percentage.json" />
+
+## Range
+
+This card sets a numeric value within custom min/max bounds, giving you more flexibility than a fixed 0-100 percentage. Compatible with the [Advanced Gauge](widgets/gauge) and [Progress Bar](widgets/progress-bar) widgets.
+
+<FlowCard source="actions/set-range.json" />
+
+## Status
+
+This card sets a status indicator combining a color and text, perfect for the [Status Badge](widgets/status-badge) widget to show states like "Online", "Warning", or "Error".
+
+<FlowCard source="actions/set-status.json" />
+
+## Gauge Configuration
+
+This card customizes the appearance of [Advanced Gauge](widgets/gauge) widgets by defining color gradients that change based on the displayed value.
+
+<FlowCard source="actions/set-gauge-configuration.json" />
+
+## Progress Bar Configuration
+
+This card customizes the appearance of [Progress Bar](widgets/progress-bar) widgets by defining color gradients that change based on the displayed value.
+
+<FlowCard source="actions/set-progress-bar-configuration.json" />

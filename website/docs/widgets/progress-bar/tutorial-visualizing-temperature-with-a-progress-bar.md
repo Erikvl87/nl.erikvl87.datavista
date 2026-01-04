@@ -3,6 +3,8 @@ sidebar_position: 2
 title: Visualizing Temperature
 ---
 
+import FlowCard from '@site/src/components/FlowCard';
+
 # Tutorial: Visualizing Temperature with a Progress Bar
 
 The [Progress Bar](./index.md) widget can display temperatures when you provide a numeric range through flows.
@@ -23,7 +25,7 @@ Create a flow that fires when your temperature sensor reports a new value. If th
 
 Add the DataVista range action card and link it to the trigger from step 2.
 
-![Range action card](/img/docs/datavista-action-card-set-range-flow.png)
+<FlowCard source="actions/set-range.json" />
 
 1. Choose an identifier such as **Living room temperature**.
 2. Enter the minimum and maximum values selected in step 1.

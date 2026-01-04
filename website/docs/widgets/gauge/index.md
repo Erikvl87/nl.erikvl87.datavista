@@ -3,6 +3,8 @@ sidebar_position: 1
 title: Gauge
 ---
 
+import FlowCard from '@site/src/components/FlowCard';
+
 # Gauge
 
 The **Gauge** widget provides a dynamic way to display numerical data such as temperature, humidity, or battery levels. Configure the widget to match your needs with adjustable ranges, colors, and styles.
@@ -58,20 +60,20 @@ The Advanced Gauge relies on DataVista action cards and offers more flexibility:
 :::warning
 The **datasource** must be created by running a DataVista action card that sets a percentage or range at least once before it appears in the widget settings.
 
-![Set percentage action card](/img/docs/datavista-action-card-set-percentage.jpg)
-![Set range action card](/img/docs/datavista-action-card-set-range-basic.png)
+<FlowCard source="actions/set-percentage.json" />
+<FlowCard source="actions/set-range.json" />
 :::
 
 :::warning
 The **configuration source** requires a DataVista action card to define gauge colors. Run it once before selecting it in the widget settings.
 
-![Set gauge configuration action card](/img/docs/datavista-action-card-set-gauge-config-widget.jpg)
+<FlowCard source="actions/set-gauge-configuration.json" />
 :::
 
 ## Tutorials
 
-- [Visualize hourly energy prices with a gauge](tutorial-visualizing-hourly-energy-prices-with-a-gauge.md)
-- [Visualize wind directions with a gauge](tutorial-visualizing-hourly-energy-prices-with-a-gauge-1.md)
+- [Visualize hourly energy prices with a gauge](tutorial-visualizing-hourly-energy-prices.md)
+- [Visualize wind directions with a gauge](tutorial-visualizing-wind-directions.md)
 
 ## FAQ
 
