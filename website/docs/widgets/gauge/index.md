@@ -54,7 +54,7 @@ The Advanced Gauge relies on DataVista action cards and offers more flexibility:
 | **Datasource\*** | A DataVista datasource (percentage or range) that feeds the gauge. |
 | **Configuration source\*** | A DataVista configuration that defines gauge colors and offsets. |
 | **Number of segments** | Sets the number of gauge segments; each segment border shows a value. |
-| **Style** | Choose between Style 1 (needle) or Style 2 (colored arc). |
+| **Style** | Choose **Style 1** (needle), **Style 2** (colored arc), or **Circular** (360° dial). |
 | **Transparent background** | Toggle between a solid tile or transparent background. |
 
 :::warning

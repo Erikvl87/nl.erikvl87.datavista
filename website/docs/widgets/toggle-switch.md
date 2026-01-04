@@ -27,13 +27,12 @@ The **Toggle Switch** widget provides a minimal display for boolean states such 
 | --- | --- |
 | **Datasource** | Select a DataVista boolean value*, device capability, or Homey variable. |
 | **Refresh interval** | Polling frequency when using device capabilities or variables. |
-| **Show name** | Display the datasource name. |
+| **Overwrite name** | Replace the datasource name with custom text. |
 | **Color if true** | Color when the value is `true`. |
 | **Color if false** | Color when the value is `false`. |
 | **FA icon code if true** | Font Awesome 6 (free, solid) Unicode for the `true` state icon. |
 | **FA icon code if false** | Font Awesome 6 (free, solid) Unicode for the `false` state icon. |
 | **Show icon** | Display the capability or device icon (capability takes priority). |
-| **Overwrite name** | Replace the datasource name with custom text. |
 
 :::warning
 To use a **DataVista boolean value**, run the DataVista action card that sets the value at least once so it appears in the widget settings.

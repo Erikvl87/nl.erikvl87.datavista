@@ -31,8 +31,8 @@ The **Label** widget shows short text values with optional horizontal scrolling 
 | **Refresh interval** | Polling frequency when using device capabilities or Homey variables. |
 | **Show icon** | Display the capability or device icon (capability takes priority). |
 | **Show name** | Display the datasource name. |
-| **Color if true** | Background color when the datasource resolves to `true`. |
 | **Overwrite name** | Replace the datasource name with custom text. |
+| **Transparent background** | Toggle between a solid tile or transparent background. |
 
 :::warning
 To use a **DataVista text value**, create a flow that sets the value via a DataVista action card and run it once so the value becomes selectable in the widget settings.
