@@ -3,14 +3,25 @@ sidebar_position: 3
 title: App Settings
 ---
 
-import FlowCard from '@site/src/components/FlowCard';
-
 # App Settings
 
-The app settings provide access to all DataVista percentage and range values, along with stored visualizations. Each item shows a **Last updated** timestamp that helps with debugging and removing stale entries.
+The app settings screen lets you manage all DataVista data and widget visualizations.
 
-![DataVista app settings screen](/img/docs/datavista-app-settings.gif)
+## Data
 
-Gauge visualizations can be managed directly from this screen. Add new configurations or adjust existing ones—such as color stops and offsets—to fine-tune how your gauges render. The same visualizations can be configured through DataVista flow action cards when you prefer automation.
+View and manage all data values created by [flow cards](flow-cards), including:
+- **Percentages** - Percentage values (0-100)
+- **Ranges** - Numeric values with custom min/max bounds
+- **Booleans** - True/false values
+- **Text** - Text strings
+- **Status** - Status indicators with color and text
 
-<FlowCard source="actions/set-gauge-configuration.json" />
+Each item shows a **Last updated** timestamp, which helps with debugging and identifying stale entries that can be removed.
+
+## Visualizations
+
+Create and manage appearance configurations for widgets:
+- **Gauges** - Color gradients for [Advanced Gauge](widgets/gauge) widgets
+- **Progress Bars** - Color gradients for [Progress Bar](widgets/progress-bar) widgets
+
+You can add new configurations directly from this screen, or create them through flow cards for automation. Each configuration uses a unique identifier that you link to a widget in its settings.
