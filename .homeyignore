@@ -1,1 +1,19 @@
-docs/**
+# Documentation
+website/**
+
+# Development files
+.github/**
+.vscode/**
+@types/**
+
+# Config files not needed at runtime
+.eslintrc.json
+.prettierrc
+tsconfig.json
+
+# Git files
+.gitignore
+.git/**
+
+# Source TypeScript files (compiled JS is used)
+*.mts
