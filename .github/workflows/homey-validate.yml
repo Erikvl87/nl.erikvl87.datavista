@@ -2,7 +2,11 @@ name: Validate Homey App
 on:
   workflow_dispatch:
   push:
+    paths-ignore:
+      - 'website/**'
   pull_request:
+    paths-ignore:
+      - 'website/**'
 
 jobs:
     main:
