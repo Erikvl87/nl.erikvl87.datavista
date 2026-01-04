@@ -124,5 +124,8 @@
   },
   "1.3.2": {
     "en": "Adds a legend font size configuration option to the line chart widget."
+  },
+  "1.3.3": {
+    "en": "Fixed a small visualization issue and removed auto-fill logic for datasource 2 in the line chart widget."
   }
 }
