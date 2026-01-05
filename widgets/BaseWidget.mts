@@ -24,6 +24,7 @@ export type DataSource = {
 	| 'lastYear'
 	| 'last2Years'
 	| 'today'
+	| 'thisHour'
 	| 'thisWeek'
 	| 'thisMonth'
 	| 'thisYear'

@@ -99,6 +99,14 @@ export class BaseWidgetApi {
 						result = this.mergeInsights(partialResult2, partialResult1);
 						break;
 					}
+					case 'thisHour': {
+						result = await this.getInsight(app, datasource.id, 'lastHour');
+						break;
+					}
+					case 'lastHour': {
+						result = await this.getInsight(app, datasource.id, 'last6Hours');
+						break;
+					}
 					case 'this60Minutes': {
 						result = await this.getInsight(app, datasource.id, 'lastHour');
 						break;

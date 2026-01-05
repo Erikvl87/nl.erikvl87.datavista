@@ -19,7 +19,7 @@ type NormalizedPoint = [Date, number | '-'];
 class LineChartWidgetApi extends BaseWidgetApi {
 	// Rolling resolutions map for quick checks
 	private static readonly rollingResolutionsSet = new Set([
-		'last60Minutes','this60Minutes','this6Hours','last6Hours','this12Hours','last12Hours','last24Hours','this24Hours','last7Days','this7Days','last31Days','this31Days','last365Days','this365Days'
+		'thisHour','lastHour','last60Minutes','this60Minutes','this6Hours','last6Hours','this12Hours','last12Hours','last24Hours','this24Hours','last7Days','this7Days','last31Days','this31Days','last365Days','this365Days'
 	]);
 	private static readonly minuteMs = 60 * 1000;
 	private static readonly hourMs = 60 * 60 * 1000;
@@ -213,10 +213,7 @@ class LineChartWidgetApi extends BaseWidgetApi {
 		const updatesIn = effectiveInsights?.updatesIn ?? 0;
 		const updatesInOldCalc = step - updatesIn; // TODO old implementation, need to verify!
 
-		let entries = effectiveInsights ? [...(effectiveInsights.values ?? []), effectiveInsights.lastValue] : [];
-		if (timeframe === 'hour' && entries.length) {
-			entries = LineChartWidgetApi.filterHourEntries(entries, period);
-		}
+		const entries = effectiveInsights ? [...(effectiveInsights.values ?? []), effectiveInsights.lastValue] : [];
 
 		const units =
 			results && (results as InsightWidgetDataPayload).data?.insight?.units
@@ -277,6 +274,18 @@ class LineChartWidgetApi extends BaseWidgetApi {
 		const dayMs = LineChartWidgetApi.dayMs;
 		
 		switch (timeframe) {
+			case 'thisHour': {
+				const hourStart = new Date(now);
+				hourStart.setMinutes(0, 0, 0);
+				const hourEnd = new Date(hourStart.getTime() + hourMs);
+				return { start: hourStart, end: hourEnd };
+			}
+			case 'lastHour': {
+				const thisHourStart = new Date(now);
+				thisHourStart.setMinutes(0, 0, 0);
+				const lastHourStart = new Date(thisHourStart.getTime() - hourMs);
+				return { start: lastHourStart, end: thisHourStart };
+			}
 			case 'this60Minutes': return { start: new Date(now - 60 * minuteMs), end: new Date(now) };
 			case 'last60Minutes': return { start: new Date(now - 120 * minuteMs), end: new Date(now - 60 * minuteMs) };
 			case 'this6Hours': return { start: new Date(now - 6 * hourMs), end: new Date(now) };
@@ -393,35 +402,6 @@ class LineChartWidgetApi extends BaseWidgetApi {
 		const start = entries[0][0];
 		const end = entries[entries.length - 1][0];
 		return { start, end };
-	}
-
-	/**
-	 * Narrows hour-based logs to a single contiguous sixty-minute span for the selected period.
-	 */
-	private static filterHourEntries(
-		entries: Array<{ t: string; v: number }>,
-		period: Period,
-	): Array<{ t: string; v: number }> {
-		if (!entries.length) return entries;
-		const last = new Date(entries[entries.length - 1].t);
-		const hourMs = LineChartWidgetApi.hourMs;
-		let start: Date;
-		let end: Date;
-
-		if (period === 'last') {
-			start = new Date(last.getTime() - hourMs);
-			start.setMinutes(0, 0, 0);
-			end = new Date(start.getTime() + hourMs);
-		} else {
-			start = new Date(last.getTime());
-			start.setMinutes(0, 0, 0);
-			end = last;
-		}
-
-		return entries.filter(({ t }) => {
-			const date = new Date(t);
-			return date >= start && date <= end;
-		});
 	}
 
 	/**

@@ -65,7 +65,11 @@ class LineChartWidgetScript {
 	private axisLabelCache: string[] = [];
 	private seriesVisibility: boolean[] = [true, true, true, true];
 	private configurationAnimationTimeout: NodeJS.Timeout | null | undefined;
-	private static readonly RESOLUTION_LOOKUP: Record<Exclude<Timeframe, 'hour'>, Record<Period, string>> = {
+	private static readonly RESOLUTION_LOOKUP: Record<Timeframe, Record<Period, string>> = {
+		hour: {
+			this: 'thisHour',
+			last: 'lastHour',
+		},
 		day: {
 			this: 'today',
 			last: 'yesterday',
@@ -182,8 +186,6 @@ class LineChartWidgetScript {
 	 * @returns The resolution string (e.g., 'today', 'thisWeek').
 	 */
 	private static getResolution(timeframe: Timeframe, period: Period): string {
-		if (timeframe === 'hour') return 'last6Hours';
-
 		const resolutionByPeriod = LineChartWidgetScript.RESOLUTION_LOOKUP[timeframe];
 		if (!resolutionByPeriod) throw new Error(`Unknown timeframe: ${timeframe}`);
 
@@ -350,8 +352,8 @@ class LineChartWidgetScript {
 			this.scheduleCountdown(result.updatesIn);
 		}
 
-		this.windowStart = result.windowStart;
-		this.windowEnd = result.windowEnd;
+		this.windowStart = result.windowStart ? new Date(result.windowStart) : null;
+		this.windowEnd = result.windowEnd ? new Date(result.windowEnd) : null;
 		this.shiftOffsetMs = [result.shiftOffsetMs1, result.shiftOffsetMs2, result.shiftOffsetMs3, result.shiftOffsetMs4];
 
 		await this.setData(
