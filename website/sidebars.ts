@@ -28,6 +28,7 @@ const sidebars: SidebarsConfig = {
       ],
     },
     'flow-cards',
+    'changelog',
   ],
 };
 

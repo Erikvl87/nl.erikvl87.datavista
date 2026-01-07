@@ -29,15 +29,24 @@ const config: Config = {
   onBrokenLinks: 'throw',
 
   plugins: [
-    function homeycomposeAliasPlugin() {
+    function aliasPlugin() {
       return {
-        name: 'homeycompose-alias-plugin',
+        name: 'alias-plugin',
         configureWebpack() {
           return {
             resolve: {
               alias: {
                 '@homeycompose': path.resolve(__dirname, '../.homeycompose'),
+                '@root': path.resolve(__dirname, '..'),
               },
+            },
+            module: {
+              rules: [
+                {
+                  test: /\.homeychangelog\.json$/,
+                  type: 'json',
+                },
+              ],
             },
           };
         },

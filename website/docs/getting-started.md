@@ -8,7 +8,7 @@ title: Getting Started
 
 1. **Homey Pro**: DataVista is designed specifically for Homey Pro. Ensure you have a Homey Pro device.
 2. **Homey Mobile App**: You need v9.0.0 or newer of the Homey mobile app.
-3. **Homey Pro Firmware**: Make sure your Homey Pro is updated to version **12.1.0** or newer.
+3. **Homey Pro Firmware**: Make sure your Homey Pro is updated to version **12.1.2** or newer.
 
 :::info
 See [https://homey.app/en-us/news/introducing-homey-dashboards/](https://homey.app/en-us/news/introducing-homey-dashboards/) for more information.
