@@ -79,8 +79,6 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          editUrl:
-            'https://github.com/Erikvl87/nl.erikvl87.datavista/tree/main/website/',
         },
         blog: false,
         theme: {
