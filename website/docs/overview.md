@@ -1,6 +1,5 @@
 ---
-id: intro
-sidebar_position: 1
+id: overview
 sidebar_label: Overview
 title: DataVista
 ---
