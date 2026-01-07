@@ -29,6 +29,17 @@ const config: Config = {
   onBrokenLinks: 'throw',
 
   plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          {
+            from: '/widgets/gauge/tutorial-visualizing-hourly-energy-prices-with-a-gauge',
+            to: '/docs/widgets/gauge/tutorial-visualizing-hourly-energy-prices',
+          },
+        ],
+      },
+    ],
     function aliasPlugin() {
       return {
         name: 'alias-plugin',
