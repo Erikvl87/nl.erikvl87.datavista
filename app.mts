@@ -21,6 +21,7 @@ import LineChartWidget from './widgets/line-chart/LineChartWidget.mjs';
 import ActionSetProgressBarConfiguration from './actions/ActionSetProgressBarConfiguration.mjs';
 import { ProgressBarWidgetData, ProgressBarWidgetSettings } from './datavistasettings/ProgressBarWidgetSettings.mjs';
 import ColorUtils from './common/ColorUtils.mjs';
+import ScatterPlotWidget from './widgets/scatter-plot/ScatterPlotWidget.mjs';
 import { createGetSvgForUrl } from './services/getSvgForUrl.mjs';
 import { createGetConfigsource } from './services/getConfigsource.mjs';
 import { createGetDatasource, WidgetDataPayload } from './services/getDatasource.mjs';
@@ -59,6 +60,7 @@ export default class DataVista extends Homey.App {
 		await LabelWidget.initialize(this.homey, this.homeyApi, this.logger);
 		await StatusBadgeWidget.initialize(this.homey, this.homeyApi, this.logger);
 		await LineChartWidget.initialize(this.homey, this.homeyApi, this.logger);
+		await ScatterPlotWidget.initialize(this.homey, this.homeyApi, this.logger);
 
 		await ActionSetDataPercentage.initialize(this.homey, this.logger);
 		await ActionSetRange.initialize(this.homey, this.logger);

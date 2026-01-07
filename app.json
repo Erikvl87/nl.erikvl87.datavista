@@ -2325,6 +2325,467 @@
       },
       "id": "progress-bar"
     },
+    "scatter-plot": {
+      "name": {
+        "en": "Scatter Plot",
+        "nl": "Spreidingsdiagram"
+      },
+      "height": 280,
+      "transparent": true,
+      "settings": [
+        {
+          "id": "timeframe",
+          "type": "dropdown",
+          "title": {
+            "en": "Timeframe",
+            "nl": "Tijdsbestek"
+          },
+          "value": "day",
+          "values": [
+            {
+              "id": "hour",
+              "title": {
+                "en": "Hour",
+                "nl": "Uur"
+              }
+            },
+            {
+              "id": "day",
+              "title": {
+                "en": "Day",
+                "nl": "Dag"
+              }
+            },
+            {
+              "id": "week",
+              "title": {
+                "en": "Week",
+                "nl": "Week"
+              }
+            },
+            {
+              "id": "month",
+              "title": {
+                "en": "Month",
+                "nl": "Maand"
+              }
+            },
+            {
+              "id": "year",
+              "title": {
+                "en": "Year",
+                "nl": "Jaar"
+              }
+            },
+            {
+              "id": "60minutes",
+              "title": {
+                "en": "60 minutes",
+                "nl": "60 minuten"
+              }
+            },
+            {
+              "id": "6hours",
+              "title": {
+                "en": "6 hours",
+                "nl": "6 uur"
+              }
+            },
+            {
+              "id": "12hours",
+              "title": {
+                "en": "12 hours",
+                "nl": "12 uur"
+              }
+            },
+            {
+              "id": "24hours",
+              "title": {
+                "en": "24 hours",
+                "nl": "24 uur"
+              }
+            },
+            {
+              "id": "7days",
+              "title": {
+                "en": "7 days",
+                "nl": "7 dagen"
+              }
+            },
+            {
+              "id": "31days",
+              "title": {
+                "en": "31 days",
+                "nl": "31 dagen"
+              }
+            },
+            {
+              "id": "365days",
+              "title": {
+                "en": "365 days",
+                "nl": "365 dagen"
+              }
+            }
+          ]
+        },
+        {
+          "id": "datasourceX",
+          "type": "autocomplete",
+          "title": {
+            "en": "X-axis",
+            "nl": "X-as"
+          }
+        },
+        {
+          "id": "color",
+          "type": "dropdown",
+          "title": {
+            "en": "Color",
+            "nl": "Kleur"
+          },
+          "values": [
+            {
+              "id": "#00ff00",
+              "title": {
+                "en": "Green",
+                "nl": "Groen"
+              }
+            },
+            {
+              "id": "#ff0000",
+              "title": {
+                "en": "Red",
+                "nl": "Rood"
+              }
+            },
+            {
+              "id": "#ffff00",
+              "title": {
+                "en": "Yellow",
+                "nl": "Geel"
+              }
+            },
+            {
+              "id": "#0000ff",
+              "title": {
+                "en": "Blue",
+                "nl": "Blauw"
+              }
+            },
+            {
+              "id": "#ffa500",
+              "title": {
+                "en": "Orange",
+                "nl": "Oranje"
+              }
+            },
+            {
+              "id": "#808080",
+              "title": {
+                "en": "Gray",
+                "nl": "Grijs"
+              }
+            },
+            {
+              "id": "#800080",
+              "title": {
+                "en": "Purple",
+                "nl": "Paars"
+              }
+            },
+            {
+              "id": "#a52a2a",
+              "title": {
+                "en": "Brown",
+                "nl": "Bruin"
+              }
+            },
+            {
+              "id": "#000000",
+              "title": {
+                "en": "Black",
+                "nl": "Zwart"
+              }
+            },
+            {
+              "id": "#00ffff",
+              "title": {
+                "en": "Cyan",
+                "nl": "Cyaan"
+              }
+            },
+            {
+              "id": "#ff00ff",
+              "title": {
+                "en": "Magenta",
+                "nl": "Magenta"
+              }
+            },
+            {
+              "id": "#32cd32",
+              "title": {
+                "en": "Lime Green",
+                "nl": "Limoengroen"
+              }
+            },
+            {
+              "id": "#ff4500",
+              "title": {
+                "en": "Orange Red",
+                "nl": "Oranjerood"
+              }
+            },
+            {
+              "id": "#1e90ff",
+              "title": {
+                "en": "Dodger Blue",
+                "nl": "Hemelsblauw"
+              }
+            },
+            {
+              "id": "#4b0082",
+              "title": {
+                "en": "Indigo",
+                "nl": "Indigo"
+              }
+            },
+            {
+              "id": "#daa520",
+              "title": {
+                "en": "Goldenrod",
+                "nl": "Goudgeel"
+              }
+            },
+            {
+              "id": "#8b4513",
+              "title": {
+                "en": "Saddle Brown",
+                "nl": "Zadelbruin"
+              }
+            },
+            {
+              "id": "#48d1cc",
+              "title": {
+                "en": "Medium Turquoise",
+                "nl": "Turkoois"
+              }
+            },
+            {
+              "id": "#ff1493",
+              "title": {
+                "en": "Deep Pink",
+                "nl": "Dieproze"
+              }
+            },
+            {
+              "id": "contrast",
+              "title": {
+                "en": "Contrast",
+                "nl": "Contrast"
+              }
+            }
+          ],
+          "value": "#32cd32"
+        },
+        {
+          "id": "overwriteNameX",
+          "type": "text",
+          "title": {
+            "en": "Overwrite X-axis name",
+            "nl": "Overschrijf X-as naam"
+          },
+          "value": ""
+        },
+        {
+          "id": "datasourceY",
+          "type": "autocomplete",
+          "title": {
+            "en": "Y-axis",
+            "nl": "Y-as"
+          }
+        },
+        {
+          "id": "overwriteNameY",
+          "type": "text",
+          "title": {
+            "en": "Overwrite Y-axis name",
+            "nl": "Overschrijf Y-as naam"
+          },
+          "value": ""
+        },
+        {
+          "id": "period",
+          "type": "dropdown",
+          "title": {
+            "en": "Period",
+            "nl": "Periode"
+          },
+          "value": "this",
+          "values": [
+            {
+              "id": "this",
+              "title": {
+                "en": "This period",
+                "nl": "Deze periode"
+              }
+            },
+            {
+              "id": "last",
+              "title": {
+                "en": "Last period",
+                "nl": "Vorige periode"
+              }
+            }
+          ]
+        },
+        {
+          "id": "xMin",
+          "type": "text",
+          "title": {
+            "en": "X-axis minimum",
+            "nl": "X-as minimum"
+          },
+          "hint": {
+            "en": "Enter a number, or leave empty for automatic scaling",
+            "nl": "Voer een getal in, of laat leeg voor automatisch bepalen"
+          },
+          "value": ""
+        },
+        {
+          "id": "xMax",
+          "type": "text",
+          "title": {
+            "en": "X-axis maximum",
+            "nl": "X-as maximum"
+          },
+          "hint": {
+            "en": "Enter a number, or leave empty for automatic scaling",
+            "nl": "Voer een getal in, of laat leeg voor automatisch bepalen"
+          },
+          "value": ""
+        },
+        {
+          "id": "yMin",
+          "type": "text",
+          "title": {
+            "en": "Y-axis minimum",
+            "nl": "Y-as minimum"
+          },
+          "hint": {
+            "en": "Enter a number, or leave empty for automatic scaling",
+            "nl": "Voer een getal in, of laat leeg voor automatisch bepalen"
+          },
+          "value": ""
+        },
+        {
+          "id": "yMax",
+          "type": "text",
+          "title": {
+            "en": "Y-axis maximum",
+            "nl": "Y-as maximum"
+          },
+          "hint": {
+            "en": "Enter a number, or leave empty for automatic scaling",
+            "nl": "Voer een getal in, of laat leeg voor automatisch bepalen"
+          },
+          "value": ""
+        },
+        {
+          "id": "showTrendline",
+          "type": "checkbox",
+          "title": {
+            "en": "Show trendline",
+            "nl": "Toon trendlijn"
+          },
+          "value": false
+        },
+        {
+          "id": "showCorrelation",
+          "type": "checkbox",
+          "title": {
+            "en": "Show correlation (R²)",
+            "nl": "Toon correlatie (R²)"
+          },
+          "value": false
+        },
+        {
+          "id": "showSampleSize",
+          "type": "checkbox",
+          "title": {
+            "en": "Show sample size (n)",
+            "nl": "Toon steekproefgrootte (n)"
+          },
+          "value": false
+        },
+        {
+          "id": "showRefreshCountdown",
+          "type": "checkbox",
+          "title": {
+            "en": "Show refresh countdown",
+            "nl": "Toon aftelklok"
+          },
+          "value": false
+        },
+        {
+          "id": "tooltipFontSize",
+          "type": "dropdown",
+          "title": {
+            "en": "Tooltip font size",
+            "nl": "Lettergrootte tooltip"
+          },
+          "value": "1em",
+          "values": [
+            {
+              "id": "0.8em",
+              "title": {
+                "en": "Small",
+                "nl": "Klein"
+              }
+            },
+            {
+              "id": "1em",
+              "title": {
+                "en": "Normal",
+                "nl": "Normaal"
+              }
+            },
+            {
+              "id": "1.3em",
+              "title": {
+                "en": "Large",
+                "nl": "Groot"
+              }
+            },
+            {
+              "id": "1.5em",
+              "title": {
+                "en": "Extra large",
+                "nl": "Extra groot"
+              }
+            }
+          ]
+        }
+      ],
+      "api": {
+        "datasource": {
+          "method": "POST",
+          "path": "/datasource"
+        },
+        "logMessage": {
+          "method": "POST",
+          "path": "/logMessage"
+        },
+        "logError": {
+          "method": "POST",
+          "path": "/logError"
+        },
+        "getTimeAndLanguage": {
+          "method": "GET",
+          "path": "/getTimeAndLanguage"
+        }
+      },
+      "id": "scatter-plot"
+    },
     "simple-gauge": {
       "name": {
         "en": "Simple gauge",
