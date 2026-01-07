@@ -68,9 +68,9 @@ class LineChartWidgetApi extends BaseWidgetApi {
 		const settings = body.settings as {
 			timeframe: Timeframe;
 			period1: Period;
-			period2?: Period;
-			period3?: Period;
-			period4?: Period;
+			period2: Period;
+			period3: Period;
+			period4: Period;
 		};
 
 		const datasourceConfigs: Array<{
@@ -78,9 +78,9 @@ class LineChartWidgetApi extends BaseWidgetApi {
 			period: Period;
 		}> = [
 			{ datasource: body.datasource1, period: settings.period1 ?? 'this' },
-			{ datasource: body.datasource2, period: settings.period2 ?? settings.period1 ?? 'this' },
-			{ datasource: body.datasource3, period: settings.period3 ?? settings.period1 ?? 'this' },
-			{ datasource: body.datasource4, period: settings.period4 ?? settings.period1 ?? 'this' },
+			{ datasource: body.datasource2, period: settings.period2 },
+			{ datasource: body.datasource3, period: settings.period3 },
+			{ datasource: body.datasource4, period: settings.period4 },
 		];
 
 		const activePeriods = datasourceConfigs

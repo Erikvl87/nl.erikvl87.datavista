@@ -31,8 +31,8 @@ type Settings = {
 	timeframe: Timeframe;
 	period1: Period;
 	period2: Period;
-	period3?: Period;
-	period4?: Period;
+	period3: Period;
+	period4: Period;
 	yAxisCalculationMethod: 'fullRange' | 'iqr' | 'sameAxis';
 	hideLegend: boolean;
 	tooltipFontSize: string;
@@ -155,8 +155,8 @@ class LineChartWidgetScript {
 		this.homey = homey;
 		this.resolution1 = LineChartWidgetScript.getResolution(this.settings.timeframe, this.settings.period1);
 		this.resolution2 = LineChartWidgetScript.getResolution(this.settings.timeframe, this.settings.period2);
-		this.resolution3 = LineChartWidgetScript.getResolution(this.settings.timeframe, this.settings.period3 ?? this.settings.period1);
-		this.resolution4 = LineChartWidgetScript.getResolution(this.settings.timeframe, this.settings.period4 ?? this.settings.period1);
+		this.resolution3 = LineChartWidgetScript.getResolution(this.settings.timeframe, this.settings.period3);
+		this.resolution4 = LineChartWidgetScript.getResolution(this.settings.timeframe, this.settings.period4);
 	}
 
 	/**
