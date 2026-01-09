@@ -123,6 +123,10 @@ class LineChartWidgetScript {
 	data2?: [Date, number | '-'][];
 	data3?: [Date, number | '-'][];
 	data4?: [Date, number | '-'][];
+	hasData1: boolean = false;
+	hasData2: boolean = false;
+	hasData3: boolean = false;
+	hasData4: boolean = false;
 	units1: string = '';
 	units2: string = '';
 	units3: string = '';
@@ -386,6 +390,11 @@ class LineChartWidgetScript {
 		this.data2 = normalize(data2);
 		this.data3 = normalize(data3);
 		this.data4 = normalize(data4);
+
+		this.hasData1 = this.data1.length > 0;
+		this.hasData2 = this.data2.length > 0;
+		this.hasData3 = this.data3.length > 0;
+		this.hasData4 = this.data4.length > 0;
 
 		this.units1 = units1;
 		this.units2 = units2;
@@ -1108,6 +1117,12 @@ class LineChartWidgetScript {
 
 		// resize due to toggles being shown/hidden
 		this.chart.resize();
+
+		// Clear data arrays to free memory - ECharts has already copied the data
+		this.data1 = undefined;
+		this.data2 = undefined;
+		this.data3 = undefined;
+		this.data4 = undefined;
 	}
 
 	/**
@@ -1180,11 +1195,11 @@ class LineChartWidgetScript {
 	private updateAxisLabelVisibility(): void {
 		if (!this.chart) return;
 
-		const datasets = [
-			this.data1 ?? [],
-			this.data2 ?? [],
-			this.data3 ?? [],
-			this.data4 ?? [],
+		const hasDataFlags = [
+			this.hasData1,
+			this.hasData2,
+			this.hasData3,
+			this.hasData4,
 		];
 
 		const axisDefinitions = this.axisDefinitions.length
@@ -1200,8 +1215,7 @@ class LineChartWidgetScript {
 			return this.seriesNameByDatasetIndex.some((legendName, datasetIndex) => {
 				if (!legendName) return false;
 				if (this.axisAssignments[datasetIndex] !== axisIndex) return false;
-				const dataset = datasets[datasetIndex];
-				if (!dataset?.length) return false;
+				if (!hasDataFlags[datasetIndex]) return false;
 				return this.seriesVisibility[datasetIndex];
 			});
 		});
