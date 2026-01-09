@@ -9,6 +9,7 @@ import { RangeData } from '../datavistasettings/RangeSettings.mjs';
 import DataVistaLogger from '../DataVistaLogger.mjs';
 import { TextData } from '../datavistasettings/TextSettings.mjs';
 import { StatusData } from '../datavistasettings/StatusSettings.mjs';
+import DeviceCache from '../common/DeviceCache.mjs';
 
 // TODO abstraction & per type?
 export type DataSource = {
@@ -77,8 +78,8 @@ export class BaseWidget {
 	protected homeyApi: ExtendedHomeyAPIV3Local;
 	protected logger: DataVistaLogger;
 
-	// TODO to a singleton for the whole app
-	private deviceCache: Map<string, ExtendedDevice> = new Map();
+	// Singleton device cache shared across all widget instances
+	private deviceCache = DeviceCache.getInstance();
 
 	constructor(homey: Homey, homeyApi: ExtendedHomeyAPIV3Local, logger: DataVistaLogger) {
 		this.homey = homey;
@@ -302,9 +303,9 @@ export class BaseWidget {
 							if (insight.ownerUri.startsWith('homey:device:')) {
 								const deviceId = insight.ownerUri.split('homey:device:')[1];
 								try {
-									const device = this.deviceCache.get(deviceId);
-									if (device) {
-										deviceName = device.name;
+									const cachedDevice = this.deviceCache.get(deviceId);
+									if (cachedDevice) {
+										deviceName = cachedDevice.name;
 									} else {
 										const device = await this.homeyApi.devices.getDevice({ id: deviceId });
 										deviceName = device.name;
