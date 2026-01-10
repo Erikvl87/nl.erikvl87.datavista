@@ -1,5 +1,5 @@
 import { ExtendedInsightsLogs, ExtendedLog } from 'homey-api';
-import type { ApiRequest } from '../../Types.mjs';
+import type { ApiRequest } from '../../@types/api-types.js';
 import { BaseWidgetApi } from '../BaseWidgetApi.mjs';
 import type { DataSource } from '../BaseWidget.mjs';
 import DataVista from '../../app.mjs';

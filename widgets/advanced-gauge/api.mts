@@ -1,6 +1,6 @@
 import { BaseSettings } from "../../datavistasettings/BaseSettings.mjs";
 import { AdvancedGaugeWidgetData } from "../../datavistasettings/AdvancedGaugeWidgetSettings.mjs";
-import type { ApiRequest } from "../../Types.mjs";
+import type { ApiRequest } from '../../@types/api-types.js';
 import { BaseWidgetApi, WidgetDataPayload } from "../BaseWidgetApi.mjs";
 
 export type AdvancedGaugeWidgetPayload = { data: WidgetDataPayload | null, config?: AdvancedGaugeWidgetData | null };
