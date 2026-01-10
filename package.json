@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@xmldom/xmldom": "^0.9.5",
-    "crypto-js": "^4.2.0",
     "homey-api": "^3.6.6",
     "homey-log": "^2.1.0",
     "node-fetch": "^2.7.0"
