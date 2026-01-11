@@ -12,34 +12,31 @@ import {
 import ProgressBarWidget from './widgets/progress-bar/ProgressBarWidget.mjs';
 import ToggleSwitchWidget from './widgets/toggle-switch/ToggleSwitchWidget.mjs';
 import ActionSetDataBoolean from './actions/ActionSetDataBoolean.mjs';
-import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
 import DataVistaLogger from './DataVistaLogger.mjs';
 import LabelWidget from './widgets/label/LabelWidget.mjs';
 import ActionSetDataString from './actions/ActionSetDataString.mjs';
 import StatusBadgeWidget from './widgets/status-badge/StatusBadgeWidget.mjs';
 import ActionSetDataColor from './actions/ActionSetDataStatus.mjs';
-import { ExtendedError } from './common/ExtendedError.mjs';
 import LineChartWidget from './widgets/line-chart/LineChartWidget.mjs';
 import ActionSetProgressBarConfiguration from './actions/ActionSetProgressBarConfiguration.mjs';
 import { ProgressBarWidgetData, ProgressBarWidgetSettings } from './datavistasettings/ProgressBarWidgetSettings.mjs';
 import ColorUtils from './common/ColorUtils.mjs';
+import { createGetSvgForUrl } from './services/getSvgForUrl.mjs';
+import { createGetConfigsource } from './services/getConfigsource.mjs';
+import { createGetDatasource, WidgetDataPayload } from './services/getDatasource.mjs';
+import { isDataType } from './services/isDataType.mjs';
+import { BaseSettings } from './datavistasettings/BaseSettings.mjs';
+import { DataSource } from './widgets/BaseWidget.mjs';
 
-let fetch: typeof globalThis.fetch;
-
-void (async (): Promise<void> => {
-	if (typeof globalThis.fetch === 'function') {
-		fetch = globalThis.fetch; // Use native fetch if available
-	} else {
-		// Dynamically import node-fetch for older environments
-		const { default: nodeFetch } = await import('node-fetch');
-		fetch = nodeFetch as unknown as typeof fetch;
-	}
-})();
+export type { WidgetDataPayload };
 
 export default class DataVista extends Homey.App {
 	homeyApi!: ExtendedHomeyAPIV3Local;
 	logger!: DataVistaLogger;
 	colorUtils!: ColorUtils;
+	getSvgForUrl!: (url: string, color: string | null) => Promise<string>;
+	getConfigsource!: <T>(configsource: string) => BaseSettings<T> | null;
+	getDatasource!: (datasource: DataSource) => Promise<WidgetDataPayload | null>;
 
 	public override async onInit(): Promise<void> {
 		this.logger = await DataVistaLogger.initialize(this.homey, this.log, this.error);
@@ -50,6 +47,10 @@ export default class DataVista extends Homey.App {
 		});
 
 		this.colorUtils = ColorUtils.initialize(this.homey, this.logger);
+
+		this.getSvgForUrl = createGetSvgForUrl(this.logger);
+		this.getConfigsource = createGetConfigsource(this.homey, this.logger);
+		this.getDatasource = createGetDatasource(this.homey, this.homeyApi, this.logger);
 
 		await SimpleGaugeWidget.initialize(this.homey, this.homeyApi, this.logger);
 		await AdvancedGaugeWidget.initialize(this.homey, this.homeyApi, this.logger);
@@ -136,74 +137,26 @@ export default class DataVista extends Homey.App {
 		settings.setSettings(this.homey, this.logger);
 	}
 
+
+
 	/**
-	 * Get the svg source for a given url.
-	 * @param url The url to fetch the svg from.
-	 * @param darken If the svg should be darkened.
-	 * @returns The svg source.
+	 * Check if the payload is of a certain data type.
+	 * @param payload The widget data payload.
+	 * @param options Data type options to check.
+	 * @returns True if the payload matches the specified data type.
 	 */
-	public async getSvgForUrl(url: string, color: string | null): Promise<string> {
-		try {
-			const response = await fetch(url);
-			if (!response.ok) throw new ExtendedError('Invalid response while fetching icon. Status: ', { response });
-
-			if (!response.headers.get('content-type')?.includes('image/svg+xml'))
-				throw new ExtendedError('Invalid content type while fetching icon.', { response });
-
-			let iconSvgSource = await response.text();
-			if (color == null) return iconSvgSource;
-
-			const parser = new DOMParser();
-			const svgDoc = parser.parseFromString(iconSvgSource, 'image/svg+xml');
-
-			const elementsToUpdate = [
-				...Array.from(svgDoc.getElementsByTagName('rect')),
-				...Array.from(svgDoc.getElementsByTagName('text')),
-				...Array.from(svgDoc.getElementsByTagName('path')),
-				...Array.from(svgDoc.getElementsByTagName('*')).filter(
-					el =>
-						(el.hasAttribute('fill') && el.getAttribute('fill') !== 'none') ||
-						(el.hasAttribute('stroke') && el.getAttribute('stroke') !== 'none'),
-				),
-			];
-
-			elementsToUpdate.forEach(el => {
-				if (el.hasAttribute('fill') && el.getAttribute('fill') !== 'none') {
-					el.setAttribute('fill', color);
-				}
-				if (el.hasAttribute('stroke') && el.getAttribute('stroke') !== 'none') {
-					el.setAttribute('stroke', color);
-				}
-				if (el.tagName === 'rect' || el.tagName === 'text') {
-					const style = el.getAttribute('style');
-					if (style && style.includes('fill:')) {
-						el.setAttribute('style', style.replace(/fill:[^;"]*;?/, `fill:${color};`));
-					}
-				}
-			});
-
-			const paths = svgDoc.getElementsByTagName('path');
-			for (let i = 0; i < paths.length; i++) {
-				const path = paths[i];
-				if (!path.hasAttribute('fill')) {
-					path.setAttribute('fill', color);
-				}
-			}
-
-			const styles = svgDoc.getElementsByTagName('style');
-			for (let i = 0; i < styles.length; i++) {
-				const style = styles[i];
-				if (style.textContent) {
-					style.textContent = style.textContent.replace(/fill:[^;]+;/g, `fill:${color};`);
-				}
-			}
-
-			iconSvgSource = new XMLSerializer().serializeToString(svgDoc);
-
-			return iconSvgSource;
-		} catch (error) {
-			void this.logger.logException(error);
-			throw error;
-		}
+	public isDataType(
+		payload: WidgetDataPayload,
+		options: {
+			status?: boolean;
+			string?: boolean;
+			boolean?: boolean;
+			percentage?: boolean;
+			number?: boolean;
+			range?: boolean;
+			datapoint?: boolean;
+		},
+	): boolean {
+		return isDataType(payload, options);
 	}
 }

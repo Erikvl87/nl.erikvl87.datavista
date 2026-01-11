@@ -178,7 +178,7 @@ class LineChartWidgetApi extends BaseWidgetApi {
 	} | null> {
 		const results = datasource ? await this.getDatasource(app, datasource) : null;
 
-		if (results !== null && !BaseWidgetApi.isDataType(results, { datapoint: true })) {
+		if (results !== null && !BaseWidgetApi.isDataType(app, results, { datapoint: true })) {
 			void app.logger.logMessage(
 				`[${this.constructor.name}]: Unsupported data type for widget: ${results.type}`,
 				true,

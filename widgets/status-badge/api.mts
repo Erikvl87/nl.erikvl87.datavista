@@ -6,7 +6,7 @@ class StatusBadgeWidgetApi extends BaseWidgetApi {
 		datasource: WidgetDataPayload | null;
 	}> {
 		let datasource = await this.getDatasource(homey.app, body.datasource);
-		if (datasource && !BaseWidgetApi.isDataType(datasource, { boolean: true, status: true })) {
+		if (datasource && !BaseWidgetApi.isDataType(homey.app, datasource, { boolean: true, status: true })) {
 			void homey.app.logger.logMessage(`[${this.constructor.name}]: Unsupported datasource type for widget: ${datasource.type}`, true, datasource);
 			datasource = null;
 		}
