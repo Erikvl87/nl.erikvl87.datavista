@@ -17,3 +17,9 @@ tsconfig.json
 
 # Source TypeScript files (compiled JS is used)
 *.mts
+
+# All source maps
+**/*.map
+
+# Build script itself
+build.mjs

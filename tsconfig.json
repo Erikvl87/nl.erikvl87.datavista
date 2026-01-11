@@ -7,7 +7,7 @@
     "noUncheckedSideEffectImports": true,
     "outDir": ".homeybuild",
     "skipLibCheck": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "strict": true,
     "target": "ES2023"
   },

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node build.mjs",
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore ."
   },
   "devDependencies": {
@@ -13,8 +13,10 @@
     "@types/node-fetch": "^2.6.12",
     "@types/xmldom": "^0.1.34",
     "echarts": "^6.0.0",
+    "esbuild": "^0.27.2",
     "eslint": "^7.32.0",
     "eslint-config-athom": "^3.1.3",
+    "glob": "^13.0.0",
     "typescript": "^5.6.3"
   },
   "dependencies": {
