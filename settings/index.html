@@ -1,275 +1,237 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<!-- The '/homey.js' script must be included in your settings view to work -->
 		<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-		<style>
-			.menu {
-				margin-bottom: 10px;
-			}
-			.data-row {
-				display: flex;
-				flex-direction: column;
-				margin-bottom: 10px;
-				padding: 10px;
-				border: 1px solid #ccc;
-				border-radius: 5px;
-				background-color: #f9f9f9;
-				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-			}
-			.data-row div {
-				flex: 1;
-			}
-			.data-row .input-group {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-			}
-			.remove-button {
-				margin-bottom: 5px !important;
-			}
-			.container-header {
-				margin-top: 20px;
-				font-size: 1.5em;
-				color: #333;
-				display: none;
-				margin-bottom: 10px;
-			}
-			.identifier-label {
-				font-weight: bold;
-			}
-			.data-field-row {
-				display: flex;
-				flex-direction: column;
-			}
-			.input-group {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-			}
-			.input-group label {
-				width: 100px;
-				text-align: left;
-				margin-right: 10px;
-			}
-			.input-group label.sublabel {
-				margin-left: 15px;
-				width: 50px;
-				margin-right: 5px;
-			}
-			.input-group input:not([type="checkbox"]) {
-				flex: 1;
-			}
-			.input-group input.hex {
-				margin-left: 10px;
-			}
-			.input-group .save-button {
-				margin-right: auto;
-			}
-			.input-group .remove-button {
-				margin-left: auto;
-			}
-			.tabs {
-				display: flex;
-				cursor: pointer;
-				margin-bottom: 10px;
-				border-bottom: 1px solid #ccc;
-			}
-			.tab {
-				padding: 10px 20px;
-				border: 1px solid #ccc;
-				border-bottom: none;
-				background-color: #f1f1f1;
-				margin-right: 5px;
-			}
-			.tab.active {
-				background-color: #fff;
-				border-top: 2px solid #0078d4;
-				font-weight: bold;
-			}
-			.tab-content {
-				display: none;
-			}
-			.tab-content.active {
-				display: block;
-			}
-			.dropdown {
-				position: relative;
-				display: inline-block;
-			}
-			.dropdown-content {
-				display: none;
-				position: absolute;
-				background-color: #f9f9f9;
-				min-width: 160px;
-				box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-				z-index: 1;
-			}
-			.dropdown-content a {
-				color: black;
-				padding: 12px 16px;
-				text-decoration: none;
-				display: block;
-			}
-			.dropdown-content a:hover {
-				background-color: #f1f1f1;
-			}
-			.dropdown:hover .dropdown-content {
-				display: block;
-			}
-			.dropdown:hover .dropbtn {
-				background-color: #3e8e41;
-			}
-			.clear-button {
-				background: none !important;
-				border: none !important;
-				color: #999 !important;
-				cursor: pointer !important;
-				font-size: 0.8em !important;
-				margin-right: 5px !important;
-				padding: 0 !important;
-			}
-			.clear-button:hover {
-				color: #333;
-			}
-			.modal {
-				display: none;
-				position: fixed;
-				z-index: 1;
-				left: 0;
-				top: 0;
-				width: 100%;
-				height: 100%;
-				overflow: auto;
-				background-color: rgb(0, 0, 0);
-				background-color: rgba(0, 0, 0, 0.4);
-			}
-			.modal-content {
-				background-color: #fefefe;
-				margin: 15% auto;
-				padding: 20px;
-				border: 1px solid #888;
-				width: 80%;
-				max-width: 300px;
-			}
-			.close-button {
-				color: #aaa;
-				float: right;
-				font-size: 28px;
-				font-weight: bold;
-			}
-			.close-button:hover,
-			.close-button:focus {
-				color: black;
-				text-decoration: none;
-				cursor: pointer;
-			}
-
-			button.add-settings {
-				margin-bottom: 10px;
-			}
-
-			#modal-submit-button {
-				margin-top: 10px;
-			}
-		</style>
+		<link rel="stylesheet" href="index.css">
 	</head>
 
 	<body>
-		<div class="description">
-			<p>Manage your DataVista settings, clean up unused settings, and configure advanced widget visualizations.</p>
-			<p>For more information, visit the <a href="https://datavista.erikvl87.nl" target="_blank">DataVista documentation website</a>.</p>
-		</div>
-		<div class="menu">
-			<div class="dropdown">
-				<button class="dropbtn">Data</button>
-				<div class="dropdown-content">
-					<a href="#" data-target="#percentage-container">Percentages</a>
-					<a href="#" data-target="#range-container">Ranges</a>
-					<a href="#" data-target="#boolean-container">Booleans</a>
-					<a href="#" data-target="#text-container">Text</a>
-					<a href="#" data-target="#status-container">Status</a>
-				</div>
-			</div>
-			<div class="dropdown">
-				<button class="dropbtn">Visualizations</button>
-				<div class="dropdown-content">
-					<a href="#" data-target="#gauge-container">Gauges</a>
-					<a href="#" data-target="#progress-bar-container">Progress Bars</a>
-				</div>
-			</div>
+		<div class="header">
+			<p>View and manage all data and visualizations created by flows, which can be utilized in DataVista widgets. For more information, visit the <a href="https://datavista.erikvl87.nl" target="_blank">DataVista documentation</a>.</p>
 		</div>
 
-		<div id="percentage-container" class="tab-content">
-			<div class="container-header">Percentages</div>
-			<p>View and manage all percentage data created by flows, which can be utilized in DataVista widgets.</p>
-			<div class="content"></div>
+		<div class="toolbar">
+			<div class="search-box">
+				<span class="search-icon">🔍</span>
+				<input type="text" id="search-input" placeholder="Search by identifier...">
+			</div>
+			<button class="homey-button-danger-small" id="bulk-cleanup-button">
+				🗑️ Bulk Cleanup
+			</button>
 		</div>
+
+		<div class="tabs">
+			<button class="tab tab-data active" data-tab="percentage">
+				<span class="tab-icon" aria-hidden="true">📊</span>
+				<span class="tab-label">Percentages</span>
+				<span class="tab-badge" id="percentage-count">0</span>
+			</button>
+			<button class="tab tab-data" data-tab="range">
+				<span class="tab-icon" aria-hidden="true">📊</span>
+				<span class="tab-label">Ranges</span>
+				<span class="tab-badge" id="range-count">0</span>
+			</button>
+			<button class="tab tab-data" data-tab="boolean">
+				<span class="tab-icon" aria-hidden="true">📊</span>
+				<span class="tab-label">Booleans</span>
+				<span class="tab-badge" id="boolean-count">0</span>
+			</button>
+			<button class="tab tab-data" data-tab="text">
+				<span class="tab-icon" aria-hidden="true">📊</span>
+				<span class="tab-label">Text</span>
+				<span class="tab-badge" id="text-count">0</span>
+			</button>
+			<button class="tab tab-data" data-tab="status">
+				<span class="tab-icon" aria-hidden="true">📊</span>
+				<span class="tab-label">Status</span>
+				<span class="tab-badge" id="status-count">0</span>
+			</button>
+			<button class="tab tab-visual" data-tab="gauge">
+				<span class="tab-icon" aria-hidden="true">🎨</span>
+				<span class="tab-label">Gauge Visualizations</span>
+				<span class="tab-badge" id="gauge-count">0</span>
+			</button>
+			<button class="tab tab-visual" data-tab="progress-bar">
+				<span class="tab-icon" aria-hidden="true">🎨</span>
+				<span class="tab-label">Progress Bar Visualizations</span>
+				<span class="tab-badge" id="progress-bar-count">0</span>
+			</button>
+		</div>
+
+		<!-- Percentage Tab -->
+		<div id="percentage-container" class="tab-content active">
+			<div class="content" id="percentage-content"></div>
+		</div>
+
+		<!-- Range Tab -->
 		<div id="range-container" class="tab-content">
-			<div class="container-header">Ranges</div>
-			<p>View and manage all range data created by flows, which can be utilized in DataVista widgets.</p>
-			<div class="content"></div>
-		</div>
-		<div id="boolean-container" class="tab-content">
-			<div class="container-header">Booleans</div>
-			<p>View and manage all boolean data created by flows, which can be utilized in DataVista widgets.</p>
-			<div class="content"></div>
-		</div>
-		<div id="text-container" class="tab-content">
-			<div class="container-header">Text</div>
-			<p>View and manage all text data created by flows, which can be utilized in DataVista widgets.</p>
-			<div class="content"></div>
-		</div>
-		<div id="status-container" class="tab-content">
-			<div class="container-header">Text</div>
-			<p>View and manage all status data created by flows, which can be utilized in DataVista widgets.</p>
-			<div class="content"></div>
-		</div>
-		<div id="gauge-container" class="tab-content">
-			<div class="container-header">Gauges</div>
-			<p>View and manage all gauge visualizations. You can also create and update these via flows.</p>
-			<p>You can configure an advanced gauge widget in its settings by linking it to an identifier. The identifier is used to differentiate between configurations.</p>
-			<button id="add-gauge-button" class="homey-button-primary-small add-settings">Add new gauge visualuzation</button>
-			<div class="content"></div>
-		</div>
-		<div id="progress-bar-container" class="tab-content">
-			<div class="container-header">Progress Bars</div>
-			<p>View and manage all progress bar visualizations. You can also create and update these via flows.</p>
-			<p>You can configure a progress bar widget in its settings by linking it to an identifier. The identifier is used to differentiate between configurations.</p>
-			<button id="add-progress-bar-button" class="homey-button-primary-small add-settings">Add new progress bar visualization</button>
-			<div class="content"></div>
+			<div class="content" id="range-content"></div>
 		</div>
 
+		<!-- Boolean Tab -->
+		<div id="boolean-container" class="tab-content">
+			<div class="content" id="boolean-content"></div>
+		</div>
+
+		<!-- Text Tab -->
+		<div id="text-container" class="tab-content">
+			<div class="content" id="text-content"></div>
+		</div>
+
+		<!-- Status Tab -->
+		<div id="status-container" class="tab-content">
+			<div class="content" id="status-content"></div>
+		</div>
+
+		<!-- Gauge Tab -->
+		<div id="gauge-container" class="tab-content">
+			<div class="section-header">
+				<button class="homey-button-primary-small section-action-button" id="add-gauge-button">
+				New Gauge Visualization
+				</button>
+			</div>
+			<div class="content" id="gauge-content"></div>
+		</div>
+
+		<!-- Progress Bar Tab -->
+		<div id="progress-bar-container" class="tab-content">
+			<div class="section-header">
+				<button class="homey-button-primary-small section-action-button" id="add-progress-bar-button">
+				New Progress Bar Visualization
+				</button>
+			</div>
+			<div class="content" id="progress-bar-content"></div>
+		</div>
+
+		<!-- Add Gauge/Progress Bar Modal -->
 		<div id="identifier-modal" class="modal">
 			<div class="modal-content">
-				<span class="close-button" id="modal-cancel-button">&times;</span>
-				<h2>Create a New Configuration</h2>
-				<p>Please enter a unique identifier for the new configuration. You can modify its settings later.</p>
-				<input type="hidden" id="type-input" value="" />
-				<input type="text" id="identifier-input" placeholder="Identifier" />
-				<button id="modal-submit-button" class="homey-button-primary-small">Submit</button>
+				<div class="modal-header">
+					<h2>Create New Configuration</h2>
+					<button class="close-button" id="modal-cancel-button">&times;</button>
+				</div>
+				<div class="modal-body">
+					<p>Enter a unique identifier for the new configuration.</p>
+					<input type="hidden" id="type-input" value="" />
+					<div class="form-group">
+						<label for="identifier-input">Identifier</label>
+						<input type="text" id="identifier-input" placeholder="e.g., temperature-gauge" />
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="homey-button-secondary-small" id="modal-cancel-button-2">Cancel</button>
+					<button class="homey-button-primary-small" id="modal-submit-button">Create</button>
+				</div>
 			</div>
 		</div>
 
+		<!-- Bulk Cleanup Modal -->
+		<div id="cleanup-modal" class="modal">
+			<div class="modal-content" style="max-width: 600px;">
+				<div class="modal-header">
+					<h2>🗑️ Bulk Cleanup</h2>
+					<button class="close-button" id="cleanup-cancel-button">&times;</button>
+				</div>
+				<div class="modal-body">
+					<div class="stats-grid" id="cleanup-stats">
+						<div class="stat-card">
+							<div class="stat-value" id="total-items-count">0</div>
+							<div class="stat-label">Total Items</div>
+						</div>
+						<div class="stat-card">
+							<div class="stat-value" id="old-items-count">0</div>
+							<div class="stat-label">Items to Delete</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="cleanup-age">Delete items older than:</label>
+						<select id="cleanup-age">
+							<option value="all">All items (no age limit)</option>
+							<option value="7">7 days</option>
+							<option value="30" selected>30 days</option>
+							<option value="60">60 days</option>
+							<option value="90">90 days</option>
+							<option value="180">6 months</option>
+							<option value="365">1 year</option>
+							<option value="custom">Custom...</option>
+						</select>
+					</div>
+
+					<div class="form-group" id="custom-days-group" style="display: none;">
+						<label for="custom-days">Custom days:</label>
+						<input type="number" id="custom-days" placeholder="Enter number of days" min="1" />
+					</div>
+
+					<div class="form-group">
+						<label>Select items to cleanup:</label>
+						<div class="cleanup-type-list">
+							<span class="cleanup-type-heading">Data</span>
+							<label>
+								<input type="checkbox" class="cleanup-type" value="percentage" checked>
+								<span>Percentages</span>
+							</label>
+							<label>
+								<input type="checkbox" class="cleanup-type" value="range" checked>
+								<span>Ranges</span>
+							</label>
+							<label>
+								<input type="checkbox" class="cleanup-type" value="boolean" checked>
+								<span>Booleans</span>
+							</label>
+							<label>
+								<input type="checkbox" class="cleanup-type" value="text" checked>
+								<span>Text</span>
+							</label>
+							<label>
+								<input type="checkbox" class="cleanup-type" value="status" checked>
+								<span>Status</span>
+							</label>
+							<span class="cleanup-type-heading">Visualizations</span>
+							<label>
+								<input type="checkbox" class="cleanup-type" value="gauge" checked>
+								<span>Gauge Visualizations</span>
+							</label>
+							<label>
+								<input type="checkbox" class="cleanup-type" value="progress-bar" checked>
+								<span>Progress Bar Visualizations</span>
+							</label>
+						</div>
+					</div>
+
+					<div id="cleanup-progress" style="display: none;">
+						<div class="progress-bar-container">
+							<div class="progress-bar" id="cleanup-progress-bar" style="width: 0%"></div>
+						</div>
+						<div id="cleanup-summary" style="text-align: center; margin: 12px 0; font-weight: 600; color: #667eea;"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="homey-button-secondary-small" id="cleanup-cancel-button-2">Cancel</button>
+					<button class="homey-button-danger-small" id="cleanup-start-button">Start Cleanup</button>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Templates -->
 		<template id="percentage-template">
 			<div class="data-row">
-				<div class="data-label">
-					<div class="data-field-row">
-						<div class="input-group">
-							<div class="identifier-label"></div>
-							<button class="remove-button homey-button-danger-small">Remove</button>
-						</div>
+				<div class="data-row-header">
+					<div class="identifier-label"></div>
+					<button class="remove-button homey-button-danger-small">Remove</button>
+				</div>
+				<div class="data-field-row">
+					<div class="input-group">
+						<label>Percentage:</label>
+						<input id="percentage-input" type="text" readonly />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Percentage:</label>
-							<input id="percentage-input" type="text" readonly />
-						</div>
-					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Last Updated:</label>
-							<input id="last-updated-label" type="text" readonly />
-						</div>
+					<div class="input-group">
+						<label>Last Updated:</label>
+						<input id="last-updated-label" type="text" readonly />
 					</div>
 				</div>
 			</div>
@@ -277,36 +239,30 @@
 
 		<template id="range-template">
 			<div class="data-row">
-				<div class="data-label">
-					<div class="data-field-row">
-						<div class="input-group">
-							<div class="identifier-label"></div>
-							<button class="remove-button homey-button-danger-small">Remove</button>
-						</div>
+				<div class="data-row-header">
+					<div class="identifier-label"></div>
+					<button class="remove-button homey-button-danger-small">Remove</button>
+				</div>
+				<div class="data-field-row">
+					<div class="input-group">
+						<label>Min:</label>
+						<input id="min-input" type="text" readonly />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Min:</label>
-							<input id="min-input" type="text" readonly />
-						</div>
-						<div class="input-group">
-							<label>Max:</label>
-							<input id="max-input" type="text" readonly />
-						</div>
-						<div class="input-group">
-							<label>Value:</label>
-							<input id="value-input" type="text" readonly />
-						</div>
-						<div class="input-group">
-							<label>Unit:</label>
-							<input id="unit-input" type="text" readonly />
-						</div>
+					<div class="input-group">
+						<label>Max:</label>
+						<input id="max-input" type="text" readonly />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Last updated:</label>
-							<input id="last-updated-label" type="text" readonly />
-						</div>
+					<div class="input-group">
+						<label>Value:</label>
+						<input id="value-input" type="text" readonly />
+					</div>
+					<div class="input-group">
+						<label>Unit:</label>
+						<input id="unit-input" type="text" readonly />
+					</div>
+					<div class="input-group">
+						<label>Last Updated:</label>
+						<input id="last-updated-label" type="text" readonly />
 					</div>
 				</div>
 			</div>
@@ -314,24 +270,18 @@
 
 		<template id="boolean-template">
 			<div class="data-row">
-				<div class="data-label">
-					<div class="data-field-row">
-						<div class="input-group">
-							<div class="identifier-label"></div>
-							<button class="remove-button homey-button-danger-small">Remove</button>
-						</div>
+				<div class="data-row-header">
+					<div class="identifier-label"></div>
+					<button class="remove-button homey-button-danger-small">Remove</button>
+				</div>
+				<div class="data-field-row">
+					<div class="input-group">
+						<label>Value:</label>
+						<input id="boolean-input" type="checkbox" disabled />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Value:</label>
-							<input id="boolean-input" type="checkbox" disabled />
-						</div>
-					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Last Updated:</label>
-							<input id="last-updated-label" type="text" readonly />
-						</div>
+					<div class="input-group">
+						<label>Last Updated:</label>
+						<input id="last-updated-label" type="text" readonly />
 					</div>
 				</div>
 			</div>
@@ -339,24 +289,18 @@
 
 		<template id="text-template">
 			<div class="data-row">
-				<div class="data-label">
-					<div class="data-field-row">
-						<div class="input-group">
-							<div class="identifier-label"></div>
-							<button class="remove-button homey-button-danger-small">Remove</button>
-						</div>
+				<div class="data-row-header">
+					<div class="identifier-label"></div>
+					<button class="remove-button homey-button-danger-small">Remove</button>
+				</div>
+				<div class="data-field-row">
+					<div class="input-group">
+						<label>Value:</label>
+						<input id="text-input" type="text" readonly />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Value:</label>
-							<input id="text-input" type="text" readonly />
-						</div>
-					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Last Updated:</label>
-							<input id="last-updated-label" type="text" readonly />
-						</div>
+					<div class="input-group">
+						<label>Last Updated:</label>
+						<input id="last-updated-label" type="text" readonly />
 					</div>
 				</div>
 			</div>
@@ -364,30 +308,22 @@
 
 		<template id="status-template">
 			<div class="data-row">
-				<div class="data-label">
-					<div class="data-field-row">
-						<div class="input-group">
-							<div class="identifier-label"></div>
-							<button class="remove-button homey-button-danger-small">Remove</button>
-						</div>
+				<div class="data-row-header">
+					<div class="identifier-label"></div>
+					<button class="remove-button homey-button-danger-small">Remove</button>
+				</div>
+				<div class="data-field-row">
+					<div class="input-group">
+						<label>Text:</label>
+						<input id="text-input" type="text" readonly />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Text:</label>
-							<input id="text-input" type="text" readonly />
-						</div>
+					<div class="input-group">
+						<label>Attention:</label>
+						<input id="attention-input" type="checkbox" disabled />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Attention:</label>
-							<input id="attention-input" type="checkbox" disabled />
-						</div>
-					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Last Updated:</label>
-							<input id="last-updated-label" type="text" readonly />
-						</div>
+					<div class="input-group">
+						<label>Last Updated:</label>
+						<input id="last-updated-label" type="text" readonly />
 					</div>
 				</div>
 			</div>
@@ -395,166 +331,158 @@
 
 		<template id="gauge-template">
 			<div class="data-row">
-				<div class="data-label">
-					<div class="data-field-row">
-						<div class="input-group">
-							<div class="identifier-label"></div>
-						</div>
+				<div class="data-row-header">
+					<div class="identifier-label"></div>
+				</div>
+				<div class="data-field-row">
+					<div class="input-group color-row">
+						<label>Color 1:</label>
+						<button class="clear-button">✖</button>
+						<input id="color1-input" type="color" />
+						<input id="color1-hex" class="hex" type="text" readonly />
+						<label class="sublabel">Offset:</label>
+						<input id="offset1-input" class="offset-input" type="text" />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Color1:</label>
-							<button class="clear-button">✖</button>
-							<input id="color1-input" type="color" value="" />
-							<input id="color1-hex" class="hex" type="text" value="" readonly />
-							<label class="sublabel">offset:</label>
-							<input id="offset1-input" type="text" />
-						</div>
-						<div class="input-group">
-							<label>Color2:</label>
-							<button class="clear-button">✖</button>
-							<input id="color2-input" type="color" value="" />
-							<input id="color2-hex" class="hex" type="text" value="" readonly />
-							<label class="sublabel">offset:</label>
-							<input id="offset2-input" type="text" />
-						</div>
-						<div class="input-group">
-							<label>Color3:</label>
-							<button class="clear-button">✖</button>
-							<input id="color3-input" type="color" value="" />
-							<input id="color3-hex" class="hex" type="text" value="" readonly />
-							<label class="sublabel">offset:</label>
-							<input id="offset3-input" type="text" />
-						</div>
-						<div class="input-group">
-							<label>Color4:</label>
-							<button class="clear-button">✖</button>
-							<input id="color4-input" type="color" value="" />
-							<input id="color4-hex" class="hex" type="text" value="" readonly />
-							<label class="sublabel">offset:</label>
-							<input id="offset4-input" type="text" />
-						</div>
-						<div class="input-group">
-							<label>Color5:</label>
-							<button class="clear-button">✖</button>
-							<input id="color5-input" type="color" value="" />
-							<input id="color5-hex" class="hex" type="text" value="" readonly />
-							<label class="sublabel">offset:</label>
-							<input id="offset5-input" type="text" />
-						</div>
+					<div class="input-group color-row">
+						<label>Color 2:</label>
+						<button class="clear-button">✖</button>
+						<input id="color2-input" type="color" />
+						<input id="color2-hex" class="hex" type="text" readonly />
+						<label class="sublabel">Offset:</label>
+						<input id="offset2-input" class="offset-input" type="text" />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Last updated:</label>
-							<input id="last-updated-label" type="text" readonly />
-						</div>
+					<div class="input-group color-row">
+						<label>Color 3:</label>
+						<button class="clear-button">✖</button>
+						<input id="color3-input" type="color" />
+						<input id="color3-hex" class="hex" type="text" readonly />
+						<label class="sublabel">Offset:</label>
+						<input id="offset3-input" class="offset-input" type="text" />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<button class="save-button homey-button-secondary-small">Save changes</button>
-							<button class="remove-button homey-button-danger-small">Remove</button>
-						</div>
+					<div class="input-group color-row">
+						<label>Color 4:</label>
+						<button class="clear-button">✖</button>
+						<input id="color4-input" type="color" />
+						<input id="color4-hex" class="hex" type="text" readonly />
+						<label class="sublabel">Offset:</label>
+						<input id="offset4-input" class="offset-input" type="text" />
 					</div>
+					<div class="input-group color-row">
+						<label>Color 5:</label>
+						<button class="clear-button">✖</button>
+						<input id="color5-input" type="color" />
+						<input id="color5-hex" class="hex" type="text" readonly />
+						<label class="sublabel">Offset:</label>
+						<input id="offset5-input" class="offset-input" type="text" />
+					</div>
+					<div class="input-group">
+						<label>Last Updated:</label>
+						<input id="last-updated-label" type="text" readonly />
+					</div>
+				</div>
+				<div class="button-row">
+					<button class="save-button homey-button-secondary-small">💾 Save Changes</button>
+					<button class="remove-button homey-button-danger-small">Remove</button>
 				</div>
 			</div>
 		</template>
 
 		<template id="progress-bar-template">
 			<div class="data-row">
-				<div class="data-label">
-					<div class="data-field-row">
-						<div class="input-group">
-							<div class="identifier-label"></div>
-						</div>
+				<div class="data-row-header">
+					<div class="identifier-label"></div>
+				</div>
+				<div class="data-field-row">
+					<div class="input-group color-row">
+						<label>Color 1:</label>
+						<button class="clear-button">✖</button>
+						<input id="color1-input" type="color" />
+						<input id="color1-hex" class="hex" type="text" readonly />
+						<label class="sublabel">Offset:</label>
+						<input id="offset1-input" class="offset-input" type="text" />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Color1:</label>
-							<button class="clear-button">✖</button>
-							<input id="color1-input" type="color" value="" />
-							<input id="color1-hex" class="hex" type="text" value="" readonly />
-							<label class="sublabel">offset:</label>
-							<input id="offset1-input" type="text" />
-						</div>
-						<div class="input-group">
-							<label>Color2:</label>
-							<button class="clear-button">✖</button>
-							<input id="color2-input" type="color" value="" />
-							<input id="color2-hex" class="hex" type="text" value="" readonly />
-							<label class="sublabel">offset:</label>
-							<input id="offset2-input" type="text" />
-						</div>
-						<div class="input-group">
-							<label>Color3:</label>
-							<button class="clear-button">✖</button>
-							<input id="color3-input" type="color" value="" />
-							<input id="color3-hex" class="hex" type="text" value="" readonly />
-							<label class="sublabel">offset:</label>
-							<input id="offset3-input" type="text" />
-						</div>
-						<div class="input-group">
-							<label>Color4:</label>
-							<button class="clear-button">✖</button>
-							<input id="color4-input" type="color" value="" />
-							<input id="color4-hex" class="hex" type="text" value="" readonly />
-							<label class="sublabel">offset:</label>
-							<input id="offset4-input" type="text" />
-						</div>
-						<div class="input-group">
-							<label>Color5:</label>
-							<button class="clear-button">✖</button>
-							<input id="color5-input" type="color" value="" />
-							<input id="color5-hex" class="hex" type="text" value="" readonly />
-							<label class="sublabel">offset:</label>
-							<input id="offset5-input" type="text" />
-						</div>
+					<div class="input-group color-row">
+						<label>Color 2:</label>
+						<button class="clear-button">✖</button>
+						<input id="color2-input" type="color" />
+						<input id="color2-hex" class="hex" type="text" readonly />
+						<label class="sublabel">Offset:</label>
+						<input id="offset2-input" class="offset-input" type="text" />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<label>Last updated:</label>
-							<input id="last-updated-label" type="text" readonly />
-						</div>
+					<div class="input-group color-row">
+						<label>Color 3:</label>
+						<button class="clear-button">✖</button>
+						<input id="color3-input" type="color" />
+						<input id="color3-hex" class="hex" type="text" readonly />
+						<label class="sublabel">Offset:</label>
+						<input id="offset3-input" class="offset-input" type="text" />
 					</div>
-					<div class="data-field-row">
-						<div class="input-group">
-							<button class="save-button homey-button-secondary-small">Save changes</button>
-							<button class="remove-button homey-button-danger-small">Remove</button>
-						</div>
+					<div class="input-group color-row">
+						<label>Color 4:</label>
+						<button class="clear-button">✖</button>
+						<input id="color4-input" type="color" />
+						<input id="color4-hex" class="hex" type="text" readonly />
+						<label class="sublabel">Offset:</label>
+						<input id="offset4-input" class="offset-input" type="text" />
 					</div>
+					<div class="input-group color-row">
+						<label>Color 5:</label>
+						<button class="clear-button">✖</button>
+						<input id="color5-input" type="color" />
+						<input id="color5-hex" class="hex" type="text" readonly />
+						<label class="sublabel">Offset:</label>
+						<input id="offset5-input" class="offset-input" type="text" />
+					</div>
+					<div class="input-group">
+						<label>Last Updated:</label>
+						<input id="last-updated-label" type="text" readonly />
+					</div>
+				</div>
+				<div class="button-row">
+					<button class="save-button homey-button-secondary-small">💾 Save Changes</button>
+					<button class="remove-button homey-button-danger-small">Remove</button>
 				</div>
 			</div>
 		</template>
 
+		<template id="empty-state-template">
+			<div class="empty-state">
+				<div class="empty-state-icon">📭</div>
+				<p><strong>No items found</strong></p>
+				<p>Items will appear here once you create them via flows.</p>
+			</div>
+		</template>
+
+		<template id="empty-search-template">
+			<div class="empty-state">
+				<div class="empty-state-icon">🔍</div>
+				<p><strong>No matching items</strong></p>
+				<p>Try adjusting your search or clear the search box.</p>
+			</div>
+		</template>
+
 		<script>
-			document.querySelectorAll('.dropdown-content a').forEach(link => {
-				link.addEventListener('click', event => {
-					event.preventDefault();
+			// Tab switching
+			document.querySelectorAll('.tab').forEach(tab => {
+				tab.addEventListener('click', () => {
+					const targetTab = tab.getAttribute('data-tab');
+					
+					// Clear search when switching tabs
+					const searchInput = document.getElementById('search-input');
+					if (searchInput) {
+						searchInput.value = '';
+						searchInput.dispatchEvent(new Event('input'));
+					}
+					
+					// Update tabs
+					document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+					tab.classList.add('active');
+					
+					// Update content
 					document.querySelectorAll('.tab-content').forEach(content => {
 						content.classList.remove('active');
-						const header = content.querySelector('.container-header');
-						if (header) {
-							header.style.display = 'none';
-						}
 					});
-					const target = document.querySelector(link.getAttribute('data-target'));
-					if (target) {
-						target.classList.add('active');
-						const header = target.querySelector('.container-header');
-						if (header) {
-							header.style.display = 'block';
-						}
-					}
-					document.querySelectorAll('.dropdown-content').forEach(dropdown => (dropdown.style.display = 'none'));
-				});
-			});
-			document.querySelectorAll('.dropbtn').forEach(button => {
-				button.addEventListener('click', () => {
-					const dropdownContent = button.nextElementSibling;
-					const isVisible = dropdownContent && dropdownContent.style.display === 'block';
-					document.querySelectorAll('.dropdown-content').forEach(dropdown => (dropdown.style.display = 'none'));
-					if (dropdownContent && !isVisible) {
-						dropdownContent.style.display = 'block';
-					}
+					document.getElementById(`${targetTab}-container`).classList.add('active');
 				});
 			});
 		</script>
