@@ -136,5 +136,8 @@
   },
   "1.4.0": {
     "en": "Applied memory optimizations to reduce app footprint."
+  },
+  "1.5.0": {
+    "en": "Introduced bulk clean-up settings."
   }
 }
