@@ -1,4 +1,4 @@
-import { CapabilitiesObject, ExtendedDevice, ExtendedInsightsLogs, ExtendedLog, ExtendedVariable } from 'homey-api';
+import { CapabilitiesObject, ExtendedDevice, ExtendedInsightsLogs, ExtendedLog, ExtendedVariable, Resolution } from 'homey-api';
 import DataVista from '../app.mjs';
 import { BaseSettings } from '../datavistasettings/BaseSettings.mjs';
 import type { ApiRequest } from '../@types/api-types.js';
@@ -303,27 +303,7 @@ export class BaseWidgetApi {
 	private async getInsight(
 		app: DataVista,
 		id: string,
-		resolution:
-			| 'yesterday'
-			| 'lastWeek'
-			| 'lastMonth'
-			| 'lastYear'
-			| 'last2Years'
-			| 'today'
-			| 'thisWeek'
-			| 'thisMonth'
-			| 'thisYear'
-			| 'lastHour'
-			| 'last6Hours'
-			| 'last24Hours'
-			| 'last3Days'
-			| 'last7Days'
-			| 'last14Days'
-			| 'last31Days'
-			| 'last3Months'
-			| 'last6Months'
-			| 'lastYear'
-			| 'last2Years'
+		resolution: Resolution,
 	): Promise<{ logs: ExtendedInsightsLogs; insight: ExtendedLog } | null> {
 		const insight = await app.homeyApi.insights.getLog({ id: id });
 		const logs = await app.homeyApi.insights.getLogEntries({ id: id, resolution });

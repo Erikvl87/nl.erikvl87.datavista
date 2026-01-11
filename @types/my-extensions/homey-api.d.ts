@@ -2,6 +2,26 @@ import { HomeyAPIV3Local } from 'homey-api';
 
 declare module 'homey-api' {
 
+		type Resolution = 
+			| 'today'
+			| 'thisWeek'
+			| 'thisMonth'
+			| 'thisYear'
+			| 'lastWeek'
+			| 'lastMonth'
+			| 'yesterday'
+			| 'lastHour'
+			| 'last6Hours'
+			| 'last24Hours'
+			| 'last3Days'
+			| 'last7Days'
+			| 'last14Days'
+			| 'last31Days'
+			| 'last3Months'
+			| 'last6Months'
+			| 'lastYear'
+			| 'last2Years';
+
 	class ExtendedZone extends HomeyAPIV3Local.ManagerZones.Zone {
 		name: string;
 		parent: string;
@@ -69,7 +89,7 @@ declare module 'homey-api' {
 	class ExtendedManagerInsights extends HomeyAPIV3Local.ManagerInsights {
 		getLog(opts: { id: string }): Promise<ExtendedLog>;
 		getLogs(): Promise<{ [key: string]: ExtendedLog }>;
-		getLogEntries(opts: { id: string; uri?: string; resolution?: string; }): Promise<ExtendedInsightsLogs>;
+		getLogEntries(opts: { id: string; uri?: string; resolution?: Resolution; }): Promise<ExtendedInsightsLogs>;
 	}
 
 	class ExtendedLog extends HomeyAPIV3Local.ManagerInsights.Log {

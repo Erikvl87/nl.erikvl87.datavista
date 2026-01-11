@@ -1,4 +1,4 @@
-import { ExtendedDevice, ExtendedHomeyAPIV3Local } from 'homey-api';
+import { ExtendedHomeyAPIV3Local, Resolution } from 'homey-api';
 import Homey from 'homey/lib/Homey';
 import Widget from 'homey/lib/Widget';
 import { BooleanData } from '../datavistasettings/BooleanSettings.mjs';
@@ -11,35 +11,8 @@ import { TextData } from '../datavistasettings/TextSettings.mjs';
 import { StatusData } from '../datavistasettings/StatusSettings.mjs';
 import DeviceCache from '../common/DeviceCache.mjs';
 
-// TODO abstraction & per type?
-export type DataSource = {
-	name: string;
-	description?: string;
-	id: string;
-	type?: 'capability' | 'advanced' | 'variable' | 'insight';
-	deviceId?: string;
-	deviceName: string;
-	insightResolution?: | 'yesterday'
-	| 'lastWeek'
-	| 'lastMonth'
-	| 'lastYear'
-	| 'last2Years'
-	| 'today'
+type DataVistaResolution = Resolution
 	| 'thisHour'
-	| 'thisWeek'
-	| 'thisMonth'
-	| 'thisYear'
-	| 'lastHour'
-	| 'last6Hours'
-	| 'last24Hours'
-	| 'last3Days'
-	| 'last7Days'
-	| 'last14Days'
-	| 'last31Days'
-	| 'last3Months'
-	| 'last6Months'
-	| 'lastYear'
-	// Customly added for rolling periods
 	| 'this60Minutes'
 	| 'last60Minutes'
 	| 'this6Hours'
@@ -53,8 +26,17 @@ export type DataSource = {
 	| 'this31Days'
 	| 'last31Days'
 	| 'this365Days'
-	| 'last365Days'
-	;
+	| 'last365Days';
+
+// TODO abstraction & per type?
+export type DataSource = {
+	name: string;
+	description?: string;
+	id: string;
+	type?: 'capability' | 'advanced' | 'variable' | 'insight';
+	deviceId?: string;
+	deviceName: string;
+	insightResolution?: DataVistaResolution
 };
 
 type AutocompleteQueryOptions = {
