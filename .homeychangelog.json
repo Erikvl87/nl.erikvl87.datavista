@@ -139,5 +139,8 @@
   },
   "1.5.0": {
     "en": "Introduced bulk clean-up settings."
+  },
+  "1.6.0": {
+    "en": "Added Y-axis min/max settings for the line chart widget."
   }
 }
