@@ -315,6 +315,32 @@
 			]
 		},
 		{
+			"id": "yMin",
+			"type": "text",
+			"title": {
+				"en": "Y-Axis minimum",
+				"nl": "Y-as minimum"
+			},
+			"hint": {
+				"en": "Enter a number, or leave empty for automatic scaling",
+				"nl": "Voer een getal in, of laat leeg voor automatisch bepalen"
+			},
+			"value": ""
+		},
+		{
+			"id": "yMax",
+			"type": "text",
+			"title": {
+				"en": "Y-Axis maximum",
+				"nl": "Y-as maximum"
+			},
+			"hint": {
+				"en": "Enter a number, or leave empty for automatic scaling",
+				"nl": "Voer een getal in, of laat leeg voor automatisch bepalen"
+			},
+			"value": ""
+		},
+		{
 			"id": "hideLegend",
 			"type": "checkbox",
 			"title": {

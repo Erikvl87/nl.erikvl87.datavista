@@ -34,6 +34,8 @@ type Settings = {
 	period3: Period;
 	period4: Period;
 	yAxisCalculationMethod: 'fullRange' | 'iqr' | 'sameAxis';
+	yMin: number | null;
+	yMax: number | null;
 	hideLegend: boolean;
 	tooltipFontSize: string;
 	legendFontSize: string;
@@ -883,6 +885,15 @@ class LineChartWidgetScript {
 				offset = rightAxisIndex * extraMarginPerAxis;
 				rightAxisIndex++;
 			}
+			const parseAxisBound = (v: number | string | null | undefined): number | null => {
+				if (v == null || v === '') return null;
+				const n = Number(v);
+				return isNaN(n) ? null : n;
+			};
+			const yMinSetting = parseAxisBound(this.settings.yMin);
+			const yMaxSetting = parseAxisBound(this.settings.yMax);
+			const effectiveMin = yMinSetting != null && axis.min >= yMinSetting ? yMinSetting : undefined;
+			const effectiveMax = yMaxSetting != null && axis.max <= yMaxSetting ? yMaxSetting : undefined;
 			return {
 				type: 'value',
 				name: axis.unit,
@@ -903,8 +914,16 @@ class LineChartWidgetScript {
 				},
 				axisLabel: {
 					margin: 4,
+					formatter: (value: number): string => {
+						const abs = Math.abs(value);
+						if (abs === 0) return '0';
+						if (abs >= 100) return value.toFixed(0);
+						if (abs >= 10) return parseFloat(value.toFixed(1)).toString();
+						if (abs >= 1) return parseFloat(value.toFixed(2)).toString();
+						return parseFloat(value.toPrecision(2)).toString();
+					},
 				},
-				scale: true,
+				...(effectiveMin != null || effectiveMax != null ? { min: effectiveMin, max: effectiveMax } : { scale: true }),
 				alignTicks: true,
 				splitLine: {
 					show: axisIndex === 0,
@@ -1250,6 +1269,15 @@ class LineChartWidgetScript {
 			}
 
 			const cachedName = this.axisLabelCache[axisIndex] ?? '';
+			const parseAxisBound = (v: number | string | null | undefined): number | null => {
+				if (v == null || v === '') return null;
+				const n = Number(v);
+				return isNaN(n) ? null : n;
+			};
+			const yMinSetting = parseAxisBound(this.settings.yMin);
+			const yMaxSetting = parseAxisBound(this.settings.yMax);
+			const effectiveMin = yMinSetting != null && axis.min >= yMinSetting ? yMinSetting : undefined;
+			const effectiveMax = yMaxSetting != null && axis.max <= yMaxSetting ? yMaxSetting : undefined;
 
 			return {
 				type: 'value',
@@ -1272,8 +1300,16 @@ class LineChartWidgetScript {
 				axisLabel: {
 					show: axisHasVisibleSeries,
 					margin: 4,
+					formatter: (value: number): string => {
+						const abs = Math.abs(value);
+						if (abs === 0) return '0';
+						if (abs >= 100) return value.toFixed(0);
+						if (abs >= 10) return parseFloat(value.toFixed(1)).toString();
+						if (abs >= 1) return parseFloat(value.toFixed(2)).toString();
+						return parseFloat(value.toPrecision(2)).toString();
+					},
 				},
-				scale: true,
+				...(effectiveMin != null || effectiveMax != null ? { min: effectiveMin, max: effectiveMax } : { scale: true }),
 				alignTicks: true,
 				splitLine: {
 					show: axisIndex === 0 ? axisHasVisibleSeries : false,

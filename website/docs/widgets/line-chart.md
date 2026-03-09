@@ -27,6 +27,8 @@ Currently the widget visualizes Homey insights.
 | **Timeframe** | Choose a fixed period (hour, day, week, month, year) or a rolling window (60 minutes, 24 hours, 7 days, 31 days, 365 days). |
 | **Show refresh countdown** | Display a progress bar that counts down to the next data refresh. |
 | **Y axis calculation method** | Pick **Full range**, **Interquartile Range (IQR)**, or **Force same axis** to control how the Y axis is calculated and whether a second axis appears. |
+| **Y-Axis minimum** | Optional lower bound for the Y axis. When set, the axis will not go below this value. If the data itself goes lower, the axis scales automatically. Leave empty for fully automatic scaling. |
+| **Y-Axis maximum** | Optional upper bound for the Y axis. When set, the axis will not go above this value. If the data itself goes higher, the axis scales automatically. Leave empty for fully automatic scaling. |
 | **Hide legend** | Hide the legend (disables per-series toggles). |
 | **Legend font size** | Select **Small**, **Normal**, or **Large** for legend text. |
 | **Tooltip font size** | Select **Small**, **Normal**, **Large**, or **Extra large** for tooltip text. |
