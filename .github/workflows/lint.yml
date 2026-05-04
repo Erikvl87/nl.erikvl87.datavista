@@ -19,6 +19,6 @@ jobs:
       with:
         node-version: '22.6.0'
     - name: Install dependencies
-      run: yarn install
+      run: npm ci
     - name: Run ESLint
-      run: yarn eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'widgets/**/*.js'
+      run: npx eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'widgets/**/*.js'
