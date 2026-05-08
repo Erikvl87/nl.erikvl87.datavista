@@ -142,5 +142,8 @@
   },
   "1.6.0": {
     "en": "Added Y-axis min/max settings for the line chart widget."
+  },
+  "1.7.0": {
+    "en": "Added a scatter plot widget"
   }
 }
