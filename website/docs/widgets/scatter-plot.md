@@ -6,8 +6,6 @@ title: Scatter Plot
 
 The **Scatter Plot** widget pairs two Homey insights by timestamp and plots them against each other, helping you spot correlations between metrics — for example outdoor temperature versus heating power, or solar production versus battery state of charge.
 
-![Scatter plot widget preview](/img/docs/scatter-plot-widget-preview.png)
-
 Currently the widget visualizes Homey insights only.
 
 ## Add the widget to your dashboard
@@ -17,6 +15,8 @@ Currently the widget visualizes Homey insights only.
 3. Choose **Apps** and select **DataVista**.
 4. Pick the **Scatter plot** widget.
 5. Click the preview to add it to your dashboard.
+
+![Scatter plot widget preview](/img/docs/scatter-plot-widget-preview.png)
 
 ## Configure the widget
 
