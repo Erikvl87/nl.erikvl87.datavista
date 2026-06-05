@@ -42,6 +42,7 @@ export class BaseWidgetApi {
 			number?: boolean;
 			range?: boolean;
 			datapoint?: boolean;
+			countdown?: boolean;
 		},
 	): boolean {
 		return app.isDataType(payload, options);

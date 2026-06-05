@@ -136,6 +136,203 @@
       },
       {
         "title": {
+          "en": "Set countdown",
+          "nl": "Stel aftellen in"
+        },
+        "titleFormatted": {
+          "en": "[Countdown] Set [[identifier]] to [[date]] [[time]] with label [[name]] and message [[message]]",
+          "nl": "[Aftellen] Stel [[identifier]] in op [[date]] [[time]] met label [[name]] en bericht [[message]]"
+        },
+        "hint": {
+          "en": "Set a countdown that can be displayed in the Countdown widget.",
+          "nl": "Stel een afteller in die gebruikt kan worden in de Countdown widget."
+        },
+        "args": [
+          {
+            "type": "text",
+            "name": "identifier",
+            "placeholder": {
+              "en": "identifier"
+            }
+          },
+          {
+            "type": "text",
+            "name": "name",
+            "title": {
+              "en": "Label (optional)",
+              "nl": "Label (optioneel)"
+            },
+            "required": false
+          },
+          {
+            "type": "date",
+            "name": "date",
+            "title": {
+              "en": "Date",
+              "nl": "Datum"
+            }
+          },
+          {
+            "type": "time",
+            "name": "time",
+            "title": {
+              "en": "Time",
+              "nl": "Tijd"
+            }
+          },
+          {
+            "type": "text",
+            "name": "message",
+            "title": {
+              "en": "Message (optional)",
+              "nl": "Bericht (optioneel)"
+            },
+            "required": false
+          }
+        ],
+        "id": "set-countdown"
+      },
+      {
+        "title": {
+          "en": "Set countdown (ISO 8601)",
+          "nl": "Stel aftellen in (ISO 8601)"
+        },
+        "titleFormatted": {
+          "en": "[Countdown] Set [[identifier]] to [[datetime]] with label [[name]] and message [[message]]",
+          "nl": "[Aftellen] Stel [[identifier]] in op [[datetime]] met label [[name]] en bericht [[message]]"
+        },
+        "hint": {
+          "en": "Set a countdown to an ISO 8601 datetime string. Accepts flow tokens. Supported formats: YYYY-MM-DDTHH:MM:SS (local), YYYY-MM-DDTHH:MM:SSZ (UTC), or with offset e.g. +01:00.",
+          "nl": "Stel een afteller in op een ISO 8601-datum/-tijdstring. Accepteert flow-tokens. Ondersteunde formaten: YYYY-MM-DDTHH:MM:SS (lokaal), YYYY-MM-DDTHH:MM:SSZ (UTC), of met offset bijv. +01:00."
+        },
+        "args": [
+          {
+            "type": "text",
+            "name": "identifier",
+            "placeholder": {
+              "en": "identifier"
+            }
+          },
+          {
+            "type": "text",
+            "name": "name",
+            "title": {
+              "en": "Label (optional)",
+              "nl": "Label (optioneel)"
+            },
+            "required": false
+          },
+          {
+            "type": "text",
+            "name": "datetime",
+            "title": {
+              "en": "Date & time (ISO 8601)",
+              "nl": "Datum & tijd (ISO 8601)"
+            },
+            "placeholder": {
+              "en": "YYYY-MM-DDTHH:MM:SS"
+            }
+          },
+          {
+            "type": "text",
+            "name": "message",
+            "title": {
+              "en": "Message (optional)",
+              "nl": "Bericht (optioneel)"
+            },
+            "required": false
+          }
+        ],
+        "id": "set-countdown-datetime"
+      },
+      {
+        "title": {
+          "en": "Set countdown (duration)",
+          "nl": "Stel aftellen in (duur)"
+        },
+        "titleFormatted": {
+          "en": "[Countdown] Set [[identifier]] for [[days]]d [[hours]]h [[minutes]]m [[seconds]]s with label [[name]] and message [[message]]",
+          "nl": "[Aftellen] Stel [[identifier]] in voor [[days]]d [[hours]]u [[minutes]]m [[seconds]]s met label [[name]] en bericht [[message]]"
+        },
+        "hint": {
+          "en": "Set a countdown by duration from now. Days, hours, minutes and seconds all accept flow tokens.",
+          "nl": "Stel een afteller in op basis van een duur vanaf nu. Dagen, uren, minuten en seconden accepteren flow-tokens."
+        },
+        "args": [
+          {
+            "type": "text",
+            "name": "identifier",
+            "placeholder": {
+              "en": "identifier"
+            }
+          },
+          {
+            "type": "text",
+            "name": "name",
+            "title": {
+              "en": "Label (optional)",
+              "nl": "Label (optioneel)"
+            },
+            "required": false
+          },
+          {
+            "type": "number",
+            "name": "days",
+            "min": 0,
+            "step": 1,
+            "required": false,
+            "title": {
+              "en": "Days",
+              "nl": "Dagen"
+            }
+          },
+          {
+            "type": "number",
+            "name": "hours",
+            "min": 0,
+            "step": 1,
+            "required": false,
+            "title": {
+              "en": "Hours",
+              "nl": "Uren"
+            }
+          },
+          {
+            "type": "number",
+            "name": "minutes",
+            "min": 0,
+            "step": 1,
+            "required": false,
+            "title": {
+              "en": "Minutes",
+              "nl": "Minuten"
+            }
+          },
+          {
+            "type": "number",
+            "name": "seconds",
+            "min": 0,
+            "step": 1,
+            "required": false,
+            "title": {
+              "en": "Seconds",
+              "nl": "Seconden"
+            }
+          },
+          {
+            "type": "text",
+            "name": "message",
+            "title": {
+              "en": "Message (optional)",
+              "nl": "Bericht (optioneel)"
+            },
+            "required": false
+          }
+        ],
+        "id": "set-countdown-duration"
+      },
+      {
+        "title": {
           "en": "Set gauge configuration"
         },
         "titleFormatted": {
@@ -618,6 +815,301 @@
         }
       },
       "id": "advanced-gauge"
+    },
+    "countdown": {
+      "name": {
+        "en": "Countdown",
+        "nl": "Aftellen"
+      },
+      "transparent": true,
+      "settings": [
+        {
+          "id": "datasource",
+          "type": "autocomplete",
+          "title": {
+            "en": "Datasource",
+            "nl": "Databron"
+          }
+        },
+        {
+          "id": "style",
+          "type": "dropdown",
+          "title": {
+            "en": "Style",
+            "nl": "Stijl"
+          },
+          "value": "minimal",
+          "values": [
+            {
+              "id": "minimal",
+              "title": {
+                "en": "Minimal",
+                "nl": "Minimaal"
+              }
+            },
+            {
+              "id": "blocks",
+              "title": {
+                "en": "Blocks",
+                "nl": "Blokken"
+              }
+            },
+            {
+              "id": "flip",
+              "title": {
+                "en": "Flip clock",
+                "nl": "Klapbordklok"
+              }
+            },
+            {
+              "id": "particles",
+              "title": {
+                "en": "Particles",
+                "nl": "Deeltjes"
+              }
+            },
+            {
+              "id": "hourglass",
+              "title": {
+                "en": "Hourglass",
+                "nl": "Zandloper"
+              }
+            },
+            {
+              "id": "rings",
+              "title": {
+                "en": "Rings",
+                "nl": "Ringen"
+              }
+            },
+            {
+              "id": "racecar",
+              "title": {
+                "en": "Racecar",
+                "nl": "Raceauto"
+              }
+            },
+            {
+              "id": "racehorse",
+              "title": {
+                "en": "Racehorse",
+                "nl": "Renpaard"
+              }
+            },
+            {
+              "id": "boat",
+              "title": {
+                "en": "Speedboat",
+                "nl": "Speedboot"
+              }
+            }
+          ]
+        },
+        {
+          "id": "color",
+          "type": "dropdown",
+          "title": {
+            "en": "Color",
+            "nl": "Kleur"
+          },
+          "value": "contrast",
+          "values": [
+            {
+              "id": "contrast",
+              "title": {
+                "en": "Contrast",
+                "nl": "Contrast"
+              }
+            },
+            {
+              "id": "#00ff00",
+              "title": {
+                "en": "Green",
+                "nl": "Groen"
+              }
+            },
+            {
+              "id": "#ff0000",
+              "title": {
+                "en": "Red",
+                "nl": "Rood"
+              }
+            },
+            {
+              "id": "#ffff00",
+              "title": {
+                "en": "Yellow",
+                "nl": "Geel"
+              }
+            },
+            {
+              "id": "#0000ff",
+              "title": {
+                "en": "Blue",
+                "nl": "Blauw"
+              }
+            },
+            {
+              "id": "#ffa500",
+              "title": {
+                "en": "Orange",
+                "nl": "Oranje"
+              }
+            },
+            {
+              "id": "#808080",
+              "title": {
+                "en": "Gray",
+                "nl": "Grijs"
+              }
+            },
+            {
+              "id": "#800080",
+              "title": {
+                "en": "Purple",
+                "nl": "Paars"
+              }
+            },
+            {
+              "id": "#a52a2a",
+              "title": {
+                "en": "Brown",
+                "nl": "Bruin"
+              }
+            },
+            {
+              "id": "#000000",
+              "title": {
+                "en": "Black",
+                "nl": "Zwart"
+              }
+            },
+            {
+              "id": "#00ffff",
+              "title": {
+                "en": "Cyan",
+                "nl": "Cyaan"
+              }
+            },
+            {
+              "id": "#ff00ff",
+              "title": {
+                "en": "Magenta",
+                "nl": "Magenta"
+              }
+            },
+            {
+              "id": "#32cd32",
+              "title": {
+                "en": "Lime Green",
+                "nl": "Limoengroen"
+              }
+            },
+            {
+              "id": "#ff4500",
+              "title": {
+                "en": "Orange Red",
+                "nl": "Oranjerood"
+              }
+            },
+            {
+              "id": "#1e90ff",
+              "title": {
+                "en": "Dodger Blue",
+                "nl": "Hemelsblauw"
+              }
+            },
+            {
+              "id": "#4b0082",
+              "title": {
+                "en": "Indigo",
+                "nl": "Indigo"
+              }
+            },
+            {
+              "id": "#daa520",
+              "title": {
+                "en": "Goldenrod",
+                "nl": "Goudgeel"
+              }
+            },
+            {
+              "id": "#8b4513",
+              "title": {
+                "en": "Saddle Brown",
+                "nl": "Zadelbruin"
+              }
+            },
+            {
+              "id": "#48d1cc",
+              "title": {
+                "en": "Medium Turquoise",
+                "nl": "Turkoois"
+              }
+            },
+            {
+              "id": "#ff1493",
+              "title": {
+                "en": "Deep Pink",
+                "nl": "Dieproze"
+              }
+            }
+          ]
+        },
+        {
+          "id": "completionMessage",
+          "type": "text",
+          "title": {
+            "en": "Completion message (overrides flow card)",
+            "nl": "Voltooiingsbericht (overschrijft flow card)"
+          }
+        },
+        {
+          "id": "showName",
+          "type": "checkbox",
+          "title": {
+            "en": "Show name",
+            "nl": "Toon naam"
+          },
+          "value": true
+        },
+        {
+          "id": "overwriteName",
+          "type": "text",
+          "title": {
+            "en": "Overwrite name",
+            "nl": "Naam overschrijven"
+          }
+        },
+        {
+          "id": "showSeconds",
+          "type": "checkbox",
+          "title": {
+            "en": "Show seconds",
+            "nl": "Toon seconden"
+          },
+          "value": true
+        }
+      ],
+      "api": {
+        "datasource": {
+          "method": "POST",
+          "path": "/datasource"
+        },
+        "getTimeAndLanguage": {
+          "method": "GET",
+          "path": "/getTimeAndLanguage"
+        },
+        "logMessage": {
+          "method": "POST",
+          "path": "/logMessage"
+        },
+        "logError": {
+          "method": "POST",
+          "path": "/logError"
+        }
+      },
+      "id": "countdown"
     },
     "label": {
       "name": {

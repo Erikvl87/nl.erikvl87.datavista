@@ -1,0 +1,2305 @@
+<html>
+	<head>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				height: 100vh;
+				overflow: hidden;
+				position: relative;
+			}
+
+			.homey-widget {
+				display: flex;
+				flex-direction: column;
+				align-items: stretch;
+				height: 100%;
+				padding: var(--homey-su-3) var(--homey-su-4) var(--homey-su-4);
+				position: relative;
+			}
+
+			/* ── Particle canvas (particles style only) ── */
+			#particle-canvas {
+				display: none;
+				position: absolute;
+				inset: 0;
+				width: 100%;
+				height: 100%;
+				pointer-events: none;
+			}
+
+			/* ── Title ── */
+			#title {
+				flex-shrink: 0;
+				text-align: left;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+
+			/* Inner span used by static styles so scheduleMarqueeCheck can measure scrollWidth */
+			#title .title-text {
+				display: inline-block;
+				white-space: nowrap;
+			}
+
+			/* ── Main container ── */
+			#countdown-container {
+				position: relative;
+				z-index: 1;
+				flex: 1;
+				min-height: 0;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				gap: 4px;
+			}
+
+			/* ── Units row ── */
+			#units-row {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 0;
+				width: 100%;
+			}
+
+			.unit {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				min-width: 42px;
+			}
+
+			.unit .value {
+				font-size: 28px;
+				font-weight: 600;
+				line-height: 1;
+				letter-spacing: -0.5px;
+				color: var(--countdown-accent, var(--homey-text-color));
+				font-variant-numeric: tabular-nums;
+			}
+
+			.unit .label {
+				font-size: 10px;
+				color: var(--homey-text-color-light, var(--homey-text-color));
+				opacity: 0.6;
+				text-transform: lowercase;
+				margin-top: 2px;
+			}
+
+			.unit-sep {
+				font-size: 22px;
+				font-weight: 300;
+				color: var(--homey-text-color);
+				opacity: 0.35;
+				padding: 0 2px;
+				margin-bottom: 14px;
+				line-height: 1;
+			}
+
+			/* ── Completion message ── */
+			#completion-message {
+				display: none;
+				font-size: 18px;
+				font-weight: 600;
+				text-align: center;
+				color: var(--countdown-accent, var(--homey-text-color));
+				padding: 4px 8px;
+				animation: pulse 2s ease-in-out infinite;
+			}
+
+			@keyframes pulse {
+				0%, 100% { transform: scale(1); opacity: 1; }
+				50% { transform: scale(1.04); opacity: 0.85; }
+			}
+
+			@keyframes fadeIn {
+				from { opacity: 0; transform: scale(0.92); }
+				to { opacity: 1; transform: scale(1); }
+			}
+
+			.completion-visible {
+				animation: fadeIn 0.6s ease-out forwards, pulse 2s ease-in-out 0.6s infinite !important;
+			}
+
+			/* ══════════════════════════════════════
+			   STYLE: BLOCKS
+			   ══════════════════════════════════════ */
+			.blocks .unit-sep {
+				display: none;
+			}
+
+			.blocks #units-row {
+				gap: 8px;
+			}
+
+			.blocks .unit {
+				position: relative;
+				background:
+					linear-gradient(
+						180deg,
+						var(--homey-color-mono-100, rgba(255, 255, 255, 0.06)) 0%,
+						var(--homey-color-mono-200, rgba(0, 0, 0, 0.08)) 100%
+					);
+				border: 1px solid var(--countdown-accent-20);
+				border-radius: 10px;
+				padding: 12px 10px 6px;
+				min-width: 54px;
+				overflow: hidden;
+				box-shadow:
+					0 2px 6px rgba(0, 0, 0, 0.12),
+					inset 0 1px 0 rgba(255, 255, 255, 0.08);
+			}
+
+			.blocks .unit::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				height: 3px;
+				background: var(--countdown-accent);
+				opacity: 0.85;
+			}
+
+			.blocks .unit .value {
+				font-size: 26px;
+				font-weight: 700;
+			}
+
+			.blocks .unit .label {
+				font-size: 9px;
+				font-weight: 600;
+				margin-top: 4px;
+				padding-top: 4px;
+				width: 100%;
+				text-align: center;
+				text-transform: uppercase;
+				letter-spacing: 0.6px;
+				opacity: 0.7;
+				border-top: 1px solid var(--homey-color-mono-300, rgba(128, 128, 128, 0.18));
+			}
+
+			/* ══════════════════════════════════════
+			   STYLE: FLIP (split-flap train station clock)
+			   ══════════════════════════════════════ */
+			.flip #units-row {
+				gap: 6px;
+			}
+
+			.flip .unit-sep {
+				font-family: 'Courier New', 'Menlo', monospace;
+				font-size: 22px;
+				font-weight: 700;
+				color: var(--homey-text-color);
+				opacity: 0.35;
+				padding: 0;
+				margin: 0 -3px 14px;
+			}
+
+			.flip .unit {
+				min-width: 0;
+				padding: 0;
+				background: transparent;
+			}
+
+			.flip .unit .value {
+				display: inline-flex;
+				gap: 2px;
+				perspective: 220px;
+			}
+
+			/* Positioned 3D container — no card styling here */
+			.flip .unit .value .digit {
+				position: relative;
+				display: inline-block;
+				transform-style: preserve-3d;
+				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+			}
+
+			/* Center divider line — always on top of all layers */
+			.flip .unit .value .digit::after {
+				content: '';
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: 50%;
+				height: 1px;
+				background: rgba(0, 0, 0, 0.85);
+				box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+				pointer-events: none;
+				z-index: 4;
+			}
+
+			/* Shared card appearance for all three layers */
+			.flip .unit .value .digit .d-back,
+			.flip .unit .value .digit .d-bot,
+			.flip .unit .value .digit .d-top {
+				min-width: 24px;
+				padding: 8px 4px 6px;
+				background: linear-gradient(
+					180deg,
+					#2e2e33 0%,
+					#383840 49.5%,
+					#1a1a1e 50%,
+					#252528 100%
+				);
+				border-radius: 5px;
+				color: #ffffff;
+				font-family: 'Courier New', 'Menlo', monospace;
+				font-size: 30px;
+				font-weight: 700;
+				text-align: center;
+				text-shadow: 0 0 8px rgba(255, 255, 255, 0.25), 0 1px 2px rgba(0, 0, 0, 0.8);
+			}
+
+			/* Back card: in normal flow to size .digit, shows the NEXT value */
+			.flip .unit .value .digit .d-back {
+				display: block;
+				z-index: 1;
+				box-shadow:
+					inset 0 1px 0 rgba(255, 255, 255, 0.10),
+					inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+			}
+
+			/* Bottom half: static, covers d-back's bottom with the current value */
+			.flip .unit .value .digit .d-bot {
+				position: absolute;
+				inset: 0;
+				display: block;
+				clip-path: inset(50% 0 0 0);
+				z-index: 2;
+				box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+			}
+
+			/* Top flap: animated — clips to top half, rotates away to reveal d-back */
+			.flip .unit .value .digit .d-top {
+				position: absolute;
+				inset: 0;
+				display: block;
+				clip-path: inset(0 0 50% 0);
+				transform-origin: center 50%;
+				backface-visibility: hidden;
+				will-change: transform;
+				z-index: 3;
+				box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+			}
+
+			@keyframes flip-top {
+				0%   { transform: rotateX(0deg); }
+				100% { transform: rotateX(-90deg); }
+			}
+
+			.flip .unit .value .digit .d-top.flipping {
+				animation: flip-top 0.18s ease-in forwards;
+			}
+
+			.flip .unit .label {
+				margin-top: 6px;
+				font-size: 9px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 1.2px;
+				opacity: 0.6;
+			}
+
+			.flip #completion-message {
+				color: var(--countdown-accent, #f5ead0);
+			}
+
+			/* ══════════════════════════════════════
+			   STYLE: PARTICLES
+			   ══════════════════════════════════════ */
+			.particles {
+				background: transparent !important;
+			}
+
+			.particles #particle-canvas {
+				display: block;
+			}
+
+			.particles #countdown-container {
+				background: transparent;
+				border-radius: 10px;
+				padding: 8px 16px 6px;
+			}
+
+			.particles .unit .value {
+				font-weight: 700;
+			}
+
+			.particles .unit .label {
+				color: var(--countdown-accent-50);
+				opacity: 1;
+			}
+
+			.particles .unit-sep {
+				color: var(--homey-text-color);
+				opacity: 0.35;
+			}
+
+			.particles #completion-message {
+				color: var(--countdown-accent);
+				text-shadow:
+					0 0 8px var(--countdown-accent-90),
+					0 0 20px var(--countdown-accent-30);
+			}
+
+			/* ══════════════════════════════════════
+			   STYLE: HOURGLASS
+			   ══════════════════════════════════════ */
+			#hourglass-wrap {
+				display: none;
+			}
+
+			/* Shared dissolve animation for any element that fades out on completion */
+			.dissolve-host {
+				transition: opacity 0.25s ease, transform 0.25s ease;
+			}
+
+			.dissolve-host.dissolving {
+				opacity: 0;
+				transform: scale(0.92);
+				pointer-events: none;
+				position: absolute;
+			}
+
+			/* SVG <g> elements don't use HTML positioning, and CSS transform-origin
+			   on SVG groups doesn't center predictably across browsers — keep the
+			   completion fade pure-opacity for the hourglass scene group. */
+			#hg-scene.dissolving {
+				transform: none;
+				position: static;
+			}
+
+			#hourglass {
+				display: block;
+				width: 100%;
+				height: auto;
+				overflow: visible;
+			}
+
+			.hg-glass {
+				fill: url(#hg-glass-top);
+				stroke: rgba(255, 255, 255, 0.30);
+				stroke-width: 0.5;
+				stroke-linejoin: round;
+			}
+
+			.hg-glass-bot {
+				fill: url(#hg-glass-bot);
+				stroke: rgba(255, 255, 255, 0.30);
+				stroke-width: 0.5;
+				stroke-linejoin: round;
+			}
+
+			.hg-neck {
+				fill: url(#hg-neck-grad);
+				stroke: rgba(255, 255, 255, 0.18);
+				stroke-width: 0.4;
+			}
+
+			.hg-sand {
+				fill: #f0e8d0;
+			}
+
+			.hg-grain {
+				fill: #f0e8d0;
+			}
+
+			.hourglass #hourglass-wrap {
+				display: block;
+				width: 100%;
+			}
+
+			.hourglass.homey-widget {
+				padding: 0;
+				background: #2a1a0a;
+			}
+
+			/* ── Brass nameplate label ── */
+			/* The brass plaque is rendered inside the hourglass SVG itself (#hg-plaque),
+			   so the HTML #title element is unused for the hourglass style. */
+			.hourglass #title {
+				display: none;
+			}
+
+			.hourglass #countdown-container {
+				gap: 6px;
+				justify-content: flex-start;
+			}
+
+			/* The countdown is engraved on the brass plate inside the SVG scene, so the
+			   HTML units row and any centred completion banner are suppressed entirely. */
+			.hourglass #units-row,
+			.hourglass #completion-message {
+				display: none !important;
+			}
+
+			/* Completion embers: small golden motes rise out of the hourglass bottom bulb
+			   once the countdown hits zero — same celebration role the confetti plays for
+			   the racecar style, but kept quiet and warm to fit the candlelit study. */
+			.hg-ember {
+				opacity: 0;
+				transform-box: fill-box;
+				transform-origin: center;
+			}
+
+			.hourglass.hourglass-completed .hg-ember {
+				animation: hg-ember-rise 2.6s ease-in-out infinite;
+			}
+
+			.hourglass.hourglass-completed #hg-embers circle:nth-child(1) { animation-delay: 0s; }
+			.hourglass.hourglass-completed #hg-embers circle:nth-child(2) { animation-delay: 0.35s; }
+			.hourglass.hourglass-completed #hg-embers circle:nth-child(3) { animation-delay: 0.70s; }
+			.hourglass.hourglass-completed #hg-embers circle:nth-child(4) { animation-delay: 1.05s; }
+			.hourglass.hourglass-completed #hg-embers circle:nth-child(5) { animation-delay: 1.40s; }
+			.hourglass.hourglass-completed #hg-embers circle:nth-child(6) { animation-delay: 1.75s; }
+			.hourglass.hourglass-completed #hg-embers circle:nth-child(7) { animation-delay: 2.10s; }
+
+			@keyframes hg-ember-rise {
+				0%   { transform: translate(0, 0) scale(0.4); opacity: 0; }
+				15%  { opacity: 0.95; }
+				100% { transform: translate(var(--hg-ember-dx, 0px), -42px) scale(1.15); opacity: 0; }
+			}
+
+			/* Plate carrying the running countdown fades out on completion — the parchment
+			   plaque already shows the completion message, so the time becomes redundant. */
+			#hg-time-plate {
+				transition: opacity 0.5s ease-out;
+			}
+
+			.hourglass.hourglass-completed #hg-time-plate {
+				opacity: 0;
+			}
+
+			/* Plaque text pulses with a soft warm halo once the timer completes. */
+			#hg-plaque-text {
+				transition: filter 0.4s ease;
+			}
+
+			.hourglass.hourglass-completed #hg-plaque-text {
+				animation: hg-plaque-glow 2.4s ease-in-out infinite;
+			}
+
+			@keyframes hg-plaque-glow {
+				0%, 100% { filter: drop-shadow(0 0 0 rgba(255,200,120,0)); }
+				50%      { filter: drop-shadow(0 0 1.2px rgba(255,200,120,0.85)); }
+			}
+
+			/* Plaque text ticker — scrolls when label is too long to fit the parchment */
+			@keyframes hg-marquee {
+				0%, 20%  { transform: translateX(0); }
+				100%     { transform: translateX(calc(-1 * var(--hg-marquee-shift, 0px))); }
+			}
+			#hg-plaque-text.hg-marquee {
+				animation: hg-marquee var(--hg-marquee-dur, 8s) linear infinite;
+			}
+
+			/* ══════════════════════════════════════
+			   STYLE: RINGS
+			   ══════════════════════════════════════ */
+			.unit .ring {
+				display: none;
+			}
+
+			.rings .unit-sep {
+				display: none;
+			}
+
+			.rings #units-row {
+				gap: 8px;
+			}
+
+			.rings .unit {
+				position: relative;
+				width: 50px;
+				min-width: 50px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+
+			.rings .unit .ring {
+				display: block;
+				width: 50px;
+				height: 50px;
+				transform: rotate(-90deg);
+			}
+
+			.rings .unit .ring-bg {
+				fill: none;
+				stroke: var(--homey-color-mono-300, rgba(128, 128, 128, 0.20));
+				stroke-width: 2.5;
+			}
+
+			.rings .unit .ring-fg {
+				fill: none;
+				stroke: var(--countdown-accent, var(--homey-text-color));
+				stroke-width: 2.5;
+				stroke-linecap: round;
+				stroke-dasharray: 97.39;
+				stroke-dashoffset: 0;
+				transition: stroke-dashoffset 0.4s ease;
+			}
+
+			.rings .unit .value {
+				position: absolute;
+				top: 25px;
+				left: 0;
+				right: 0;
+				transform: translateY(-50%);
+				text-align: center;
+				font-size: 16px;
+				font-weight: 600;
+				font-variant-numeric: tabular-nums;
+				color: var(--homey-text-color);
+				line-height: 1;
+			}
+
+			.rings .unit .label {
+				font-size: 9px;
+				margin-top: 2px;
+				text-transform: uppercase;
+				letter-spacing: 0.4px;
+				opacity: 0.55;
+			}
+
+			.rings #completion-message {
+				color: var(--countdown-accent);
+			}
+
+			/* ══════════════════════════════════════
+			   STYLE: RACECAR
+			   ══════════════════════════════════════ */
+			#racecar-wrap {
+				display: none;
+				width: 100%;
+			}
+
+			#racecar {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+
+			/* Car body uses the user-chosen accent color */
+			.rc-body {
+				fill: var(--countdown-accent, #d4a55a);
+			}
+
+			/* Checkered-flag + confetti are hidden during countdown, revealed on completion */
+			.rc-flag,
+			.rc-confetti {
+				opacity: 0;
+				transition: opacity 0.4s ease;
+			}
+
+			/* Subtle motion lines trailing the car */
+			.rc-speedlines rect {
+				fill: rgba(255, 255, 255, 0.55);
+				animation: rc-speed 0.5s ease-in-out infinite;
+			}
+			.rc-speedlines rect:nth-child(2) { animation-delay: 0.12s; }
+			.rc-speedlines rect:nth-child(3) { animation-delay: 0.24s; }
+
+			@keyframes rc-speed {
+				0%, 100% { opacity: 0.7; transform: translateX(0); }
+				50%      { opacity: 0.15; transform: translateX(-2px); }
+			}
+
+			/* Wheel spin (only when racing) */
+			.rc-wheel-spin {
+				transform-box: fill-box;
+				transform-origin: center;
+				animation: rc-spin 0.18s linear infinite;
+			}
+
+			@keyframes rc-spin {
+				to { transform: rotate(360deg); }
+			}
+
+			.racecar #racecar-wrap {
+				display: block;
+			}
+
+			/* Remove widget padding so SVG scenes run edge-to-edge */
+			.racecar.homey-widget,
+			.racehorse.homey-widget {
+				padding: 0;
+			}
+
+			/* Racecar: green background + sign+track pushed to bottom; ~40px of grass shows as sky above */
+			.racecar.homey-widget {
+				background: rgba(100, 155, 70, 0.55);
+				justify-content: flex-end;
+			}
+
+			.racecar #countdown-container,
+			.racehorse #countdown-container {
+				gap: 6px;
+			}
+
+			/* Racecar: countdown-container sizes to SVG only (sky fills the rest via widget background) */
+			.racecar #countdown-container {
+				justify-content: flex-start;
+				flex: none;
+			}
+
+			/* Racehorse: sign at widget top edge, horse SVG at bottom of the flex-1 container */
+			.racehorse #countdown-container {
+				justify-content: flex-end;
+			}
+
+			/* Race styles: time is shown in the ad board — units row is not used */
+			.racecar #units-row,
+			.racehorse #units-row {
+				display: none !important;
+			}
+
+			.racecar .unit,
+			.racehorse .unit {
+				min-width: 0;
+				padding: 0 1px;
+			}
+
+			.racecar .unit .value,
+			.racehorse .unit .value {
+				font-family: 'Courier New', 'Menlo', 'Consolas', monospace;
+				font-size: 18px;
+				font-weight: 700;
+				line-height: 1;
+				color: var(--countdown-clock, #ffb300);
+				letter-spacing: 0.6px;
+				font-variant-numeric: tabular-nums;
+				text-shadow:
+					0 0 4px var(--countdown-clock-85, rgba(255, 179, 0, 0.85)),
+					0 0 9px var(--countdown-clock-40, rgba(255, 140, 0, 0.4)),
+					0 1px 0 rgba(0, 0, 0, 0.6);
+			}
+
+			.racecar .unit .label,
+			.racehorse .unit .label {
+				display: block;
+				font-family: 'Courier New', 'Menlo', 'Consolas', monospace;
+				font-size: 9px;
+				line-height: 1;
+				margin-top: 1px;
+				color: var(--countdown-clock, #ffb300);
+				opacity: 0.75;
+				text-transform: lowercase;
+				letter-spacing: 0.5px;
+				text-shadow: 0 0 3px var(--countdown-clock-40, rgba(255, 140, 0, 0.4));
+			}
+
+			.racecar .unit-sep,
+			.racehorse .unit-sep {
+				font-family: 'Courier New', 'Menlo', 'Consolas', monospace;
+				font-size: 18px;
+				font-weight: 700;
+				line-height: 1;
+				color: var(--countdown-clock, #ffb300);
+				opacity: 0.95;
+				padding: 0 1px;
+				margin-bottom: 10px;
+				text-shadow:
+					0 0 4px var(--countdown-clock-70, rgba(255, 179, 0, 0.7)),
+					0 1px 0 rgba(0, 0, 0, 0.6);
+				animation: rc-colon-blink 1s steps(1) infinite;
+			}
+
+			@keyframes rc-colon-blink {
+				0%, 50%      { opacity: 0.95; }
+				50.01%, 100% { opacity: 0.25; }
+			}
+
+			.racecar #completion-message,
+			.racehorse #completion-message {
+				color: var(--countdown-accent);
+			}
+
+			/* ── Race styles: title as F1 trackside ad board ── */
+			.racecar #title,
+			.racehorse #title {
+				font-family: 'Arial Black', 'Arial', sans-serif;
+				font-size: 11px;
+				font-weight: 900;
+				font-style: italic;
+				letter-spacing: 0.8px;
+				text-transform: uppercase;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				color: #111;
+				border: 1.5px solid #1a1a1a;
+				border-radius: 2px;
+				padding: 3px 8px 3px 22px;
+				position: relative;
+				box-shadow:
+					0 2px 0 #111,
+					0 3px 6px rgba(0, 0, 0, 0.55);
+			}
+
+			/* Racecar: clean white ad board — border wraps only the white face */
+			.racecar #title {
+				background: #f5f5f5;
+				overflow: hidden;
+				margin: 0 14px;
+				transform: skewX(12deg);
+				/* shared rule supplies padding-left: 22px (16px accent tab + ~6px gap) */
+			}
+
+			/* Accent colour tab — flush at the left edge of the white board */
+			.racecar #title::before {
+				content: '';
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				width: 16px;
+				background: var(--countdown-accent, #e10600);
+				border-right: 1.5px solid #1a1a1a;
+			}
+
+			/* Racehorse: full-width board to hold label | time — upright, no skew */
+			.racehorse #title {
+				background: #f5f5f5;
+				padding: 4px 10px;
+				margin: 0 14px;
+				overflow: visible;
+				z-index: 2;
+				font-style: normal;
+			}
+
+			/* Left mounting pole — straight */
+			.racehorse #title::before {
+				content: '';
+				position: absolute;
+				top: 100%;
+				left: 16%;
+				width: 3px;
+				height: 22px;
+				background: linear-gradient(to bottom, #999, #555);
+				border-radius: 0 0 2px 2px;
+			}
+
+			/* Right mounting pole — straight */
+			.racehorse #title::after {
+				content: '';
+				position: absolute;
+				top: 100%;
+				right: 16%;
+				width: 3px;
+				height: 22px;
+				background: linear-gradient(to bottom, #999, #555);
+				border-radius: 0 0 2px 2px;
+			}
+
+			/* ── Race ad board: label | time inline layout ── */
+			.racecar #title .rc-board-clip,
+			.racehorse #title .rc-board-clip {
+				display: flex;
+				align-items: center;
+				overflow: hidden;
+			}
+
+			/* Label and message wrappers: flex-grow, clip content that overflows */
+			.racecar #title .rc-board-clip .rc-label-wrap,
+			.racehorse #title .rc-board-clip .rc-label-wrap,
+			.racecar #title .rc-board-clip .rc-msg-wrap,
+			.racehorse #title .rc-board-clip .rc-msg-wrap {
+				flex: 1;
+				min-width: 0;
+				overflow: hidden;
+			}
+
+			/* Inline-block so scrollWidth reports the true text width for marquee calculation */
+			.racecar #title .rc-board-clip .rc-label,
+			.racehorse #title .rc-board-clip .rc-label,
+			.racecar #title .rc-board-clip .rc-msg,
+			.racehorse #title .rc-board-clip .rc-msg {
+				display: inline-block;
+				white-space: nowrap;
+			}
+
+			.racecar #title .rc-board-clip .rc-sep,
+			.racehorse #title .rc-board-clip .rc-sep {
+				flex-shrink: 0;
+				opacity: 0.4;
+				padding: 0 4px;
+			}
+
+			/* Separator leans ╲: positive skewX pushes bottom right. Remove italic first,
+			   then parent's +12deg + own +12deg = 24deg net toward ╲ */
+			.racecar #title .rc-board-clip .rc-sep {
+				transform: skewX(12deg);
+				font-style: normal;
+			}
+
+			/* Racecar time leans ╲ at the same angle as the separator */
+			.racecar #title .rc-board-clip .rc-time {
+				transform: skewX(12deg);
+			}
+
+			/* Racecar: label leans ╲ with the board (matches sep + time) */
+			.racecar #title .rc-board-clip .rc-label {
+				transform: skewX(12deg);
+			}
+
+
+			.racecar #title .rc-board-clip .rc-time,
+			.racehorse #title .rc-board-clip .rc-time {
+				flex-shrink: 0;
+				font-variant-numeric: tabular-nums;
+				letter-spacing: 0.5px;
+			}
+
+			/* Solo time (no label): center it */
+			.racecar #title .rc-board-clip .rc-time--solo,
+			.racehorse #title .rc-board-clip .rc-time--solo {
+				flex: 1;
+				text-align: center;
+				letter-spacing: 1px;
+			}
+
+			/* Marquee: scroll label/message text that is wider than the board */
+			@keyframes rc-marquee {
+				0%, 20%  { transform: translateX(0); }
+				100%     { transform: translateX(calc(-1 * var(--rc-marquee-shift, 0px))); }
+			}
+
+			.rc-label.marquee,
+			.rc-msg.marquee,
+			.title-text.marquee {
+				animation: rc-marquee var(--rc-marquee-dur, 8s) linear infinite;
+			}
+
+			/* Completion: stop wheel spin and speed lines, reveal flag + confetti */
+			.racecar.racecar-completed .rc-wheel-spin {
+				animation: none;
+			}
+
+			.racecar.racecar-completed .rc-speedlines {
+				opacity: 0;
+				transition: opacity 0.3s ease;
+			}
+
+			.racecar.racecar-completed .rc-flag,
+			.racecar.racecar-completed .rc-confetti {
+				opacity: 1;
+			}
+
+			.rc-flag-wave {
+				transform-box: fill-box;
+				transform-origin: 0% 50%;
+			}
+
+			.racecar.racecar-completed .rc-flag-wave {
+				animation: rc-wave 0.7s ease-in-out infinite;
+			}
+
+			@keyframes rc-wave {
+				0%, 100% { transform: skewX(-10deg) scaleY(1); }
+				50%      { transform: skewX(10deg)  scaleY(0.88); }
+			}
+
+			.rc-confetti circle {
+				transform-box: fill-box;
+				transform-origin: center;
+			}
+
+			.racecar.racecar-completed .rc-confetti circle {
+				animation: rc-confetti 1.6s ease-in-out infinite;
+			}
+
+			.racecar.racecar-completed .rc-confetti circle:nth-child(1) { animation-delay: 0s; }
+			.racecar.racecar-completed .rc-confetti circle:nth-child(2) { animation-delay: 0.18s; }
+			.racecar.racecar-completed .rc-confetti circle:nth-child(3) { animation-delay: 0.36s; }
+			.racecar.racecar-completed .rc-confetti circle:nth-child(4) { animation-delay: 0.54s; }
+			.racecar.racecar-completed .rc-confetti circle:nth-child(5) { animation-delay: 0.72s; }
+			.racecar.racecar-completed .rc-confetti circle:nth-child(6) { animation-delay: 0.90s; }
+			.racecar.racecar-completed .rc-confetti circle:nth-child(7) { animation-delay: 1.08s; }
+			.racecar.racecar-completed .rc-confetti circle:nth-child(8) { animation-delay: 1.26s; }
+
+			@keyframes rc-confetti {
+				0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
+				15%  { opacity: 1; }
+				100% { transform: translate(var(--rc-cx, 0px), 18px) scale(0.9); opacity: 0; }
+			}
+
+			/* ══════════════════════════════════════
+			   STYLE: RACEHORSE
+			   ══════════════════════════════════════ */
+			#racehorse-wrap {
+				display: none;
+				width: 100%;
+			}
+
+			#racehorse {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+
+			/* Horse coat — dark bay so it reads clearly against the dirt track.
+			   The horse never picks up the accent — that goes on the jockey silks. */
+			.rh-coat {
+				fill: #3a2618;
+			}
+
+			.rh-coat-shade {
+				fill: #1f1208;
+			}
+
+			/* Jockey silks pick up the user-chosen accent colour */
+			.rh-silks {
+				fill: var(--countdown-accent, #c43b3b);
+			}
+
+			/* Trophy + confetti hidden during countdown, revealed on completion */
+			.rh-trophy,
+			.rh-confetti {
+				opacity: 0;
+				transition: opacity 0.5s ease-out;
+			}
+
+			/* Dust kicked up behind the horse while galloping */
+			.rh-dust circle {
+				transform-box: fill-box;
+				transform-origin: center;
+				animation: rh-dust 0.7s ease-out infinite;
+				opacity: 0;
+			}
+			.rh-dust circle:nth-child(2) { animation-delay: 0.22s; }
+			.rh-dust circle:nth-child(3) { animation-delay: 0.44s; }
+
+			@keyframes rh-dust {
+				0%   { transform: translate(0, 0) scale(0.5); opacity: 0.7; }
+				100% { transform: translate(-7px, -1.5px) scale(1.5); opacity: 0; }
+			}
+
+			/* Gallop: two leg-frame groups alternate every 120ms (≈4Hz) */
+			.rh-legs-a,
+			.rh-legs-b {
+				animation-duration: 0.24s;
+				animation-iteration-count: infinite;
+				animation-timing-function: steps(1);
+			}
+			.rh-legs-a { animation-name: rh-frame-a; }
+			.rh-legs-b { animation-name: rh-frame-b; }
+			.rh-legs-stand { opacity: 0; }
+
+			@keyframes rh-frame-a {
+				0%, 49%   { opacity: 1; }
+				50%, 100% { opacity: 0; }
+			}
+			@keyframes rh-frame-b {
+				0%, 49%   { opacity: 0; }
+				50%, 100% { opacity: 1; }
+			}
+
+			/* Subtle vertical bob synchronised with the gallop */
+			.rh-body-bob {
+				animation: rh-bob 0.24s ease-in-out infinite;
+			}
+			@keyframes rh-bob {
+				0%, 100% { transform: translateY(0); }
+				50%      { transform: translateY(-0.7px); }
+			}
+
+			/* Tail swish */
+			.rh-tail {
+				transform-box: fill-box;
+				transform-origin: 100% 30%;
+				animation: rh-tail-swish 0.7s ease-in-out infinite alternate;
+			}
+			@keyframes rh-tail-swish {
+				0%   { transform: rotate(-7deg); }
+				100% { transform: rotate(9deg); }
+			}
+
+			/* Mane flap */
+			.rh-mane {
+				transform-box: fill-box;
+				transform-origin: 0% 100%;
+				animation: rh-mane-flap 0.55s ease-in-out infinite alternate;
+			}
+			@keyframes rh-mane-flap {
+				0%   { transform: skewX(2deg); }
+				100% { transform: skewX(-8deg); }
+			}
+
+			.racehorse #racehorse-wrap {
+				display: block;
+			}
+
+			/* Completion: freeze gallop, show standing pose, reveal trophy + confetti */
+			.racehorse.racehorse-completed .rh-legs-a,
+			.racehorse.racehorse-completed .rh-legs-b {
+				display: none;
+			}
+			.racehorse.racehorse-completed .rh-legs-stand {
+				opacity: 1;
+			}
+			.racehorse.racehorse-completed .rh-body-bob,
+			.racehorse.racehorse-completed .rh-tail,
+			.racehorse.racehorse-completed .rh-mane {
+				animation: none;
+				transform: none;
+			}
+			.racehorse.racehorse-completed .rh-dust {
+				opacity: 0;
+				transition: opacity 0.3s ease;
+			}
+			.racehorse.racehorse-completed .rh-trophy,
+			.racehorse.racehorse-completed .rh-confetti {
+				opacity: 1;
+			}
+
+			.rh-confetti circle {
+				transform-box: fill-box;
+				transform-origin: center;
+			}
+			.racehorse.racehorse-completed .rh-confetti circle {
+				animation: rc-confetti 1.6s ease-in-out infinite;
+			}
+			.racehorse.racehorse-completed .rh-confetti circle:nth-child(1) { animation-delay: 0s; }
+			.racehorse.racehorse-completed .rh-confetti circle:nth-child(2) { animation-delay: 0.18s; }
+			.racehorse.racehorse-completed .rh-confetti circle:nth-child(3) { animation-delay: 0.36s; }
+			.racehorse.racehorse-completed .rh-confetti circle:nth-child(4) { animation-delay: 0.54s; }
+			.racehorse.racehorse-completed .rh-confetti circle:nth-child(5) { animation-delay: 0.72s; }
+			.racehorse.racehorse-completed .rh-confetti circle:nth-child(6) { animation-delay: 0.90s; }
+			.racehorse.racehorse-completed .rh-confetti circle:nth-child(7) { animation-delay: 1.08s; }
+			.racehorse.racehorse-completed .rh-confetti circle:nth-child(8) { animation-delay: 1.26s; }
+
+			/* ══════════════════════════════════════
+			   STYLE: BOAT
+			   ══════════════════════════════════════ */
+			#boat-wrap {
+				display: none;
+				width: 100%;
+			}
+			#boat {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+			.boat #boat-wrap { display: block; }
+			.boat.homey-widget {
+				padding: 0;
+				padding-top: var(--homey-su-3);
+				background: rgba(20, 100, 160, 0.55);
+			}
+			.boat #units-row { display: none !important; }
+			/* Boat: sign at widget top edge, boat SVG at bottom of the flex-1 container */
+			.boat #countdown-container {
+				gap: 6px;
+				justify-content: flex-end;
+			}
+			.boat .unit {
+				min-width: 0;
+				padding: 0 1px;
+			}
+
+			/* Hull stripe picks up user accent color */
+			.bt-hull-stripe {
+				fill: var(--countdown-accent, #f97316);
+			}
+
+			/* Flag and confetti hidden during countdown */
+			.bt-flag,
+			.bt-confetti {
+				opacity: 0;
+				transition: opacity 0.4s ease;
+			}
+
+			/* ── Spray particles ── */
+			.bt-spray circle {
+				transform-box: fill-box;
+				transform-origin: center;
+				animation: bt-spray 0.75s ease-out infinite;
+				opacity: 0;
+			}
+			.bt-spray circle:nth-child(2) { animation-delay: 0.25s; }
+			.bt-spray circle:nth-child(3) { animation-delay: 0.50s; }
+
+			@keyframes bt-spray {
+				0%   { transform: translate(0, 0) scale(0.5);       opacity: 0.75; }
+				100% { transform: translate(-8px, -2px) scale(1.6); opacity: 0; }
+			}
+
+			/* ── Wake lines shimmer ── */
+			.bt-wake-lines line {
+				animation: bt-wake-shimmer 0.9s ease-in-out infinite alternate;
+			}
+			.bt-wake-lines line:nth-child(2) { animation-delay: 0.18s; }
+
+			@keyframes bt-wake-shimmer {
+				0%   { opacity: 0.60; }
+				100% { opacity: 0.25; }
+			}
+
+			/* ── Background wave oscillation ── */
+			.bt-wave-1 { animation: bt-wave-scroll 3.2s ease-in-out infinite alternate; }
+			.bt-wave-2 { animation: bt-wave-scroll 4.1s ease-in-out infinite alternate-reverse; }
+			.bt-wave-3 { animation: bt-wave-scroll 3.7s ease-in-out infinite alternate; }
+
+			@keyframes bt-wave-scroll {
+				0%   { transform: translateX(0); }
+				100% { transform: translateX(8px); }
+			}
+
+			/* ── Bow wave bob ── */
+			.bt-bow-wave {
+				transform-box: fill-box;
+				transform-origin: left center;
+				animation: bt-bow-bob 0.4s ease-in-out infinite alternate;
+			}
+			@keyframes bt-bow-bob {
+				0%   { transform: scaleY(1.0) translateX(0);    opacity: 0.65; }
+				100% { transform: scaleY(0.7) translateX(1px);  opacity: 0.90; }
+			}
+
+			/* ── Boat: clock and colon styling (mirrors racecar/racehorse) ── */
+			.boat .unit .value {
+				font-family: 'Courier New', 'Menlo', 'Consolas', monospace;
+				font-size: 18px;
+				font-weight: 700;
+				line-height: 1;
+				color: var(--countdown-clock, #ffb300);
+				letter-spacing: 0.6px;
+				font-variant-numeric: tabular-nums;
+				text-shadow:
+					0 0 4px var(--countdown-clock-85, rgba(255, 179, 0, 0.85)),
+					0 0 9px var(--countdown-clock-40, rgba(255, 140, 0, 0.4)),
+					0 1px 0 rgba(0, 0, 0, 0.6);
+			}
+			.boat .unit .label {
+				display: block;
+				font-family: 'Courier New', 'Menlo', 'Consolas', monospace;
+				font-size: 9px;
+				line-height: 1;
+				margin-top: 1px;
+				color: var(--countdown-clock, #ffb300);
+				opacity: 0.75;
+				text-transform: lowercase;
+				letter-spacing: 0.5px;
+				text-shadow: 0 0 3px var(--countdown-clock-40, rgba(255, 140, 0, 0.4));
+			}
+			.boat .unit-sep {
+				font-family: 'Courier New', 'Menlo', 'Consolas', monospace;
+				font-size: 18px;
+				font-weight: 700;
+				line-height: 1;
+				color: var(--countdown-clock, #ffb300);
+				opacity: 0.95;
+				padding: 0 1px;
+				margin-bottom: 10px;
+				text-shadow:
+					0 0 4px var(--countdown-clock-70, rgba(255, 179, 0, 0.7)),
+					0 1px 0 rgba(0, 0, 0, 0.6);
+				animation: rc-colon-blink 1s steps(1) infinite;
+			}
+
+			/* ── Boat: title as nautical dock/pier sign ── */
+			.boat #title {
+				font-family: 'Arial Black', 'Arial', sans-serif;
+				font-size: 11px;
+				font-weight: 900;
+				letter-spacing: 0.8px;
+				text-transform: uppercase;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				color: #fff;
+				background: #1a4a7a;
+				border: 1.5px solid #0d2e4d;
+				border-radius: 3px;
+				padding: 4px 10px;
+				margin: 0 14px;
+				overflow: visible;
+				z-index: 2;
+				font-style: normal;
+				box-shadow:
+					0 2px 0 #0d2e4d,
+					0 3px 6px rgba(0, 0, 0, 0.55);
+			}
+			/* Wooden piling posts below the sign */
+			.boat #title::before,
+			.boat #title::after {
+				content: '';
+				position: absolute;
+				top: 100%;
+				width: 4px;
+				height: 22px;
+				background: linear-gradient(to bottom, #8b6914, #5a3e0a);
+				border-radius: 0 0 2px 2px;
+			}
+			.boat #title::before { left: 16%; }
+			.boat #title::after  { right: 16%; }
+
+			/* Board clip / label / time layout (same DOM as racecar/racehorse) */
+			.boat #title .rc-board-clip {
+				display: flex;
+				align-items: center;
+				overflow: hidden;
+			}
+			.boat #title .rc-board-clip .rc-label-wrap,
+			.boat #title .rc-board-clip .rc-msg-wrap {
+				flex: 1;
+				min-width: 0;
+				overflow: hidden;
+			}
+			.boat #title .rc-board-clip .rc-label,
+			.boat #title .rc-board-clip .rc-msg {
+				display: inline-block;
+				white-space: nowrap;
+			}
+			.boat #title .rc-board-clip .rc-sep {
+				flex-shrink: 0;
+				opacity: 0.4;
+				padding: 0 4px;
+			}
+			.boat #title .rc-board-clip .rc-time {
+				flex-shrink: 0;
+				font-variant-numeric: tabular-nums;
+				letter-spacing: 0.5px;
+			}
+			.boat #title .rc-board-clip .rc-time--solo {
+				flex: 1;
+				text-align: center;
+				letter-spacing: 1px;
+			}
+
+			/* ── Completion state ── */
+			.boat.boat-completed .bt-spray {
+				opacity: 0;
+				transition: opacity 0.4s ease;
+			}
+			.boat.boat-completed .bt-wake-lines {
+				opacity: 0;
+				transition: opacity 0.4s ease;
+			}
+			.boat.boat-completed .bt-bow-wave {
+				animation: none;
+				transform: none;
+			}
+			.boat.boat-completed .bt-wave-1,
+			.boat.boat-completed .bt-wave-2,
+			.boat.boat-completed .bt-wave-3 {
+				animation: none;
+			}
+			.boat.boat-completed .bt-flag,
+			.boat.boat-completed .bt-confetti {
+				opacity: 1;
+			}
+			.boat.boat-completed .bt-flag rect {
+				transform-box: fill-box;
+				transform-origin: 0% 50%;
+				animation: rc-wave 0.7s ease-in-out infinite;
+			}
+			.bt-confetti circle {
+				transform-box: fill-box;
+				transform-origin: center;
+			}
+			.boat.boat-completed .bt-confetti circle {
+				animation: rc-confetti 1.6s ease-in-out infinite;
+			}
+			.boat.boat-completed .bt-confetti circle:nth-child(1) { animation-delay: 0s; }
+			.boat.boat-completed .bt-confetti circle:nth-child(2) { animation-delay: 0.18s; }
+			.boat.boat-completed .bt-confetti circle:nth-child(3) { animation-delay: 0.36s; }
+			.boat.boat-completed .bt-confetti circle:nth-child(4) { animation-delay: 0.54s; }
+			.boat.boat-completed .bt-confetti circle:nth-child(5) { animation-delay: 0.72s; }
+			.boat.boat-completed .bt-confetti circle:nth-child(6) { animation-delay: 0.90s; }
+			.boat.boat-completed .bt-confetti circle:nth-child(7) { animation-delay: 1.08s; }
+			.boat.boat-completed .bt-confetti circle:nth-child(8) { animation-delay: 1.26s; }
+		</style>
+	</head>
+
+	<body class="homey-widget" style="visibility: hidden">
+		<canvas id="particle-canvas"></canvas>
+		<div id="title" class="homey-text-small-light"></div>
+		<div id="countdown-container">
+			<div id="hourglass-wrap" class="dissolve-host"><svg id="hourglass" viewBox="0 -30 250 134" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+				<defs>
+					<!-- aged parchment for the framed card sitting on the top shelf -->
+					<linearGradient id="hg-parchment-grad" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%" stop-color="#f5ead0"/>
+						<stop offset="50%" stop-color="#ecdcb0"/>
+						<stop offset="100%" stop-color="#d9c490"/>
+					</linearGradient>
+					<clipPath id="hg-plaque-text-clip" clipPathUnits="userSpaceOnUse">
+						<rect x="60" y="-27" width="130" height="13"/>
+					</clipPath>
+					<!-- hourglass material gradients (shared with nested SVG via document-scope ID) -->
+					<linearGradient id="hg-wood" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%" stop-color="#c79a72"/>
+						<stop offset="50%" stop-color="#8a6a48"/>
+						<stop offset="100%" stop-color="#5a3f25"/>
+					</linearGradient>
+					<linearGradient id="hg-rail-grad" x1="0" y1="0" x2="1" y2="0">
+						<stop offset="0%" stop-color="#4a3420"/>
+						<stop offset="50%" stop-color="#9b7a52"/>
+						<stop offset="100%" stop-color="#3d2a16"/>
+					</linearGradient>
+					<radialGradient id="hg-glass-top" cx="32%" cy="28%" r="80%">
+						<stop offset="0%" stop-color="rgba(255,255,255,0.45)"/>
+						<stop offset="35%" stop-color="rgba(255,255,255,0.08)"/>
+						<stop offset="100%" stop-color="rgba(20,30,50,0.20)"/>
+					</radialGradient>
+					<radialGradient id="hg-glass-bot" cx="32%" cy="72%" r="80%">
+						<stop offset="0%" stop-color="rgba(255,255,255,0.40)"/>
+						<stop offset="35%" stop-color="rgba(255,255,255,0.06)"/>
+						<stop offset="100%" stop-color="rgba(20,30,50,0.20)"/>
+					</radialGradient>
+					<linearGradient id="hg-neck-grad" x1="0" y1="0" x2="1" y2="0">
+						<stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
+						<stop offset="50%" stop-color="rgba(255,255,255,0.04)"/>
+						<stop offset="100%" stop-color="rgba(0,0,0,0.18)"/>
+					</linearGradient>
+					<filter id="hg-shadow" x="-30%" y="-10%" width="160%" height="120%">
+						<feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-opacity="0.40"/>
+					</filter>
+					<!-- clip paths use original 70×112 coordinate space; applied inside the nested SVG -->
+					<clipPath id="hg-top-clip" clipPathUnits="userSpaceOnUse">
+						<path d="M 8 10 Q 8 13, 12 13 L 58 13 Q 62 13, 62 10 L 38 50 Q 35 54, 32 50 Z"/>
+					</clipPath>
+					<clipPath id="hg-bottom-clip" clipPathUnits="userSpaceOnUse">
+						<path d="M 32 62 Q 35 58, 38 62 L 62 99 Q 62 102, 58 102 L 12 102 Q 8 102, 8 99 Z"/>
+					</clipPath>
+					<!-- scene gradients -->
+					<!-- wall uses absolute coords so the gradient stays continuous
+					     across the upper wall (in #hg-plaque) and lower wall (in #hg-scene). -->
+					<linearGradient id="hg-wall-grad" x1="0" y1="-30" x2="0" y2="62" gradientUnits="userSpaceOnUse">
+						<stop offset="0%" stop-color="#4a3018"/>
+						<stop offset="100%" stop-color="#2a1a0a"/>
+					</linearGradient>
+					<linearGradient id="hg-shelf-grad" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%" stop-color="#a07848"/>
+						<stop offset="40%" stop-color="#6a4a28"/>
+						<stop offset="100%" stop-color="#3d2a16"/>
+					</linearGradient>
+					<linearGradient id="hg-candle-grad" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%" stop-color="#f0e8d8"/>
+						<stop offset="100%" stop-color="#c8b898"/>
+					</linearGradient>
+					<radialGradient id="hg-flame-glow" cx="50%" cy="80%" r="60%">
+						<stop offset="0%" stop-color="rgba(255,180,60,0.55)"/>
+						<stop offset="100%" stop-color="rgba(255,120,0,0)"/>
+					</radialGradient>
+					<!-- dark plastic casing of the retro digital clock on the third shelf -->
+					<linearGradient id="hg-clock-body" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%"  stop-color="#3a3236"/>
+						<stop offset="55%" stop-color="#1a1416"/>
+						<stop offset="100%" stop-color="#0a0608"/>
+					</linearGradient>
+					<!-- subtle inner glow tinting the LED display recess -->
+					<radialGradient id="hg-clock-display-glow" cx="50%" cy="50%" r="60%">
+						<stop offset="0%"   stop-color="rgba(255,90,40,0.18)"/>
+						<stop offset="100%" stop-color="rgba(255,90,40,0)"/>
+					</radialGradient>
+					<!-- polished brass case of the compass on the top shelf -->
+					<radialGradient id="hg-compass-ring" cx="35%" cy="35%" r="75%">
+						<stop offset="0%"  stop-color="#f1d488"/>
+						<stop offset="55%" stop-color="#caa14c"/>
+						<stop offset="100%" stop-color="#7a5824"/>
+					</radialGradient>
+					<!-- cream paper dial inside the compass case -->
+					<linearGradient id="hg-compass-face" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%"  stop-color="#f8eecf"/>
+						<stop offset="100%" stop-color="#dcc99c"/>
+					</linearGradient>
+					<!-- glazed ceramic vase body -->
+					<linearGradient id="hg-vase-grad" x1="0" y1="0" x2="1" y2="0">
+						<stop offset="0%"  stop-color="#284c4a"/>
+						<stop offset="45%" stop-color="#3f7773"/>
+						<stop offset="100%" stop-color="#1a3331"/>
+					</linearGradient>
+					<!-- soft golden glow for the completion ember motes -->
+					<radialGradient id="hg-ember-glow" cx="50%" cy="50%" r="50%">
+						<stop offset="0%"   stop-color="rgba(255,220,140,0.95)"/>
+						<stop offset="55%"  stop-color="rgba(255,180,80,0.55)"/>
+						<stop offset="100%" stop-color="rgba(255,140,40,0)"/>
+					</radialGradient>
+					<!-- pearl-white body of the 2019 Homey sphere (off-axis highlight) -->
+					<radialGradient id="hg-homey2019-body" cx="32%" cy="30%" r="78%">
+						<stop offset="0%"  stop-color="#fdfbfd"/>
+						<stop offset="55%" stop-color="#e6e2e8"/>
+						<stop offset="100%" stop-color="#9c95a3"/>
+					</radialGradient>
+					<!-- onyx plastic casing of the 2023 Homey puck -->
+					<linearGradient id="hg-homey2023-body" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%"   stop-color="#2a242a"/>
+						<stop offset="55%"  stop-color="#16121a"/>
+						<stop offset="100%" stop-color="#070509"/>
+					</linearGradient>
+					<!-- RGB LED underglow ring of the 2023 Homey -->
+					<linearGradient id="hg-homey2023-led" x1="0" y1="0" x2="1" y2="0">
+						<stop offset="0%"   stop-color="#ff3aa0"/>
+						<stop offset="35%"  stop-color="#a04cff"/>
+						<stop offset="70%"  stop-color="#3a8cff"/>
+						<stop offset="100%" stop-color="#3affd0"/>
+					</linearGradient>
+					<!-- soft rainbow wash the 2023 Homey casts onto the shelf -->
+					<linearGradient id="hg-homey2023-bloom" x1="0" y1="0" x2="1" y2="0">
+						<stop offset="0%"   stop-color="rgba(255,60,170,0)"/>
+						<stop offset="20%"  stop-color="rgba(255,60,170,0.22)"/>
+						<stop offset="50%"  stop-color="rgba(140,80,255,0.22)"/>
+						<stop offset="80%"  stop-color="rgba(60,160,255,0.22)"/>
+						<stop offset="100%" stop-color="rgba(60,255,200,0)"/>
+					</linearGradient>
+				</defs>
+
+				<!-- Scene wrapper — dissolved on completion while the plaque sibling stays. -->
+				<g id="hg-scene" class="dissolve-host">
+				<!-- ── Wall background ── -->
+				<rect width="250" height="62" fill="url(#hg-wall-grad)"/>
+				<!-- subtle horizontal wainscot lines -->
+				<line x1="0" y1="20" x2="250" y2="20" stroke="rgba(255,200,120,0.07)" stroke-width="0.6"/>
+				<line x1="0" y1="40" x2="250" y2="40" stroke="rgba(255,200,120,0.07)" stroke-width="0.6"/>
+				<line x1="0" y1="58" x2="250" y2="58" stroke="rgba(255,200,120,0.10)" stroke-width="0.8"/>
+
+				<!-- ── Shelf plank ── -->
+				<rect y="62" width="250" height="8" fill="url(#hg-shelf-grad)"/>
+				<rect y="62" width="250" height="1.5" fill="rgba(255,255,255,0.18)"/>
+				<rect y="69" width="250" height="1" fill="rgba(0,0,0,0.40)"/>
+
+				<!-- ── LEFT: stacked books ── -->
+				<!-- book 1 (largest, bottom) — dark green -->
+				<rect x="12" y="26" width="13" height="36" rx="1" fill="#2d4a28"/>
+				<rect x="12" y="26" width="2" height="36" fill="rgba(255,255,255,0.08)"/>
+				<rect x="23" y="26" width="2" height="36" fill="rgba(0,0,0,0.20)"/>
+				<rect x="14" y="34" width="9" height="0.8" fill="rgba(255,220,120,0.35)"/>
+				<rect x="14" y="44" width="9" height="0.8" fill="rgba(255,220,120,0.35)"/>
+				<!-- book 2 (mid) — burnt red -->
+				<rect x="27" y="29" width="11" height="33" rx="1" fill="#7a2a1a"/>
+				<rect x="27" y="29" width="2" height="33" fill="rgba(255,255,255,0.07)"/>
+				<rect x="36" y="29" width="2" height="33" fill="rgba(0,0,0,0.22)"/>
+				<rect x="29" y="39" width="7" height="0.8" fill="rgba(255,200,100,0.30)"/>
+				<!-- book 3 (thin) — leather tan -->
+				<rect x="40" y="33" width="8" height="29" rx="1" fill="#9b7a3a"/>
+				<rect x="40" y="33" width="1.5" height="29" fill="rgba(255,255,255,0.10)"/>
+				<rect x="46" y="33" width="2" height="29" fill="rgba(0,0,0,0.18)"/>
+				<!-- scroll leaning on books -->
+				<rect x="50" y="30" width="7" height="32" rx="3" fill="#d4b87a"/>
+				<rect x="50" y="30" width="7" height="4" rx="2" fill="#b89a58"/>
+				<rect x="50" y="58" width="7" height="4" rx="2" fill="#b89a58"/>
+				<line x1="52" y1="38" x2="56" y2="38" stroke="rgba(80,50,20,0.35)" stroke-width="0.7"/>
+				<line x1="52" y1="42" x2="56" y2="42" stroke="rgba(80,50,20,0.35)" stroke-width="0.7"/>
+				<line x1="52" y1="46" x2="56" y2="46" stroke="rgba(80,50,20,0.35)" stroke-width="0.7"/>
+				<!-- candlelight glow on left wall -->
+				<ellipse cx="210" cy="20" rx="60" ry="30" fill="rgba(255,160,40,0.06)"/>
+
+				<!-- ── CENTER: hourglass in its original 70×112 coordinate space ── -->
+				<svg x="100" y="3" width="50" height="59" viewBox="0 0 70 112" overflow="visible">
+					<g filter="url(#hg-shadow)">
+						<!-- wooden caps -->
+						<rect x="3" y="2" width="64" height="8" rx="2" fill="url(#hg-wood)"/>
+						<rect x="3" y="2" width="64" height="2" rx="1" fill="rgba(255,255,255,0.20)"/>
+						<rect x="3" y="8" width="64" height="2" rx="1" fill="rgba(0,0,0,0.30)"/>
+						<rect x="3" y="102" width="64" height="8" rx="2" fill="url(#hg-wood)"/>
+						<rect x="3" y="102" width="64" height="2" rx="1" fill="rgba(255,255,255,0.20)"/>
+						<rect x="3" y="108" width="64" height="2" rx="1" fill="rgba(0,0,0,0.30)"/>
+
+						<!-- side rails -->
+						<rect x="6.5" y="10" width="1.8" height="92" rx="0.6" fill="url(#hg-rail-grad)"/>
+						<rect x="61.7" y="10" width="1.8" height="92" rx="0.6" fill="url(#hg-rail-grad)"/>
+
+						<!-- glass: top bulb -->
+						<path class="hg-glass" d="M 8 10 Q 8 13, 12 13 L 58 13 Q 62 13, 62 10 L 38 50 Q 35 54, 32 50 Z"/>
+						<!-- glass: bottom bulb -->
+						<path class="hg-glass-bot" d="M 32 62 Q 35 58, 38 62 L 62 99 Q 62 102, 58 102 L 12 102 Q 8 102, 8 99 Z"/>
+						<!-- neck tube -->
+						<rect class="hg-neck" x="33.5" y="50" width="3" height="12"/>
+
+						<!-- sand: top (cone) -->
+						<path id="hg-top-sand" class="hg-sand" clip-path="url(#hg-top-clip)" d="M 8 10 Q 35 14 62 10 L 35 50 Z"/>
+
+						<!-- falling grains -->
+						<g id="hg-grains">
+							<circle class="hg-grain" cx="35" cy="50" r="0.7">
+								<animate attributeName="cy" values="50;100" keyTimes="0;1" dur="0.65s" repeatCount="indefinite"/>
+								<animate attributeName="opacity" values="1;1;0" keyTimes="0;0.92;1" dur="0.65s" repeatCount="indefinite"/>
+								<animate attributeName="cx" values="35;34.7;35.3;35" dur="0.65s" repeatCount="indefinite"/>
+							</circle>
+							<circle class="hg-grain" cx="35" cy="50" r="0.5">
+								<animate attributeName="cy" values="50;100" keyTimes="0;1" dur="0.6s" begin="0.14s" repeatCount="indefinite"/>
+								<animate attributeName="opacity" values="1;1;0" keyTimes="0;0.92;1" dur="0.6s" begin="0.14s" repeatCount="indefinite"/>
+								<animate attributeName="cx" values="35;35.4;34.6;35" dur="0.6s" begin="0.14s" repeatCount="indefinite"/>
+							</circle>
+							<circle class="hg-grain" cx="35" cy="50" r="0.5">
+								<animate attributeName="cy" values="50;100" keyTimes="0;1" dur="0.7s" begin="0.28s" repeatCount="indefinite"/>
+								<animate attributeName="opacity" values="1;1;0" keyTimes="0;0.92;1" dur="0.7s" begin="0.28s" repeatCount="indefinite"/>
+								<animate attributeName="cx" values="35;34.5;35.5;35" dur="0.7s" begin="0.28s" repeatCount="indefinite"/>
+							</circle>
+							<circle class="hg-grain" cx="35" cy="50" r="0.6">
+								<animate attributeName="cy" values="50;100" keyTimes="0;1" dur="0.62s" begin="0.42s" repeatCount="indefinite"/>
+								<animate attributeName="opacity" values="1;1;0" keyTimes="0;0.92;1" dur="0.62s" begin="0.42s" repeatCount="indefinite"/>
+								<animate attributeName="cx" values="35;35.2;34.8;35" dur="0.62s" begin="0.42s" repeatCount="indefinite"/>
+							</circle>
+						</g>
+
+						<!-- sand: bottom (mound) -->
+						<path id="hg-bottom-sand" class="hg-sand" clip-path="url(#hg-bottom-clip)" d="M 8 102 L 8 102 Q 35 102 62 102 L 62 102 Z"/>
+					</g>
+				</svg>
+
+				<!-- ── RIGHT: inkwell + quill + candle ── -->
+				<!-- inkwell body -->
+				<ellipse cx="180" cy="59" rx="6" ry="2" fill="#1a1008"/>
+				<rect x="174" y="48" width="12" height="12" rx="3" fill="#1e140a"/>
+				<ellipse cx="180" cy="48" rx="6" ry="2" fill="#2a1e10"/>
+				<!-- cork -->
+				<ellipse cx="180" cy="47" rx="3.5" ry="1.2" fill="#9b7a52"/>
+				<!-- quill feather -->
+				<path d="M 177 47 Q 168 30 172 16 Q 175 24 177 34 Q 178 40 178 47" fill="rgba(240,230,200,0.90)" stroke="rgba(160,140,100,0.5)" stroke-width="0.4"/>
+				<path d="M 177 47 Q 185 28 183 14 Q 180 23 178 34 Q 177.5 40 178 47" fill="rgba(230,220,185,0.85)" stroke="rgba(160,140,100,0.4)" stroke-width="0.3"/>
+				<line x1="178" y1="16" x2="178" y2="47" stroke="rgba(140,110,70,0.70)" stroke-width="0.5"/>
+				<!-- candle body -->
+				<rect x="205" y="40" width="12" height="22" rx="2" fill="url(#hg-candle-grad)"/>
+				<rect x="205" y="40" width="2" height="22" fill="rgba(255,255,255,0.22)"/>
+				<rect x="215" y="40" width="2" height="22" fill="rgba(0,0,0,0.12)"/>
+				<!-- wax drip -->
+				<path d="M 207 41 Q 206 46 206 50 Q 206 52 207.5 52 Q 208 50 208 47 L 207 41 Z" fill="rgba(240,230,210,0.75)"/>
+				<!-- candle top rim -->
+				<ellipse cx="211" cy="40" rx="6" ry="1.5" fill="#e8dcc8"/>
+				<!-- wick -->
+				<line x1="211" y1="37" x2="211" y2="40" stroke="#3a2a10" stroke-width="0.8" stroke-linecap="round"/>
+				<!-- flame glow -->
+				<ellipse cx="211" cy="30" rx="10" ry="12" fill="url(#hg-flame-glow)"/>
+				<!-- flame shape -->
+				<g id="hg-flame">
+					<path d="M 211 38 Q 207 32 209 26 Q 211 22 211 19 Q 213 23 213 27 Q 215 32 211 38 Z" fill="#ffcc44">
+						<animateTransform attributeName="transform" type="rotate" values="-2,211,38;2,211,38;-1,211,38;1,211,38;-2,211,38" dur="0.9s" repeatCount="indefinite"/>
+					</path>
+					<path d="M 211 38 Q 208.5 34 209.5 29 Q 211 25 211 22 Q 212.5 26 212.5 30 Q 213.5 34 211 38 Z" fill="#ff9922" opacity="0.7">
+						<animateTransform attributeName="transform" type="rotate" values="1,211,38;-1.5,211,38;1,211,38;-0.5,211,38;1,211,38" dur="0.7s" repeatCount="indefinite"/>
+					</path>
+					<!-- inner bright core -->
+					<ellipse cx="211" cy="33" rx="1.5" ry="2.5" fill="rgba(255,240,180,0.85)">
+						<animate attributeName="ry" values="2.5;2;2.8;2.2;2.5" dur="0.8s" repeatCount="indefinite"/>
+					</ellipse>
+				</g>
+				<!-- warm candle light cast on right side of scene -->
+				<ellipse cx="211" cy="35" rx="30" ry="20" fill="rgba(255,160,40,0.06)"/>
+
+				<!-- ── THIRD SHELF: retro digital clock ──
+				     The lower shelf carries a chunky black plastic alarm clock with a
+				     glowing LED display, so the timer doesn't read as a second framed plaque
+				     beside the parchment label. Casing + display are grouped under
+				     #hg-time-plate to fade out on completion (the plaque takes over
+				     the message); the shelf itself stays as part of the dissolving scene. -->
+				<!-- wall continuation behind the third shelf -->
+				<rect y="70" width="250" height="34" fill="url(#hg-wall-grad)"/>
+				<!-- under-middle-shelf contact shadow -->
+				<rect y="70" width="250" height="1.2" fill="rgba(0,0,0,0.55)"/>
+				<rect y="71.2" width="250" height="0.6" fill="rgba(0,0,0,0.25)"/>
+				<!-- third shelf plank (matches the top + middle shelves) -->
+				<rect x="0" y="96" width="250" height="8" fill="url(#hg-shelf-grad)"/>
+				<rect x="0" y="96" width="250" height="1.5" fill="rgba(255,255,255,0.18)"/>
+				<rect x="0" y="103" width="250" height="1" fill="rgba(0,0,0,0.40)"/>
+
+				<!-- ── THIRD SHELF · RIGHT: Homey Pro (2023) — onyx puck with RGB underglow ──
+				     Low flat disc with a centred top button and a thin rainbow LED band along
+				     the bottom edge — the silhouette that makes the unit instantly recognisable.
+				     Paired with the Homey (2019) sphere on the top shelf as a quiet old/new nod. -->
+				<g id="hg-homey-2023" pointer-events="none">
+					<!-- rainbow underglow wash on the shelf -->
+					<ellipse cx="210" cy="96" rx="17" ry="3.0" fill="url(#hg-homey2023-bloom)"/>
+					<!-- contact shadow under the puck -->
+					<ellipse cx="210" cy="96.3" rx="11" ry="0.7" fill="rgba(0,0,0,0.55)"/>
+					<!-- puck side wall — dark plastic cylinder -->
+					<rect x="199" y="87" width="22" height="8.5" rx="2" ry="2"
+						fill="url(#hg-homey2023-body)" stroke="rgba(0,0,0,0.55)" stroke-width="0.3"/>
+					<!-- slight vertical highlight on the rim catching the room light -->
+					<rect x="199.4" y="87.4" width="0.5" height="7.7" rx="0.25" fill="rgba(255,255,255,0.10)"/>
+					<rect x="220.1" y="87.4" width="0.4" height="7.7" rx="0.2" fill="rgba(0,0,0,0.40)"/>
+					<!-- top elliptical face (perspective) -->
+					<ellipse cx="210" cy="87" rx="11" ry="2.0" fill="#1a1418" stroke="rgba(0,0,0,0.55)" stroke-width="0.3"/>
+					<!-- soft top highlight off-centre -->
+					<ellipse cx="207" cy="86.3" rx="4.2" ry="0.55" fill="rgba(255,255,255,0.18)"/>
+					<!-- centred lens/button ring -->
+					<ellipse cx="210" cy="87" rx="2.0" ry="0.42" fill="#080608" stroke="rgba(255,255,255,0.10)" stroke-width="0.15"/>
+					<ellipse cx="210" cy="86.8" rx="1.6" ry="0.18" fill="rgba(255,255,255,0.10)"/>
+					<!-- RGB LED ring along the bottom edge — thin band + bright highlight -->
+					<rect x="199.4" y="94.8" width="21.2" height="0.7" rx="0.3" fill="url(#hg-homey2023-led)"/>
+					<rect x="199.4" y="94.65" width="21.2" height="0.22" rx="0.1" fill="rgba(255,255,255,0.35)"/>
+				</g>
+
+				<g id="hg-time-plate">
+					<!-- contact shadow on the shelf under the clock -->
+					<ellipse cx="125" cy="96.4" rx="48" ry="1.3" fill="rgba(0,0,0,0.55)"/>
+					<!-- clock body — rounded dark plastic casing sits on the shelf -->
+					<rect x="78" y="78" width="94" height="18" rx="2.2" ry="2.2"
+						fill="url(#hg-clock-body)" stroke="rgba(0,0,0,0.7)" stroke-width="0.4"/>
+					<!-- top highlight + bottom shadow bevels for the plastic -->
+					<rect x="78.5" y="78.4" width="93" height="0.7" rx="0.3" fill="rgba(255,255,255,0.18)"/>
+					<rect x="78.5" y="94.9" width="93" height="0.5" rx="0.3" fill="rgba(0,0,0,0.45)"/>
+					<!-- display panel recess (deep black, rounded corners) -->
+					<rect x="84" y="81" width="82" height="12" rx="0.9"
+						fill="#080304" stroke="rgba(0,0,0,0.6)" stroke-width="0.3"/>
+					<!-- warm red inner glow tinting the display -->
+					<rect x="84" y="81" width="82" height="12" rx="0.9" fill="url(#hg-clock-display-glow)"/>
+					<!-- subtle screen reflection band -->
+					<rect x="84.5" y="81.4" width="81" height="1" rx="0.4" fill="rgba(255,255,255,0.05)"/>
+					<!-- LED-style countdown digits — chunky monospace with a warm red glow -->
+					<text id="hg-time-text" x="125" y="90"
+						text-anchor="middle"
+						font-family="'Courier New', Courier, ui-monospace, monospace"
+						font-size="8.5"
+						font-weight="900"
+						font-variant-numeric="tabular-nums"
+						letter-spacing="1.1"
+						fill="#ff5a2c"
+						style="filter: drop-shadow(0 0 0.7px rgba(255,90,40,0.95)) drop-shadow(0 0 1.8px rgba(255,90,40,0.55));">--:--</text>
+					<!-- tiny model name etched on the bezel -->
+					<text x="167" y="94.6" text-anchor="end"
+						font-family="'Helvetica Neue', Arial, sans-serif"
+						font-size="1.5" letter-spacing="0.3"
+						fill="rgba(255,255,255,0.32)">CHRONUS-7</text>
+					<!-- power LED — small green pinpoint with a soft glow -->
+					<circle cx="82.7" cy="93.9" r="0.55" fill="#5fdc7d"
+						style="filter: drop-shadow(0 0 0.6px rgba(95,220,125,0.95));"/>
+				</g>
+
+				<!-- ── COMPLETION embers (revealed when .hourglass-completed) ──
+				     Small golden motes rising from the area just above the bottom mound up
+				     into the empty wall space between the shelves. The CSS animation handles
+				     rise + fade; cx/cy are the starting positions, --hg-ember-dx the drift. -->
+				<g id="hg-embers" pointer-events="none">
+					<circle class="hg-ember" cx="123" cy="46" r="1.6" fill="url(#hg-ember-glow)" style="--hg-ember-dx: -3px"/>
+					<circle class="hg-ember" cx="128" cy="47" r="1.4" fill="url(#hg-ember-glow)" style="--hg-ember-dx:  4px"/>
+					<circle class="hg-ember" cx="120" cy="48" r="1.2" fill="url(#hg-ember-glow)" style="--hg-ember-dx: -6px"/>
+					<circle class="hg-ember" cx="130" cy="46" r="1.5" fill="url(#hg-ember-glow)" style="--hg-ember-dx:  7px"/>
+					<circle class="hg-ember" cx="125" cy="48" r="1.1" fill="url(#hg-ember-glow)" style="--hg-ember-dx:  1px"/>
+					<circle class="hg-ember" cx="118" cy="46" r="1.3" fill="url(#hg-ember-glow)" style="--hg-ember-dx: -8px"/>
+					<circle class="hg-ember" cx="132" cy="47" r="1.2" fill="url(#hg-ember-glow)" style="--hg-ember-dx:  9px"/>
+				</g>
+				</g>
+
+				<!-- ── Top shelf section: wall continues up, shelf carries a centered framed
+				     parchment sign flanked by small books and a candle. Lives outside #hg-scene
+				     so the sign stays visible while the rest dissolves on completion. ── -->
+				<g id="hg-plaque" pointer-events="none">
+					<!-- upper wall background (extends the scene wall upward behind the shelf) -->
+					<rect x="0" y="-30" width="250" height="30" fill="url(#hg-wall-grad)"/>
+					<!-- subtle wainscot line matching the existing scene wall trim -->
+					<line x1="0" y1="-20" x2="250" y2="-20" stroke="rgba(255,200,120,0.07)" stroke-width="0.6"/>
+					<!-- top shelf plank (mirrors the bottom shelf at y=62) -->
+					<rect x="0" y="-10" width="250" height="8" fill="url(#hg-shelf-grad)"/>
+					<rect x="0" y="-10" width="250" height="1.5" fill="rgba(255,255,255,0.18)"/>
+					<rect x="0" y="-3" width="250" height="1" fill="rgba(0,0,0,0.40)"/>
+
+					<!-- ── LEFT: vintage brass compass standing on the top shelf ──
+					     Replaces the globe — at this rendered size the abstract continents read
+					     awkwardly; a compass dial stays legible with simple geometric shapes
+					     and ties into the brass accents elsewhere in the scene. -->
+					<!-- contact shadow on the shelf -->
+					<ellipse cx="27" cy="-10" rx="6.5" ry="0.7" fill="rgba(0,0,0,0.55)"/>
+					<!-- outer brass case rim -->
+					<circle cx="27" cy="-17" r="7" fill="url(#hg-compass-ring)" stroke="#3a2410" stroke-width="0.35"/>
+					<!-- inner darker bezel between rim and dial -->
+					<circle cx="27" cy="-17" r="6.2" fill="#5a3f25"/>
+					<!-- cream paper dial -->
+					<circle cx="27" cy="-17" r="5.4" fill="url(#hg-compass-face)" stroke="rgba(80,55,20,0.45)" stroke-width="0.2"/>
+					<!-- cardinal tick marks (N S E W) -->
+					<line x1="27" y1="-22.2" x2="27" y2="-21.4" stroke="#2a1408" stroke-width="0.3"/>
+					<line x1="27" y1="-12.6" x2="27" y2="-11.8" stroke="#2a1408" stroke-width="0.3"/>
+					<line x1="21.8" y1="-17" x2="22.6" y2="-17" stroke="#2a1408" stroke-width="0.3"/>
+					<line x1="31.4" y1="-17" x2="32.2" y2="-17" stroke="#2a1408" stroke-width="0.3"/>
+					<!-- N label (only N to avoid clutter at this size) -->
+					<text x="27" y="-19.8" text-anchor="middle"
+						font-family="Georgia, 'Times New Roman', serif"
+						font-size="1.8" font-weight="700"
+						fill="#2a1408">N</text>
+					<!-- compass needle: red north half + dark south half -->
+					<path d="M 27 -21.6 L 28.1 -17 L 27 -16.2 L 25.9 -17 Z" fill="#c4302b" stroke="rgba(0,0,0,0.35)" stroke-width="0.1"/>
+					<path d="M 27 -12.4 L 28.1 -17 L 27 -17.8 L 25.9 -17 Z" fill="#2a1408" stroke="rgba(0,0,0,0.35)" stroke-width="0.1"/>
+					<!-- central brass pivot -->
+					<circle cx="27" cy="-17" r="0.65" fill="#caa14c" stroke="#3a2410" stroke-width="0.15"/>
+					<!-- glass dome highlight on the upper-left -->
+					<ellipse cx="24.2" cy="-19.6" rx="1.9" ry="1" fill="rgba(255,255,255,0.32)" transform="rotate(-28 24.2 -19.6)"/>
+
+					<!-- ── RIGHT: glazed ceramic vase with dried feather plumes (sits on the shelf) ── -->
+					<!-- swaps the candle silhouette for a tall organic shape so the two shelves don't both end with a flame -->
+					<!-- contact shadow under the vase -->
+					<ellipse cx="222" cy="-10" rx="4.6" ry="0.7" fill="rgba(0,0,0,0.50)"/>
+					<!-- vase silhouette: rounded belly with a narrow neck -->
+					<path d="M 219 -10
+						Q 217.4 -11 217.4 -13
+						Q 217.4 -15 219.2 -15.3
+						L 219.6 -17.4
+						Q 219.4 -18 220.4 -18
+						L 223.6 -18
+						Q 224.6 -18 224.4 -17.4
+						L 224.8 -15.3
+						Q 226.6 -15 226.6 -13
+						Q 226.6 -11 225 -10
+						Z"
+						fill="url(#hg-vase-grad)" stroke="rgba(0,0,0,0.45)" stroke-width="0.3"/>
+					<!-- glaze highlight on the belly -->
+					<path d="M 219.4 -14 Q 218.5 -13 219 -11.5" fill="none" stroke="rgba(255,255,255,0.40)" stroke-width="0.5" stroke-linecap="round"/>
+					<!-- darker rim line at the mouth -->
+					<ellipse cx="222" cy="-18" rx="2.1" ry="0.55" fill="#0f2422" stroke="rgba(0,0,0,0.55)" stroke-width="0.2"/>
+					<!-- inner mouth shadow (depth) -->
+					<ellipse cx="222" cy="-17.85" rx="1.6" ry="0.3" fill="rgba(255,255,255,0.10)"/>
+					<!-- three feather plumes fanning out of the vase mouth -->
+					<g>
+						<!-- left plume -->
+						<path d="M 220 -18 Q 217.5 -23 218.8 -28 Q 220.4 -23.5 220.6 -18 Z" fill="rgba(238,228,200,0.88)" stroke="rgba(160,140,100,0.45)" stroke-width="0.25"/>
+						<line x1="219.6" y1="-18.4" x2="219.1" y2="-27.4" stroke="rgba(150,125,80,0.65)" stroke-width="0.35"/>
+						<!-- center plume (tallest) -->
+						<path d="M 221.6 -18 Q 221 -25 221.8 -30 Q 222.6 -25 222.4 -18 Z" fill="rgba(245,236,212,0.92)" stroke="rgba(160,140,100,0.45)" stroke-width="0.25"/>
+						<line x1="222" y1="-18.4" x2="222" y2="-29.4" stroke="rgba(150,125,80,0.65)" stroke-width="0.35"/>
+						<!-- right plume -->
+						<path d="M 223.4 -18 Q 226 -22.5 225.2 -27.4 Q 223.6 -23 223.4 -18 Z" fill="rgba(232,222,196,0.84)" stroke="rgba(160,140,100,0.45)" stroke-width="0.25"/>
+						<line x1="224.2" y1="-18.4" x2="224.6" y2="-26.8" stroke="rgba(150,125,80,0.65)" stroke-width="0.35"/>
+					</g>
+
+					<!-- ── CENTER: framed parchment sign sitting on the shelf ── -->
+					<g id="hg-plaque-frame">
+					<!-- contact shadow on shelf under the frame -->
+					<rect x="57" y="-11" width="136" height="1.4" rx="0.7" fill="rgba(0,0,0,0.45)"/>
+
+					<!-- outer wooden frame -->
+					<rect x="55" y="-28" width="140" height="18" rx="1.4" ry="1.4"
+						fill="url(#hg-wood)" stroke="#3a2410" stroke-width="0.5"/>
+					<!-- inner dark recess giving the frame depth -->
+					<rect x="58" y="-26" width="134" height="14" rx="0.6" fill="#2a1a0a"/>
+					<!-- top bevel highlight -->
+					<rect x="55.5" y="-27.6" width="139" height="0.5" fill="rgba(255,235,200,0.45)"/>
+					<!-- bottom bevel shadow -->
+					<rect x="55.5" y="-10.6" width="139" height="0.5" fill="rgba(0,0,0,0.40)"/>
+
+					<!-- parchment inset (slightly smaller than the dark recess for a visible matte) -->
+					<rect x="59" y="-25.5" width="132" height="13" rx="0.5" ry="0.5"
+						fill="url(#hg-parchment-grad)" stroke="rgba(80,55,20,0.45)" stroke-width="0.25"/>
+					<!-- faint sepia edges -->
+					<rect x="59" y="-25.5" width="132" height="0.7" fill="rgba(140,100,40,0.20)"/>
+					<rect x="59" y="-13.2" width="132" height="0.7" fill="rgba(140,100,40,0.20)"/>
+
+					<!-- clip-path on parent <g> so CSS translateX scrolls the text behind a fixed window -->
+					<g clip-path="url(#hg-plaque-text-clip)">
+					<!-- engraved ink text — content set via JS -->
+					<text id="hg-plaque-text" x="125" y="-17"
+						text-anchor="middle"
+						font-family="Georgia, 'Times New Roman', serif"
+						font-size="6"
+						font-weight="700"
+						letter-spacing="0.25"
+						fill="#2a1408"></text>
+					</g>
+					</g>
+
+					<!-- ── TOP SHELF: Homey (2019) — pearl sphere with magenta LED equator ──
+					     Tucked between the compass and the parchment frame as a small nod to
+					     the original Athom Homey hardware. Sized to read as a knick-knack
+					     beside the brass instruments, not a focal point. Lives in #hg-plaque
+					     so it stays visible alongside the completion message. -->
+					<g id="hg-homey-2019" pointer-events="none">
+						<!-- magenta ambient glow on the upper wall behind the sphere -->
+						<ellipse cx="44" cy="-16" rx="11" ry="5" fill="rgba(228,80,168,0.07)"/>
+						<!-- contact shadow on the shelf (centred on the plank top edge to match compass + vase) -->
+						<ellipse cx="44" cy="-10" rx="4.6" ry="0.55" fill="rgba(0,0,0,0.55)"/>
+						<!-- three chrome ball feet peeking under the sphere -->
+						<circle cx="41" cy="-10.5" r="0.7" fill="#cbd0d5" stroke="rgba(0,0,0,0.45)" stroke-width="0.12"/>
+						<circle cx="47" cy="-10.5" r="0.7" fill="#cbd0d5" stroke="rgba(0,0,0,0.45)" stroke-width="0.12"/>
+						<circle cx="44" cy="-10.25" r="0.62" fill="#bfc4c9" stroke="rgba(0,0,0,0.45)" stroke-width="0.12"/>
+						<!-- pearl-white sphere body -->
+						<circle cx="44" cy="-16" r="5" fill="url(#hg-homey2019-body)" stroke="rgba(70,55,75,0.30)" stroke-width="0.2"/>
+						<!-- soft upper-left highlight -->
+						<ellipse cx="42" cy="-18.4" rx="1.7" ry="1.3" fill="rgba(255,255,255,0.55)" transform="rotate(-30 42 -18.4)"/>
+						<!-- magenta LED equator: soft halo + bright core line -->
+						<ellipse cx="44" cy="-16" rx="6.8" ry="0.75" fill="rgba(255,80,170,0.18)"/>
+						<ellipse cx="44" cy="-16" rx="5" ry="0.33" fill="rgba(228,40,148,0.85)"/>
+						<ellipse cx="44" cy="-16" rx="5" ry="0.14" fill="#ff66cc"/>
+					</g>
+				</g>
+
+			</svg></div>
+			<div id="racecar-wrap" class="dissolve-host"><svg id="racecar" viewBox="0 0 250 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+				<defs>
+					<pattern id="rc-checker" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+						<rect x="0" y="0" width="2" height="2" fill="#fff"/>
+						<rect x="2" y="2" width="2" height="2" fill="#fff"/>
+						<rect x="2" y="0" width="2" height="2" fill="#111"/>
+						<rect x="0" y="2" width="2" height="2" fill="#111"/>
+					</pattern>
+					<linearGradient id="rc-asphalt-grad" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%" stop-color="#2a2a2e"/>
+						<stop offset="50%" stop-color="#3a3a3e"/>
+						<stop offset="100%" stop-color="#26262a"/>
+					</linearGradient>
+					<!-- Curb pattern: alternating F1 red / white bands -->
+					<pattern id="rc-curb" x="0" y="0" width="8" height="2" patternUnits="userSpaceOnUse">
+						<rect x="0" y="0" width="4" height="2" fill="#e10600"/>
+						<rect x="4" y="0" width="4" height="2" fill="#ffffff"/>
+					</pattern>
+					<linearGradient id="rc-body-shine" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%"  stop-color="rgba(255,255,255,0.35)"/>
+						<stop offset="40%" stop-color="rgba(255,255,255,0.00)"/>
+						<stop offset="100%" stop-color="rgba(0,0,0,0.25)"/>
+					</linearGradient>
+				</defs>
+
+				<!-- grass: fills the "sky" zone between ad board and road -->
+				<rect x="0" y="0" width="250" height="13" fill="rgba(80, 130, 60, 0.30)"/>
+
+				<!-- grass strips at road edges — same skew as the ad board -->
+				<g transform="translate(-3.3, 0) skewX(12)">
+					<rect x="0" y="13" width="250" height="5" fill="rgba(100,155,70,0.55)"/>
+				</g>
+				<g transform="translate(-9.5, 0) skewX(12)">
+					<rect x="0" y="42" width="250" height="8" fill="rgba(100,155,70,0.55)"/>
+				</g>
+
+				<!-- asphalt -->
+				<rect x="0" y="18" width="250" height="24" fill="url(#rc-asphalt-grad)"/>
+
+				<!-- F1 curbs at road edges — same skew as grass strips -->
+				<g transform="translate(-3.3, 0) skewX(12)">
+					<rect x="0" y="17" width="215" height="1.5" fill="url(#rc-curb)"/>
+				</g>
+				<g transform="translate(-9.5, 0) skewX(12)">
+					<rect x="0" y="41.5" width="222" height="1.5" fill="url(#rc-curb)"/>
+				</g>
+
+				<!-- lane divider — sits above centre to match road perspective -->
+				<line x1="2" y1="26" x2="218" y2="26"
+					stroke="rgba(255,255,255,0.55)" stroke-width="1.2" stroke-dasharray="6 4"/>
+
+				<!-- finish line (checkered strip) — same skew as the ad board -->
+				<g transform="translate(-6.4, 0) skewX(12)">
+					<rect x="218" y="18" width="12" height="24" fill="url(#rc-checker)"/>
+				</g>
+
+				<!-- confetti burst (revealed on completion) -->
+				<g class="rc-confetti">
+					<circle cx="216" cy="14" r="1.4" fill="var(--countdown-accent, #d4a55a)" style="--rc-cx: -6px"/>
+					<circle cx="224" cy="10" r="1.6" fill="#ffd84a"                            style="--rc-cx: 4px"/>
+					<circle cx="232" cy="16" r="1.3" fill="#ff5a7a"                            style="--rc-cx: 8px"/>
+					<circle cx="208" cy="12" r="1.5" fill="#4ad1ff"                            style="--rc-cx: -8px"/>
+					<circle cx="239" cy="12" r="1.5" fill="var(--countdown-accent, #d4a55a)" style="--rc-cx: 10px"/>
+					<circle cx="201" cy="16" r="1.3" fill="#ffd84a"                            style="--rc-cx: -10px"/>
+					<circle cx="247" cy="16" r="1.4" fill="#ff5a7a"                            style="--rc-cx: 12px"/>
+					<circle cx="193" cy="14" r="1.4" fill="#4ad1ff"                            style="--rc-cx: -12px"/>
+				</g>
+
+				<!-- racecar (translated each tick) -->
+				<g id="rc-car" transform="translate(5,21) scale(1.2)">
+					<!-- motion/speed lines trailing the car -->
+					<g class="rc-speedlines">
+						<rect x="-10" y="4" width="6" height="0.6" rx="0.3"/>
+						<rect x="-14" y="8" width="8" height="0.6" rx="0.3"/>
+						<rect x="-8"  y="12" width="5" height="0.6" rx="0.3"/>
+					</g>
+
+					<!-- ground shadow -->
+					<ellipse cx="15" cy="16.5" rx="13" ry="1.3" fill="rgba(0,0,0,0.35)"/>
+
+					<!-- rear spoiler / wing (back, on the left) -->
+					<rect x="0.2" y="4.8" width="3" height="1.6" rx="0.3" fill="rgba(0,0,0,0.65)"/>
+					<rect x="1.0" y="6.4" width="1.2" height="2.0" fill="rgba(0,0,0,0.55)"/>
+
+					<!-- main body: blunt rear (left), cockpit centre-back, long aero nose tapering to the right -->
+					<path class="rc-body"
+						d="M 1.2 11 L 1.2 8.5 Q 1.5 7 3.5 6.8 L 6 6.6 L 8.2 5 L 11 3.6 L 15.5 3.6 L 17.5 5 L 20 5.8 L 25 7.5 L 28.5 9 L 29 9.8 L 29 11 Z"/>
+					<!-- body shine overlay -->
+					<path
+						d="M 1.2 11 L 1.2 8.5 Q 1.5 7 3.5 6.8 L 6 6.6 L 8.2 5 L 11 3.6 L 15.5 3.6 L 17.5 5 L 20 5.8 L 25 7.5 L 28.5 9 L 29 9.8 L 29 11 Z"
+						fill="url(#rc-body-shine)"/>
+
+					<!-- cockpit windshield -->
+					<path d="M 10.5 5 L 11.5 3.9 L 15 3.9 L 16.8 5 L 16.8 6.4 L 10.5 6.4 Z"
+						fill="rgba(0,0,0,0.7)"/>
+					<!-- driver helmet hint -->
+					<circle cx="13.2" cy="5.4" r="1.1" fill="rgba(255,255,255,0.75)"/>
+					<!-- helmet visor -->
+					<path d="M 13.6 4.8 A 0.8 0.8 0 0 1 14.1 5.6 L 13.3 5.6 Z" fill="rgba(0,0,0,0.5)"/>
+
+					<!-- racing number disc (on the front fender, just ahead of the cockpit) -->
+					<circle cx="17.5" cy="8.7" r="1.7" fill="rgba(255,255,255,0.92)"/>
+					<text x="17.5" y="9.6" font-size="2.4" text-anchor="middle"
+						fill="#222" font-weight="700"
+						font-family="-apple-system, system-ui, sans-serif">1</text>
+
+					<!-- headlight (front, on the right, under the nose) -->
+					<rect x="27.2" y="9.2" width="1.6" height="1.2" rx="0.3" fill="rgba(255,240,170,0.95)"/>
+
+					<!-- wheels (spinning) — rear behind cockpit, front under nose start -->
+					<g class="rc-wheel-spin">
+						<circle cx="6" cy="12.4" r="2.6" fill="#0e0e0e"/>
+						<circle cx="6" cy="12.4" r="1.5" fill="#3a3a3a"/>
+						<rect x="5.85" y="9.9" width="0.3" height="5" fill="#888"/>
+						<rect x="3.5"  y="12.25" width="5" height="0.3" fill="#888"/>
+					</g>
+					<g class="rc-wheel-spin">
+						<circle cx="22" cy="12.4" r="2.6" fill="#0e0e0e"/>
+						<circle cx="22" cy="12.4" r="1.5" fill="#3a3a3a"/>
+						<rect x="21.85" y="9.9" width="0.3" height="5" fill="#888"/>
+						<rect x="19.5"  y="12.25" width="5" height="0.3" fill="#888"/>
+					</g>
+				</g>
+
+				<!-- checkered flag: raised above the track between road and ad board -->
+				<g class="rc-flag" transform="translate(228,2)">
+					<line x1="0.5" y1="2" x2="0.5" y2="18"
+						stroke="rgba(0,0,0,0.75)" stroke-width="0.7"/>
+					<g class="rc-flag-wave">
+						<rect x="0.5" y="2" width="14" height="7" fill="url(#rc-checker)"
+							stroke="rgba(0,0,0,0.5)" stroke-width="0.3"/>
+					</g>
+				</g>
+			</svg></div>
+			<div id="racehorse-wrap" class="dissolve-host"><svg id="racehorse" viewBox="0 0 250 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+				<defs>
+					<linearGradient id="rh-dirt-grad" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%"  stop-color="#a87750"/>
+						<stop offset="50%" stop-color="#8a5e3b"/>
+						<stop offset="100%" stop-color="#7a4f2e"/>
+					</linearGradient>
+				</defs>
+
+				<!-- grass strips (turf) -->
+				<rect x="0" y="13" width="250" height="5" fill="rgba(80,140,60,0.32)"/>
+				<rect x="0" y="42" width="250" height="5" fill="rgba(80,140,60,0.32)"/>
+
+				<!-- dirt track -->
+				<rect x="0" y="18" width="250" height="24" fill="url(#rh-dirt-grad)"/>
+
+				<!-- inner rail (along the top edge of the track), stopping at the finish post -->
+				<line x1="0" y1="20.5" x2="221" y2="20.5"
+					stroke="rgba(255,255,255,0.7)" stroke-width="0.7"/>
+				<g fill="rgba(255,255,255,0.6)">
+					<rect x="30"  y="19.5" width="0.6" height="2"/>
+					<rect x="60"  y="19.5" width="0.6" height="2"/>
+					<rect x="90"  y="19.5" width="0.6" height="2"/>
+					<rect x="120" y="19.5" width="0.6" height="2"/>
+					<rect x="150" y="19.5" width="0.6" height="2"/>
+					<rect x="180" y="19.5" width="0.6" height="2"/>
+					<rect x="210" y="19.5" width="0.6" height="2"/>
+				</g>
+
+				<!-- outer rail (along the bottom edge) -->
+				<line x1="0" y1="40.5" x2="250" y2="40.5"
+					stroke="rgba(255,255,255,0.45)" stroke-width="0.5"/>
+
+				<!-- winning post: white pole with red cap, the horse-racing finish marker -->
+				<rect x="220" y="8" width="2" height="34"
+					fill="rgba(248,248,248,0.95)" stroke="rgba(0,0,0,0.25)" stroke-width="0.2"/>
+				<rect x="218.8" y="8" width="4.4" height="2.5" fill="#d6403a"/>
+
+				<!-- confetti burst (revealed on completion) -->
+				<g class="rh-confetti">
+					<circle cx="213" cy="14" r="1.4" fill="var(--countdown-accent, #ff5a7a)" style="--rc-cx: -8px"/>
+					<circle cx="221" cy="10" r="1.6" fill="#ffd84a"                            style="--rc-cx:  0px"/>
+					<circle cx="229" cy="14" r="1.3" fill="#4ad1ff"                            style="--rc-cx:  6px"/>
+					<circle cx="236" cy="11" r="1.5" fill="#5fdc7d"                            style="--rc-cx: 10px"/>
+					<circle cx="206" cy="11" r="1.4" fill="#ffd84a"                            style="--rc-cx:-12px"/>
+					<circle cx="198" cy="14" r="1.3" fill="var(--countdown-accent, #ff5a7a)" style="--rc-cx:-10px"/>
+					<circle cx="243" cy="14" r="1.4" fill="#ff5a7a"                            style="--rc-cx: 12px"/>
+					<circle cx="190" cy="12" r="1.4" fill="#4ad1ff"                            style="--rc-cx:-14px"/>
+				</g>
+
+				<!-- racing horse + jockey (translated each tick) -->
+				<g id="rh-horse" transform="translate(5,18)">
+
+					<!-- dust puffs kicked up at hoof level, trailing the horse -->
+					<g class="rh-dust">
+						<circle cx="-3" cy="20"   r="1.6" fill="rgba(170,140,100,0.65)"/>
+						<circle cx="-5" cy="20.5" r="1.9" fill="rgba(170,140,100,0.55)"/>
+						<circle cx="-1" cy="19.5" r="1.3" fill="rgba(170,140,100,0.45)"/>
+					</g>
+
+					<!-- ground shadow -->
+					<ellipse cx="14" cy="21.4" rx="14" ry="1.2" fill="rgba(0,0,0,0.32)"/>
+
+					<!-- tail (behind body) -->
+					<path class="rh-tail rh-coat"
+						d="M 2 9 Q -2 10 -3 13 Q -4 16 -1 16 Q 1 14 3 12 Z"/>
+
+					<g class="rh-body-bob">
+
+						<!-- gallop frame A: legs gathered/planted -->
+						<g class="rh-legs-a">
+							<rect class="rh-coat-shade" x="4"  y="14" width="1.4" height="6" rx="0.4"/>
+							<rect class="rh-coat"       x="6"  y="14" width="1.4" height="6" rx="0.4"/>
+							<rect class="rh-coat-shade" x="21" y="14" width="1.4" height="6" rx="0.4"/>
+							<rect class="rh-coat"       x="23" y="14" width="1.4" height="6" rx="0.4"/>
+							<!-- white socks at the fetlock -->
+							<rect x="4"  y="18.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)"/>
+							<rect x="6"  y="18.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)"/>
+							<rect x="21" y="18.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)"/>
+							<rect x="23" y="18.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)"/>
+						</g>
+
+						<!-- gallop frame B: front legs forward, hind legs back -->
+						<g class="rh-legs-b">
+							<rect class="rh-coat-shade" x="3"  y="14" width="1.4" height="6" rx="0.4" transform="rotate(-22 3.7 14)"/>
+							<rect class="rh-coat"       x="5"  y="14" width="1.4" height="6" rx="0.4" transform="rotate(-22 5.7 14)"/>
+							<rect class="rh-coat-shade" x="22" y="14" width="1.4" height="6" rx="0.4" transform="rotate(18 22.7 14)"/>
+							<rect class="rh-coat"       x="24" y="14" width="1.4" height="6" rx="0.4" transform="rotate(18 24.7 14)"/>
+							<!-- white socks, rotated with their parent legs -->
+							<rect x="3"  y="18.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)" transform="rotate(-22 3.7 14)"/>
+							<rect x="5"  y="18.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)" transform="rotate(-22 5.7 14)"/>
+							<rect x="22" y="18.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)" transform="rotate(18 22.7 14)"/>
+							<rect x="24" y="18.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)" transform="rotate(18 24.7 14)"/>
+						</g>
+
+						<!-- standing pose (shown on completion only) -->
+						<g class="rh-legs-stand">
+							<rect class="rh-coat-shade" x="4"  y="14" width="1.4" height="7" rx="0.4"/>
+							<rect class="rh-coat"       x="6"  y="14" width="1.4" height="7" rx="0.4"/>
+							<rect class="rh-coat-shade" x="21" y="14" width="1.4" height="7" rx="0.4"/>
+							<rect class="rh-coat"       x="23" y="14" width="1.4" height="7" rx="0.4"/>
+							<!-- white socks at the fetlock -->
+							<rect x="4"  y="19.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)"/>
+							<rect x="6"  y="19.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)"/>
+							<rect x="21" y="19.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)"/>
+							<rect x="23" y="19.4" width="1.4" height="1.6" rx="0.3" fill="rgba(255,255,255,0.95)"/>
+						</g>
+
+						<!-- barrel / body -->
+						<path class="rh-coat"
+							d="M 2 8 Q 4 6 10 6.5 L 18 7 Q 23 7.5 25 9 L 25 13 Q 23 14.5 18 14.5 L 10 14.5 Q 4 14 2 12 Z"/>
+
+						<!-- neck -->
+						<path class="rh-coat"
+							d="M 21 6.5 L 26 4.5 L 28.5 4 L 28.5 7.5 L 25 9 Z"/>
+
+						<!-- mane (animated) -->
+						<path class="rh-mane rh-coat-shade"
+							d="M 22 6 L 24 4.5 L 26 4 L 26 5.5 L 24.5 6.2 L 23 6.7 Z"/>
+
+						<!-- head -->
+						<path class="rh-coat"
+							d="M 27 3.5 L 31.5 3 L 32.5 4.5 L 32 6.5 L 30 7.5 L 27 6.5 Z"/>
+
+						<!-- white blaze running down the face for contrast -->
+						<path d="M 29 3.6 L 30.3 3.4 L 30.7 5 L 30.1 6.9 L 29.4 6.9 L 28.9 5 Z"
+							fill="rgba(255,255,255,0.92)"/>
+
+						<!-- ear -->
+						<path class="rh-coat-shade" d="M 28 3 L 28.5 1.6 L 29.6 2.7 Z"/>
+
+						<!-- eye (light catch so it reads on the dark face) -->
+						<circle cx="30.8" cy="5" r="0.4" fill="rgba(255,255,255,0.9)"/>
+
+						<!-- saddle (under jockey) — leather brown, distinct from the dark coat -->
+						<rect x="10.5" y="6" width="6.5" height="1.6" rx="0.5" fill="#6b4226"/>
+
+						<!-- jockey's near-side leg straddling the horse: stirrup leather, bent leg, boot.
+						     Drawn after the saddle so it overlays the saddle flap and the horse body. -->
+						<line x1="14.4" y1="7.5" x2="15.7" y2="13.1" stroke="#3a2616" stroke-width="0.4"/>
+						<path class="rh-silks" stroke="rgba(0,0,0,0.3)" stroke-width="0.18"
+							d="M 14 6.3 L 16.5 6.3 L 18.2 9.5 L 18 11 L 17 13.5 L 15.5 13.5 L 16 10.5 L 14 7.5 Z"/>
+						<!-- knee-high boot -->
+						<rect x="14.5" y="13.2" width="3" height="1.5" rx="0.4" fill="#1a1a1a"/>
+						<!-- boot rim highlight -->
+						<rect x="14.5" y="13.2" width="3" height="0.4" rx="0.2" fill="rgba(255,255,255,0.35)"/>
+
+						<!-- jockey silks (accent colour) — drawn last so it overlays the leg at the hip -->
+						<path class="rh-silks"
+							d="M 12 6 L 13.5 3 L 15.5 3 L 17 6 L 17 7 L 12 7 Z"/>
+
+						<!-- jockey arm holding reins -->
+						<rect class="rh-silks" x="16" y="5" width="3" height="0.7" rx="0.3"
+							transform="rotate(-15 16 5)"/>
+
+						<!-- reins from jockey's hand to horse's mouth -->
+						<line x1="18.5" y1="4.6" x2="28" y2="6" stroke="#3a2616" stroke-width="0.3"/>
+
+						<!-- jockey helmet -->
+						<circle cx="14" cy="2.6" r="1.4" fill="#1a1a1a"/>
+						<path d="M 13 2.8 L 14.5 2.4 L 14.6 3.2 Z" fill="rgba(255,255,255,0.5)"/>
+
+					</g>
+				</g>
+
+				<!-- gold trophy (revealed on completion) -->
+				<g class="rh-trophy" transform="translate(228,28)">
+					<!-- handles -->
+					<path d="M 0 3 Q -2 3 -2 5 Q -2 6.5 0 7"  stroke="#daa520" stroke-width="0.7" fill="none"/>
+					<path d="M 8 3 Q 10 3 10 5 Q 10 6.5 8 7" stroke="#daa520" stroke-width="0.7" fill="none"/>
+					<!-- cup bowl -->
+					<path d="M 0 2 L 8 2 L 7.5 7 Q 4 9 0.5 7 Z"
+						fill="#f5cc4a" stroke="#9c7a14" stroke-width="0.3"/>
+					<!-- "1" engraved inside the bowl -->
+					<text x="4" y="6.8" font-size="4" text-anchor="middle"
+						fill="#7a5800" font-weight="900"
+						font-family="-apple-system, system-ui, sans-serif">1</text>
+					<!-- highlight -->
+					<rect x="1" y="3" width="0.8" height="3.5" rx="0.3" fill="rgba(255,255,255,0.7)"/>
+					<!-- stem -->
+					<rect x="3.5" y="9" width="1" height="1.5" fill="#9c7a14"/>
+					<!-- base -->
+					<rect x="2" y="10.4" width="4" height="1.3" rx="0.3" fill="#daa520"/>
+				</g>
+
+			</svg></div>
+			<div id="boat-wrap" class="dissolve-host"><svg id="boat" viewBox="0 0 250 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+				<defs>
+					<linearGradient id="bt-sky-grad" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%"   stop-color="#87ceeb"/>
+						<stop offset="100%" stop-color="#4fa8d5"/>
+					</linearGradient>
+					<linearGradient id="bt-water-grad" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%"   stop-color="#1e7bb8"/>
+						<stop offset="50%"  stop-color="#155e8a"/>
+						<stop offset="100%" stop-color="#0e4060"/>
+					</linearGradient>
+					<linearGradient id="bt-hull-shine" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%"   stop-color="rgba(255,255,255,0.40)"/>
+						<stop offset="40%"  stop-color="rgba(255,255,255,0.00)"/>
+						<stop offset="100%" stop-color="rgba(0,0,0,0.20)"/>
+					</linearGradient>
+					<pattern id="bt-buoy-stripe" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+						<rect x="0" y="0" width="4" height="2" fill="#f97316"/>
+						<rect x="0" y="2" width="4" height="2" fill="#ffffff"/>
+					</pattern>
+					<pattern id="bt-checker" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+						<rect x="0" y="0" width="2" height="2" fill="#fff"/>
+						<rect x="2" y="2" width="2" height="2" fill="#fff"/>
+						<rect x="2" y="0" width="2" height="2" fill="#111"/>
+						<rect x="0" y="2" width="2" height="2" fill="#111"/>
+					</pattern>
+				</defs>
+
+				<!-- Sky band -->
+				<rect x="0" y="0" width="250" height="14" fill="url(#bt-sky-grad)"/>
+
+				<!-- Water surface -->
+				<rect x="0" y="14" width="250" height="28" fill="url(#bt-water-grad)"/>
+
+				<!-- Deep water strip -->
+				<rect x="0" y="42" width="250" height="8" fill="rgba(10,40,60,0.70)"/>
+
+				<!-- Horizon line -->
+				<line x1="0" y1="14" x2="250" y2="14" stroke="rgba(255,255,255,0.30)" stroke-width="0.5"/>
+
+				<!-- Wave crests -->
+				<g class="bt-waves">
+					<path class="bt-wave-1" d="M 0 20 Q 20 18.5 40 20 Q 60 21.5 80 20 Q 100 18.5 120 20 Q 140 21.5 160 20 Q 180 18.5 200 20 Q 220 21.5 240 20 L 250 20" fill="none" stroke="rgba(255,255,255,0.30)" stroke-width="0.8"/>
+					<path class="bt-wave-2" d="M 0 26 Q 25 24.5 50 26 Q 75 27.5 100 26 Q 125 24.5 150 26 Q 175 27.5 200 26 Q 225 24.5 250 26"               fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="0.7"/>
+					<path class="bt-wave-3" d="M 0 33 Q 30 31.5 60 33 Q 90 34.5 120 33 Q 150 31.5 180 33 Q 210 34.5 240 33 L 250 33"                          fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
+				</g>
+
+				<!-- Finish buoy at x=224 -->
+				<line x1="224" y1="38" x2="224" y2="44" stroke="rgba(80,80,80,0.60)" stroke-width="0.5"/>
+				<ellipse cx="224" cy="28" rx="3.5" ry="5" fill="url(#bt-buoy-stripe)" stroke="rgba(0,0,0,0.30)" stroke-width="0.4"/>
+				<ellipse cx="224" cy="23.2" rx="3.5" ry="1.2" fill="#e05500" stroke="rgba(0,0,0,0.30)" stroke-width="0.3"/>
+				<line x1="224" y1="12" x2="224" y2="23" stroke="rgba(80,80,80,0.75)" stroke-width="0.6"/>
+				<!-- Checkered flag (revealed on completion) -->
+				<g class="bt-flag">
+					<rect x="224" y="12" width="10" height="6" fill="url(#bt-checker)" stroke="rgba(0,0,0,0.40)" stroke-width="0.3"/>
+				</g>
+
+				<!-- Confetti burst at finish (hidden during countdown) -->
+				<g class="bt-confetti">
+					<circle cx="216" cy="10" r="1.4" fill="var(--countdown-accent, #f97316)"/>
+					<circle cx="224" cy="6"  r="1.6" fill="#ffd84a"/>
+					<circle cx="232" cy="10" r="1.3" fill="#4ad1ff"/>
+					<circle cx="240" cy="8"  r="1.5" fill="#5fdc7d"/>
+					<circle cx="208" cy="8"  r="1.4" fill="#ffd84a"/>
+					<circle cx="200" cy="11" r="1.3" fill="var(--countdown-accent, #f97316)"/>
+					<circle cx="247" cy="11" r="1.4" fill="#ff5a7a"/>
+					<circle cx="192" cy="9"  r="1.4" fill="#4ad1ff"/>
+				</g>
+
+				<!-- Boat group (translated each tick) -->
+				<g id="bt-boat" transform="translate(2,20)">
+
+					<!-- Wake diverging lines -->
+					<g class="bt-wake-lines">
+						<line x1="-12" y1="2"  x2="0" y2="6" stroke="rgba(255,255,255,0.45)" stroke-width="0.6"/>
+						<line x1="-12" y1="10" x2="0" y2="6" stroke="rgba(255,255,255,0.45)" stroke-width="0.6"/>
+					</g>
+
+					<!-- Spray particles -->
+					<g class="bt-spray">
+						<circle cx="-3" cy="5"   r="1.6" fill="rgba(200,230,255,0.65)"/>
+						<circle cx="-5" cy="5.5" r="2.0" fill="rgba(200,230,255,0.50)"/>
+						<circle cx="-1" cy="4.5" r="1.2" fill="rgba(200,230,255,0.40)"/>
+					</g>
+
+					<!-- Ground shadow -->
+					<ellipse cx="14" cy="8.5" rx="14" ry="1.0" fill="rgba(0,0,0,0.25)"/>
+
+					<!-- Lower hull (dark navy) -->
+					<path d="M 0 5 L 0 8 Q 14 9.5 28 8 L 29 6.5 Q 22 5.5 14 5.5 Z" fill="#0a1828"/>
+
+					<!-- Hull accent stripe -->
+					<path class="bt-hull-stripe" d="M 1 7 Q 14 8.5 27 7.5 L 28.5 6.8 Q 22 6.2 14 6.2 L 1 6.5 Z"/>
+
+					<!-- Upper deck (off-white) -->
+					<path d="M 2 5 L 3 2.5 Q 10 1 18 1.5 L 24 2 L 27 3.5 L 28.5 5 Q 22 4.8 14 4.8 Z" fill="#dde8f0"/>
+					<path d="M 2 5 L 3 2.5 Q 10 1 18 1.5 L 24 2 L 27 3.5 L 28.5 5 Q 22 4.8 14 4.8 Z" fill="url(#bt-hull-shine)"/>
+
+					<!-- Cockpit windshield -->
+					<path d="M 14 1.8 L 16 0.5 L 20 0.8 L 22 2.2 L 22 3.8 L 14 3.5 Z" fill="rgba(30,60,100,0.80)"/>
+					<path d="M 15 1.5 L 17 0.8 L 18.5 1.8 L 16 2.5 Z" fill="rgba(255,255,255,0.30)"/>
+
+					<!-- Engine cowl -->
+					<rect x="7" y="1.5" width="6" height="2" rx="0.8" fill="#c8d8e8"/>
+
+					<!-- Pilot silhouette -->
+					<rect x="16" y="1.5" width="2.5" height="2" rx="0.5" fill="rgba(30,30,30,0.85)"/>
+					<circle cx="17.2" cy="1.0" r="1.1" fill="#1a1a1a"/>
+					<path d="M 16.8 0.5 A 0.7 0.7 0 0 1 17.8 0.9 L 17.2 1.1 Z" fill="rgba(255,255,255,0.45)"/>
+
+					<!-- Navigation lights -->
+					<circle cx="1.5"  cy="4.5" r="0.6" fill="rgba(220,50,50,0.90)"/>
+					<circle cx="27.5" cy="4.5" r="0.6" fill="rgba(50,200,80,0.90)"/>
+
+					<!-- Bow wave -->
+					<path class="bt-bow-wave" d="M 28 5.5 Q 30 5 31 6 Q 30 7 28.5 6.5 Z" fill="rgba(255,255,255,0.65)"/>
+
+				</g>
+
+			</svg></div>
+			<div id="units-row" class="dissolve-host">
+				<div class="unit" id="unit-days">
+					<svg class="ring" viewBox="0 0 36 36" aria-hidden="true">
+						<circle class="ring-bg" cx="18" cy="18" r="15.5"/>
+						<circle class="ring-fg" cx="18" cy="18" r="15.5"/>
+					</svg>
+					<span class="value" id="days"><span class="digit">-</span><span class="digit">-</span></span>
+					<span class="label">d</span>
+				</div>
+				<div class="unit-sep" id="sep-hours">:</div>
+				<div class="unit" id="unit-hours">
+					<svg class="ring" viewBox="0 0 36 36" aria-hidden="true">
+						<circle class="ring-bg" cx="18" cy="18" r="15.5"/>
+						<circle class="ring-fg" cx="18" cy="18" r="15.5"/>
+					</svg>
+					<span class="value" id="hours"><span class="digit">-</span><span class="digit">-</span></span>
+					<span class="label">h</span>
+				</div>
+				<div class="unit-sep" id="sep-minutes">:</div>
+				<div class="unit" id="unit-minutes">
+					<svg class="ring" viewBox="0 0 36 36" aria-hidden="true">
+						<circle class="ring-bg" cx="18" cy="18" r="15.5"/>
+						<circle class="ring-fg" cx="18" cy="18" r="15.5"/>
+					</svg>
+					<span class="value" id="minutes"><span class="digit">-</span><span class="digit">-</span></span>
+					<span class="label">m</span>
+				</div>
+				<div class="unit-sep" id="sep-seconds">:</div>
+				<div class="unit" id="unit-seconds">
+					<svg class="ring" viewBox="0 0 36 36" aria-hidden="true">
+						<circle class="ring-bg" cx="18" cy="18" r="15.5"/>
+						<circle class="ring-fg" cx="18" cy="18" r="15.5"/>
+					</svg>
+					<span class="value" id="seconds"><span class="digit">-</span><span class="digit">-</span></span>
+					<span class="label">s</span>
+				</div>
+			</div>
+			<div id="completion-message"></div>
+		</div>
+		<script defer src="script.mjs"></script>
+	</body>
+</html>

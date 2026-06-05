@@ -16,6 +16,7 @@ export function isDataType(
 		number?: boolean;
 		range?: boolean;
 		datapoint?: boolean;
+		countdown?: boolean;
 	},
 ): boolean {
 	switch (payload.type) {
@@ -48,6 +49,7 @@ export function isDataType(
 			if (options.range && advanced.type === DATA_TYPE_IDS.RANGE) return true;
 			if (options.string && advanced.type === DATA_TYPE_IDS.TEXT) return true;
 			if (options.status && advanced.type === DATA_TYPE_IDS.STATUS) return true;
+			if (options.countdown && advanced.type === DATA_TYPE_IDS.COUNTDOWN) return true;
 			return false;
 		}
 		case 'insight': {

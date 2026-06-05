@@ -49,6 +49,11 @@
 				<span class="tab-label">Status</span>
 				<span class="tab-badge" id="status-count">0</span>
 			</button>
+			<button class="tab tab-data" data-tab="countdown">
+				<span class="tab-icon" aria-hidden="true">📊</span>
+				<span class="tab-label">Countdowns</span>
+				<span class="tab-badge" id="countdown-count">0</span>
+			</button>
 			<button class="tab tab-visual" data-tab="gauge">
 				<span class="tab-icon" aria-hidden="true">🎨</span>
 				<span class="tab-label">Gauge Visualizations</span>
@@ -84,6 +89,11 @@
 		<!-- Status Tab -->
 		<div id="status-container" class="tab-content">
 			<div class="content" id="status-content"></div>
+		</div>
+
+		<!-- Countdown Tab -->
+		<div id="countdown-container" class="tab-content">
+			<div class="content" id="countdown-content"></div>
 		</div>
 
 		<!-- Gauge Tab -->
@@ -189,6 +199,10 @@
 							<label>
 								<input type="checkbox" class="cleanup-type" value="status" checked>
 								<span>Status</span>
+							</label>
+							<label>
+								<input type="checkbox" class="cleanup-type" value="countdown" checked>
+								<span>Countdowns</span>
 							</label>
 							<span class="cleanup-type-heading">Visualizations</span>
 							<label>
@@ -320,6 +334,29 @@
 					<div class="input-group">
 						<label>Attention:</label>
 						<input id="attention-input" type="checkbox" disabled />
+					</div>
+					<div class="input-group">
+						<label>Last Updated:</label>
+						<input id="last-updated-label" type="text" readonly />
+					</div>
+				</div>
+			</div>
+		</template>
+
+		<template id="countdown-template">
+			<div class="data-row">
+				<div class="data-row-header">
+					<div class="identifier-label"></div>
+					<button class="remove-button homey-button-danger-small">Remove</button>
+				</div>
+				<div class="data-field-row">
+					<div class="input-group">
+						<label>Target date/time:</label>
+						<input id="end-datetime-input" type="text" readonly />
+					</div>
+					<div class="input-group">
+						<label>Message:</label>
+						<input id="message-input" type="text" readonly />
 					</div>
 					<div class="input-group">
 						<label>Last Updated:</label>

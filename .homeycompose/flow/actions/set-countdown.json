@@ -1,0 +1,57 @@
+{
+	"title": {
+		"en": "Set countdown",
+		"nl": "Stel aftellen in"
+	},
+	"titleFormatted": {
+		"en": "[Countdown] Set [[identifier]] to [[date]] [[time]] with label [[name]] and message [[message]]",
+		"nl": "[Aftellen] Stel [[identifier]] in op [[date]] [[time]] met label [[name]] en bericht [[message]]"
+	},
+	"hint": {
+		"en": "Set a countdown that can be displayed in the Countdown widget.",
+		"nl": "Stel een afteller in die gebruikt kan worden in de Countdown widget."
+	},
+	"args": [
+		{
+			"type": "text",
+			"name": "identifier",
+			"placeholder": {
+				"en": "identifier"
+			}
+		},
+		{
+			"type": "text",
+			"name": "name",
+			"title": {
+				"en": "Label (optional)",
+				"nl": "Label (optioneel)"
+			},
+			"required": false
+		},
+		{
+			"type": "date",
+			"name": "date",
+			"title": {
+				"en": "Date",
+				"nl": "Datum"
+			}
+		},
+		{
+			"type": "time",
+			"name": "time",
+			"title": {
+				"en": "Time",
+				"nl": "Tijd"
+			}
+		},
+		{
+			"type": "text",
+			"name": "message",
+			"title": {
+				"en": "Message (optional)",
+				"nl": "Bericht (optioneel)"
+			},
+			"required": false
+		}
+	]
+}

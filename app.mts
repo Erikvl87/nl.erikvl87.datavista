@@ -22,6 +22,10 @@ import ActionSetProgressBarConfiguration from './actions/ActionSetProgressBarCon
 import { ProgressBarWidgetData, ProgressBarWidgetSettings } from './datavistasettings/ProgressBarWidgetSettings.mjs';
 import ColorUtils from './common/ColorUtils.mjs';
 import ScatterPlotWidget from './widgets/scatter-plot/ScatterPlotWidget.mjs';
+import CountdownWidget from './widgets/countdown/CountdownWidget.mjs';
+import ActionSetCountdown from './actions/ActionSetCountdown.mjs';
+import ActionSetCountdownDuration from './actions/ActionSetCountdownDuration.mjs';
+import ActionSetCountdownDatetime from './actions/ActionSetCountdownDatetime.mjs';
 import { createGetSvgForUrl } from './services/getSvgForUrl.mjs';
 import { createGetConfigsource } from './services/getConfigsource.mjs';
 import { createGetDatasource, WidgetDataPayload } from './services/getDatasource.mjs';
@@ -61,6 +65,7 @@ export default class DataVista extends Homey.App {
 		await StatusBadgeWidget.initialize(this.homey, this.homeyApi, this.logger);
 		await LineChartWidget.initialize(this.homey, this.homeyApi, this.logger);
 		await ScatterPlotWidget.initialize(this.homey, this.homeyApi, this.logger);
+		await CountdownWidget.initialize(this.homey, this.homeyApi, this.logger);
 
 		await ActionSetDataPercentage.initialize(this.homey, this.logger);
 		await ActionSetRange.initialize(this.homey, this.logger);
@@ -69,6 +74,9 @@ export default class DataVista extends Homey.App {
 		await ActionSetDataString.initialize(this.homey, this.logger);
 		await ActionSetDataColor.initialize(this.homey, this.logger);
 		await ActionSetProgressBarConfiguration.initialize(this.homey, this.logger);
+		await ActionSetCountdown.initialize(this.homey, this.logger);
+		await ActionSetCountdownDuration.initialize(this.homey, this.logger);
+		await ActionSetCountdownDatetime.initialize(this.homey, this.logger);
 	}
 
 	/**
@@ -157,6 +165,7 @@ export default class DataVista extends Homey.App {
 			number?: boolean;
 			range?: boolean;
 			datapoint?: boolean;
+			countdown?: boolean;
 		},
 	): boolean {
 		return isDataType(payload, options);

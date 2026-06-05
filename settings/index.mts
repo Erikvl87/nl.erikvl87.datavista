@@ -7,8 +7,9 @@ import { ProgressBarWidgetData } from '../datavistasettings/ProgressBarWidgetSet
 import { BooleanData } from '../datavistasettings/BooleanSettings.mjs';
 import { TextData } from '../datavistasettings/TextSettings.mjs';
 import { StatusData } from '../datavistasettings/StatusSettings.mjs';
+import { CountdownData } from '../datavistasettings/CountdownSettings.mjs';
 
-type SettingsData = PercentageData | RangeData | AdvancedGaugeWidgetData | ProgressBarWidgetData | BooleanData | TextData | StatusData;
+type SettingsData = PercentageData | RangeData | AdvancedGaugeWidgetData | ProgressBarWidgetData | BooleanData | TextData | StatusData | CountdownData;
 
 interface DataItem {
 	key: string;
@@ -86,6 +87,15 @@ class SettingsScript {
 		const attentionInput = element.querySelector('#attention-input') as HTMLInputElement;
 		textInput.value = data.settings.text;
 		attentionInput.checked = data.settings.attention;
+		return element;
+	}
+
+	private createCountdownElement(data: BaseSettings<CountdownData>, key: string): HTMLElement {
+		const element = this.createElement('countdown-template', data, key);
+		const endDatetimeInput = element.querySelector('#end-datetime-input') as HTMLInputElement;
+		const messageInput = element.querySelector('#message-input') as HTMLInputElement;
+		endDatetimeInput.value = new Date(data.settings.endDatetime).toLocaleString(this.language, { timeZone: this.timezone });
+		messageInput.value = data.settings.message ?? '';
 		return element;
 	}
 
@@ -295,6 +305,7 @@ class SettingsScript {
 			boolean: 0,
 			text: 0,
 			status: 0,
+			countdown: 0,
 			gauge: 0,
 			'progress-bar': 0,
 		};
@@ -322,7 +333,7 @@ class SettingsScript {
 		});
 
 		// Show/hide empty states
-		['percentage', 'range', 'boolean', 'text', 'status', 'gauge', 'progress-bar'].forEach(type => {
+		['percentage', 'range', 'boolean', 'text', 'status', 'countdown', 'gauge', 'progress-bar'].forEach(type => {
 			const container = document.getElementById(`${type}-content`);
 			if (container) {
 				const allItems = Array.from(container.children).filter(
@@ -355,7 +366,7 @@ class SettingsScript {
 		const settings = await this.getSettings();
 
 		// Clear containers
-		['percentage', 'range', 'boolean', 'text', 'status', 'gauge', 'progress-bar'].forEach(type => {
+		['percentage', 'range', 'boolean', 'text', 'status', 'countdown', 'gauge', 'progress-bar'].forEach(type => {
 			const container = document.getElementById(`${type}-content`);
 			if (container) container.innerHTML = '';
 		});
@@ -400,6 +411,10 @@ class SettingsScript {
 						case 'status':
 							element = this.createStatusElement(data as BaseSettings<StatusData>, key);
 							containerId = 'status-content';
+							break;
+						case 'countdown':
+							element = this.createCountdownElement(data as BaseSettings<CountdownData>, key);
+							containerId = 'countdown-content';
 							break;
 						case 'gauge':
 							element = this.createGaugeElement(data as BaseSettings<AdvancedGaugeWidgetData>, key);

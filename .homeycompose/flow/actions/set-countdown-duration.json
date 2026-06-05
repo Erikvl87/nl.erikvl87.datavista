@@ -1,0 +1,85 @@
+{
+	"title": {
+		"en": "Set countdown (duration)",
+		"nl": "Stel aftellen in (duur)"
+	},
+	"titleFormatted": {
+		"en": "[Countdown] Set [[identifier]] for [[days]]d [[hours]]h [[minutes]]m [[seconds]]s with label [[name]] and message [[message]]",
+		"nl": "[Aftellen] Stel [[identifier]] in voor [[days]]d [[hours]]u [[minutes]]m [[seconds]]s met label [[name]] en bericht [[message]]"
+	},
+	"hint": {
+		"en": "Set a countdown by duration from now. Days, hours, minutes and seconds all accept flow tokens.",
+		"nl": "Stel een afteller in op basis van een duur vanaf nu. Dagen, uren, minuten en seconden accepteren flow-tokens."
+	},
+	"args": [
+		{
+			"type": "text",
+			"name": "identifier",
+			"placeholder": {
+				"en": "identifier"
+			}
+		},
+		{
+			"type": "text",
+			"name": "name",
+			"title": {
+				"en": "Label (optional)",
+				"nl": "Label (optioneel)"
+			},
+			"required": false
+		},
+		{
+			"type": "number",
+			"name": "days",
+			"min": 0,
+			"step": 1,
+			"required": false,
+			"title": {
+				"en": "Days",
+				"nl": "Dagen"
+			}
+		},
+		{
+			"type": "number",
+			"name": "hours",
+			"min": 0,
+			"step": 1,
+			"required": false,
+			"title": {
+				"en": "Hours",
+				"nl": "Uren"
+			}
+		},
+		{
+			"type": "number",
+			"name": "minutes",
+			"min": 0,
+			"step": 1,
+			"required": false,
+			"title": {
+				"en": "Minutes",
+				"nl": "Minuten"
+			}
+		},
+		{
+			"type": "number",
+			"name": "seconds",
+			"min": 0,
+			"step": 1,
+			"required": false,
+			"title": {
+				"en": "Seconds",
+				"nl": "Seconden"
+			}
+		},
+		{
+			"type": "text",
+			"name": "message",
+			"title": {
+				"en": "Message (optional)",
+				"nl": "Bericht (optioneel)"
+			},
+			"required": false
+		}
+	]
+}

@@ -53,3 +53,36 @@ This card customizes the appearance of [Advanced Gauge](widgets/gauge) widgets b
 This card customizes the appearance of [Progress Bar](widgets/progress-bar) widgets by defining color gradients that change based on the displayed value.
 
 <FlowCard source="actions/set-progress-bar-configuration.json" />
+
+## Countdown
+
+These cards set a countdown target that can be displayed in the [Countdown](widgets/countdown) widget. An optional message is shown when the countdown reaches zero (the widget's completion message setting takes priority if set).
+
+### Set countdown
+
+Use the date and time pickers to set a fixed target. The pickers do not accept flow tokens.
+
+<FlowCard source="actions/set-countdown.json" />
+
+### Set countdown (duration)
+
+Set the target as a duration from now. All numeric fields (days, hours, minutes, seconds) accept flow tokens.
+
+<FlowCard source="actions/set-countdown-duration.json" />
+
+### Set countdown (ISO 8601)
+
+Set the target as an ISO 8601 datetime string. The `datetime` field accepts flow tokens, making this the right card when the target date comes from another flow card or device.
+
+<FlowCard source="actions/set-countdown-datetime.json" />
+
+The accepted formats are:
+
+| Format | Example | Timezone handling |
+| --- | --- | --- |
+| `YYYY-MM-DDTHH:MM:SS` | `2025-12-25T15:30:00` | Treated as Homey's local timezone |
+| `YYYY-MM-DDTHH:MM` | `2025-12-25T15:30` | Treated as Homey's local timezone (seconds default to 00) |
+| `YYYY-MM-DDTHH:MM:SSZ` | `2025-12-25T14:30:00Z` | UTC — converted to Homey's local timezone before storing |
+| `YYYY-MM-DDTHH:MM:SS±HH:MM` | `2025-12-25T16:30:00+02:00` | Offset — converted to Homey's local timezone before storing |
+
+If no timezone suffix is included the value is stored as-is and interpreted as Homey's local time, so most tokens that produce a plain datetime string will work without any conversion.

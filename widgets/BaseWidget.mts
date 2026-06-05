@@ -9,6 +9,7 @@ import { RangeData } from '../datavistasettings/RangeSettings.mjs';
 import DataVistaLogger from '../DataVistaLogger.mjs';
 import { TextData } from '../datavistasettings/TextSettings.mjs';
 import { StatusData } from '../datavistasettings/StatusSettings.mjs';
+import { CountdownData } from '../datavistasettings/CountdownSettings.mjs';
 import DeviceCache from '../common/DeviceCache.mjs';
 
 type DataVistaResolution = Resolution
@@ -49,6 +50,7 @@ type AutocompleteQueryOptions = {
 	includeNumbers?: boolean;
 	includeStatus?: boolean;
 	includeDataPoints?: boolean;
+	includeCountdowns?: boolean;
 	fromCapabilities?: boolean;
 	fromSettings?: boolean;
 	fromVariables?: boolean;
@@ -143,6 +145,18 @@ export class BaseWidget {
 								description: `${DATAVISTA_APP_NAME} ${this.homey.__('status')} (${data.settings.color} - ${
 									data.settings.text
 								})`,
+								id: key,
+								type: 'advanced',
+								deviceName: DATAVISTA_APP_NAME,
+							});
+							break;
+						}
+						case DATA_TYPE_IDS.COUNTDOWN: {
+							if (!options.includeCountdowns) break;
+							const countdownData: BaseSettings<CountdownData> = this.homey.settings.get(key);
+							results.push({
+								name: countdownData.identifier,
+								description: `${DATAVISTA_APP_NAME} ${this.homey.__('countdown')} (→ ${countdownData.settings.endDatetime})`,
 								id: key,
 								type: 'advanced',
 								deviceName: DATAVISTA_APP_NAME,

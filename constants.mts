@@ -4,6 +4,7 @@ export enum DATA_TYPE_IDS {
 	BOOLEAN = "boolean",
 	TEXT = "text",
 	STATUS = "status",
+	COUNTDOWN = "countdown",
 }
 
 export enum WIDGET_TYPE_IDS {

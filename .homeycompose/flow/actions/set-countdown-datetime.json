@@ -1,0 +1,52 @@
+{
+	"title": {
+		"en": "Set countdown (ISO 8601)",
+		"nl": "Stel aftellen in (ISO 8601)"
+	},
+	"titleFormatted": {
+		"en": "[Countdown] Set [[identifier]] to [[datetime]] with label [[name]] and message [[message]]",
+		"nl": "[Aftellen] Stel [[identifier]] in op [[datetime]] met label [[name]] en bericht [[message]]"
+	},
+	"hint": {
+		"en": "Set a countdown to an ISO 8601 datetime string. Accepts flow tokens. Supported formats: YYYY-MM-DDTHH:MM:SS (local), YYYY-MM-DDTHH:MM:SSZ (UTC), or with offset e.g. +01:00.",
+		"nl": "Stel een afteller in op een ISO 8601-datum/-tijdstring. Accepteert flow-tokens. Ondersteunde formaten: YYYY-MM-DDTHH:MM:SS (lokaal), YYYY-MM-DDTHH:MM:SSZ (UTC), of met offset bijv. +01:00."
+	},
+	"args": [
+		{
+			"type": "text",
+			"name": "identifier",
+			"placeholder": {
+				"en": "identifier"
+			}
+		},
+		{
+			"type": "text",
+			"name": "name",
+			"title": {
+				"en": "Label (optional)",
+				"nl": "Label (optioneel)"
+			},
+			"required": false
+		},
+		{
+			"type": "text",
+			"name": "datetime",
+			"title": {
+				"en": "Date & time (ISO 8601)",
+				"nl": "Datum & tijd (ISO 8601)"
+			},
+			"placeholder": {
+				"en": "YYYY-MM-DDTHH:MM:SS"
+			}
+		},
+		{
+			"type": "text",
+			"name": "message",
+			"title": {
+				"en": "Message (optional)",
+				"nl": "Bericht (optioneel)"
+			},
+			"required": false
+		}
+	]
+}

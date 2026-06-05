@@ -33,5 +33,6 @@
 	"this31Days": "last 31 days",
 	"last31Days": "previous 31 days",
 	"this365Days": "last 365 days",
-	"last365Days": "previous 365 days"
+	"last365Days": "previous 365 days",
+	"countdown": "countdown"
 }
