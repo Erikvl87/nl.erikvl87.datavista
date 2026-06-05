@@ -145,5 +145,8 @@
   },
   "1.7.0": {
     "en": "Added a scatter plot widget"
+  },
+  "1.8.0": {
+    "en": "Added a countdown widget with a couple visual styles and three flow cards for setting countdowns by date, duration, or ISO 8601 string"
   }
 }
