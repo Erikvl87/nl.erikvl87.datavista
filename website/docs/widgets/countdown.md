@@ -29,7 +29,7 @@ The **Countdown** widget displays a live, second-by-second countdown to a target
 | **Show seconds** | Toggle the seconds unit on or off. |
 
 :::warning
-To use a countdown datasource, create a flow using one of the DataVista countdown action cards and run it at least once. The countdown identifier only becomes selectable in the widget settings after the flow has run. See [Flow Cards](../flow-cards#countdown) for all available options.
+To use a countdown datasource, create a flow using one of the DataVista countdown action cards and run it at least once. The countdown identifier only becomes selectable in the widget settings after the flow has run. See [Flow Cards](../flow-cards.mdx#countdown) for all available options.
 :::
 
 ## Styles
@@ -50,7 +50,7 @@ To use a countdown datasource, create a flow using one of the DataVista countdow
 
 ### Why does the widget show "Configure me"?
 
-No datasource is configured, or the selected datasource does not exist yet. Create a flow with one of the [countdown action cards](../flow-cards#countdown), run it once, then select the identifier in the widget settings.
+No datasource is configured, or the selected datasource does not exist yet. Create a flow with one of the [countdown action cards](../flow-cards.mdx#countdown), run it once, then select the identifier in the widget settings.
 
 ### Which timezone does the countdown use?
 

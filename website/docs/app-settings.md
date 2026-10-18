@@ -8,7 +8,7 @@ The app settings screen lets you manage all DataVista data and widget visualizat
 
 ## Data
 
-View and manage all data values created by [flow cards](flow-cards), including:
+View and manage all data values created by [flow cards](flow-cards.mdx), including:
 - **Percentages** - Percentage values (0-100)
 - **Ranges** - Numeric values with custom min/max bounds
 - **Booleans** - True/false values
@@ -20,7 +20,7 @@ Each item shows a **Last updated** timestamp, which helps with debugging and ide
 ## Visualizations
 
 Create and manage appearance configurations for widgets:
-- **Gauges** - Axis colors for [Advanced Gauge](widgets/gauge) widgets, shown as a gradient or as solid bands
-- **Progress Bars** - Color gradients for [Progress Bar](widgets/progress-bar) widgets
+- **Gauges** - Axis colors for [Advanced Gauge](widgets/gauge/index.md) widgets, shown as a gradient or as solid bands
+- **Progress Bars** - Color gradients for [Progress Bar](widgets/progress-bar/index.md) widgets
 
 You can add new configurations directly from this screen, or create them through flow cards for automation. Each configuration uses a unique identifier that you link to a widget in its settings.
