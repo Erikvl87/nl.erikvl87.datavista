@@ -20,7 +20,7 @@ Each item shows a **Last updated** timestamp, which helps with debugging and ide
 ## Visualizations
 
 Create and manage appearance configurations for widgets:
-- **Gauges** - Color gradients for [Advanced Gauge](widgets/gauge) widgets
+- **Gauges** - Axis colors for [Advanced Gauge](widgets/gauge) widgets, shown as a gradient or as solid bands
 - **Progress Bars** - Color gradients for [Progress Bar](widgets/progress-bar) widgets
 
 You can add new configurations directly from this screen, or create them through flow cards for automation. Each configuration uses a unique identifier that you link to a widget in its settings.

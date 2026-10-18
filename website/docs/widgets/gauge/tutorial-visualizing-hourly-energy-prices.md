@@ -54,6 +54,10 @@ Use the DataVista gauge configuration action card to define the color bands.
 You can populate the color offsets dynamically with tokens. This lets you adapt thresholds (for example, higher red thresholds during winter).
 :::
 
+:::tip
+By default the colors blend into each other. To show each price range as a solid color band, disable **Gradual color transitions** in the widget settings. Each color then starts at its value and runs up to the value of the next color.
+:::
+
 ## 5. Add the widget to the dashboard
 
 Follow the [Gauge widget setup](./index.md#add-the-widget-to-your-dashboard) to add an **Advanced Gauge**. Select the datasource from step 3 as the value source and the configuration from step 4 as the visualization.

@@ -43,6 +43,7 @@ The Simple Gauge is configured entirely through widget settings:
 | **Color 1** | Color at the minimum value. |
 | **Color 2** | Color at the midpoint. |
 | **Color 3** | Color at the maximum value. |
+| **Gradual color transitions** | Enabled by default: the colors blend into each other. Disable it for equally sized solid bands, one for each selected color (for example three bands with three colors). |
 
 ## Configure the Advanced Gauge
 
@@ -54,6 +55,7 @@ The Advanced Gauge relies on DataVista action cards and offers more flexibility:
 | **Configuration source\*** | A DataVista configuration that defines gauge colors and offsets. |
 | **Number of segments** | Sets the number of gauge segments; each segment border shows a value. |
 | **Style** | Choose **Style 1** (needle), **Style 2** (colored arc), or **Circular** (360° dial). |
+| **Gradual color transitions** | Enabled by default: the colors blend into each other. Disable it for solid color bands. Each color then starts at its configured value and runs up to the value of the next color. Without values, the axis is divided into equally sized bands. |
 | **Transparent background** | Toggle between a solid tile or transparent background. |
 
 :::warning
@@ -83,3 +85,9 @@ The datasource could not be found or is no longer available. Reconfigure the dat
 ### How do I render a circular gauge?
 
 Select **Circular** in the **Style** setting to render a round 360° gauge.
+
+### How do I get solid color bands instead of a gradient?
+
+Disable **Gradual color transitions** in the widget settings. On the **Simple Gauge**, the axis is then divided into equally sized bands, one for each selected color. On the **Advanced Gauge**, each color starts at the value set in the gauge configuration card and runs up to the value of the next color. For example, green at `0`, orange at `60` and red at `80` shows green up to 60, orange from 60 to 80, and red from 80. Because these values can come from flow tokens, you can change the bands from a flow.
+
+With **Style 2**, the inner bar takes the color of the band that the current value falls in.

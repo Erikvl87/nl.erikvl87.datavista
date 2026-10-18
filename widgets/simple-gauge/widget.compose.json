@@ -204,6 +204,19 @@
 				{ "id": "#ff1493", "title": { "en": "Deep Pink", "nl": "Dieproze" } },
 				{ "id": "contrast", "title": { "en": "Contrast", "nl": "Contrast" } }
 			]
+		},
+		{
+			"id": "gradualColors",
+			"type": "checkbox",
+			"title": {
+				"en": "Gradual color transitions",
+				"nl": "Geleidelijke kleurovergangen"
+			},
+			"hint": {
+				"en": "When disabled, the gauge is divided into equally sized solid bands, one for each selected color.",
+				"nl": "Wanneer uitgeschakeld wordt de meter verdeeld in even grote effen banden, één voor elke gekozen kleur."
+			},
+			"value": true
 		}
 	],
 	"api": {

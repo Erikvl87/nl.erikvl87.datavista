@@ -19,12 +19,16 @@ type Settings = {
 	};
 	segments: number;
 	style: 'style1' | 'style2' | 'circular';
+	gradualColors?: boolean;
 };
 
 type ColorStop = {
 	offset?: number;
 	color: string;
 };
+
+/** ECharts axisLine color entry: the color is drawn up to the given (normalized) end offset. */
+type ColorBand = [number, string];
 
 type ColorStopConfig = {
 	color1?: string;
@@ -80,6 +84,39 @@ class ColorStopsManager {
 
 		const result = stops.filter(stop => stop.offset !== undefined);
 		return this.cacheAndReturn(config, data, result);
+	}
+
+	/**
+	 * Gets solid color bands. Each color starts at its configured value and runs up to the value of the next color.
+	 * Without configured values, the axis is divided into equally sized bands.
+	 */
+	public getColorBands(config: ColorStopConfig, data: WidgetDataDto): ColorBand[] {
+		const stops = [
+			{ offset: config.colorOffset1, color: config.color1 },
+			{ offset: config.colorOffset2, color: config.color2 },
+			{ offset: config.colorOffset3, color: config.color3 },
+			{ offset: config.colorOffset4, color: config.color4 },
+			{ offset: config.colorOffset5, color: config.color5 },
+		].filter(stop => stop.color) as ColorStop[];
+
+		if (stops.length === 0) return [];
+
+		const hasDefinedOffsets = stops.some(stop => stop.offset != null);
+		if (!hasDefinedOffsets) {
+			return stops.map((stop, index) => [(index + 1) / stops.length, stop.color]);
+		}
+
+		const rangeSize = data.max - data.min;
+		const sorted = stops
+			.filter(stop => stop.offset != null)
+			.map(stop => ({ offset: (stop.offset! - data.min) / rangeSize, color: stop.color }))
+			.sort((a, b) => a.offset - b.offset);
+
+		// The first color also covers the part of the axis below its own value.
+		return sorted.map((stop, index): ColorBand => {
+			const end = index < sorted.length - 1 ? sorted[index + 1].offset : 1;
+			return [Math.min(Math.max(end, 0), 1), stop.color];
+		});
 	}
 
 	private shouldUseCache(config: ColorStopConfig, data: WidgetDataDto): boolean {
@@ -217,6 +254,13 @@ class AdvancedGaugeWidgetScript {
 			.getPropertyValue('--homey-text-color-light')
 			.trim();
 		const colorStops = this.colorStopsManager.getColorStops(this.config, this.data);
+		const gradualColors = this.settings.gradualColors !== false;
+		const colorBands = gradualColors ? [] : this.colorStopsManager.getColorBands(this.config, this.data);
+		const axisLineColor = (): unknown[] => {
+			if (!gradualColors) return colorBands;
+			// @ts-expect-error This is expexted
+			return [[1, new echarts.graphic.LinearGradient(0, 0, 1, 0, colorStops)]];
+		};
 
 		switch (this.settings.style) {
 			case 'style1': {
@@ -265,14 +309,7 @@ class AdvancedGaugeWidgetScript {
 							},
 							axisLine: {
 								lineStyle: {
-									color: [
-										[
-											1,
-											// @ts-expect-error This is expexted
-											new echarts.graphic.LinearGradient(0, 0, 1, 0, colorStops),
-										],
-										// [1, "#F6C74C"],
-									],
+									color: axisLineColor(),
 									width: 10,
 								},
 							},
@@ -290,13 +327,19 @@ class AdvancedGaugeWidgetScript {
 			}
 
 			case 'style2': {
-				// get the color for this.data.value that is closest to one of the color steps
 				const normalizedValue = (this.data.value - this.data.min) / (this.data.max - this.data.min);
-				const closestColorStop = colorStops.reduce((prev, curr) => {
-					const prevDiff = Math.abs((prev.offset ?? 0) - normalizedValue);
-					const currDiff = Math.abs((curr.offset ?? 0) - normalizedValue);
-					return prevDiff < currDiff ? prev : curr;
-				});
+				let progressColor: string;
+				if (gradualColors) {
+					// get the color for this.data.value that is closest to one of the color steps
+					progressColor = colorStops.reduce((prev, curr) => {
+						const prevDiff = Math.abs((prev.offset ?? 0) - normalizedValue);
+						const currDiff = Math.abs((curr.offset ?? 0) - normalizedValue);
+						return prevDiff < currDiff ? prev : curr;
+					}).color;
+				} else {
+					// get the color of the band the value falls in
+					progressColor = (colorBands.find(([end]) => normalizedValue <= end) ?? colorBands[colorBands.length - 1])[1];
+				}
 
 				this.chart.setOption({
 					series: [
@@ -342,14 +385,7 @@ class AdvancedGaugeWidgetScript {
 							},
 							axisLine: {
 								lineStyle: {
-									color: [
-										[
-											1,
-											// @ts-expect-error This is expexted
-											new echarts.graphic.LinearGradient(0, 0, 1, 0, colorStops),
-										],
-										// [1, "#F6C74C"],
-									],
+									color: axisLineColor(),
 									width: 10,
 								},
 							},
@@ -370,7 +406,7 @@ class AdvancedGaugeWidgetScript {
 							min: this.data.min,
 							max: this.data.max,
 							itemStyle: {
-								color: closestColorStop.color,
+								color: progressColor,
 							},
 							progress: {
 								show: true,
@@ -405,68 +441,73 @@ class AdvancedGaugeWidgetScript {
 				break;
 			}
 			case 'circular': {
+				const mainGauge = {
+					type: 'gauge',
+					startAngle: 90,
+					endAngle: -270,
+					splitNumber: this.settings.segments,
+					radius: '100%',
+					detail: {
+						valueAnimation: true,
+						formatter: (value: number): string => {
+							if (this.data.label != null && this.data.label != '') return this.data.label;
+							if (this.data.unit == null) return `${value}`;
+
+							return this.data.unitPosition === 'prefix'
+								? `${this.data.unit} ${value}`
+								: `${value} ${this.data.unit}`;
+						},
+						fontSize: 20,
+						offsetCenter: [0, 0],
+						color: homeyTextColor,
+					},
+					pointer: {
+						icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+						length: '12%',
+						width: 10,
+						offsetCenter: [0, '-80%'],
+						itemStyle: {
+							color: homeyTextColor,
+						},
+					},
+					splitLine: {
+						distance: 7,
+						length: 10,
+					},
+					axisTick: {
+						distance: 7,
+					},
+					axisLabel: {
+						formatter: (value: number): string => {
+							if (value === this.data.max) return '';
+							const precision = value % 1 === 0 ? 0 : 2;
+							return value.toFixed(precision);
+						},
+						color: homeyLightTextColor,
+					},
+					axisLine: {
+						lineStyle: gradualColors
+							? { color: [[1, 'rgba(0,0,0,0)']] } // transparent, only pointer visible
+							: { color: colorBands, width: 10 }, // solid bands follow the arc natively
+					},
+					min: this.data.min,
+					max: this.data.max,
+					data: [
+						{
+							value: parseFloat(this.data.value.toFixed(2)),
+						},
+					],
+				};
+
+				if (!gradualColors) {
+					this.chart.setOption({ series: [mainGauge] });
+					break;
+				}
+
 				const { firstHalf, secondHalf } = await this.splitColorStops(colorStops);
 				this.chart.setOption({
 					series: [
-						// Main gauge
-						{
-							type: 'gauge',
-							startAngle: 90,
-							endAngle: -270,
-							splitNumber: this.settings.segments,
-							radius: '100%',
-							detail: {
-								valueAnimation: true,
-								formatter: (value: number): string => {
-									if (this.data.label != null && this.data.label != '') return this.data.label;
-									if (this.data.unit == null) return `${value}`;
-
-									return this.data.unitPosition === 'prefix'
-										? `${this.data.unit} ${value}`
-										: `${value} ${this.data.unit}`;
-								},
-								fontSize: 20,
-								offsetCenter: [0, 0],
-								color: homeyTextColor,
-							},
-							pointer: {
-								icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
-								length: '12%',
-								width: 10,
-								offsetCenter: [0, '-80%'],
-								itemStyle: {
-									color: homeyTextColor,
-								},
-							},
-							splitLine: {
-								distance: 7,
-								length: 10,
-							},
-							axisTick: {
-								distance: 7,
-							},
-							axisLabel: {
-								formatter: (value: number): string => {
-									if (value === this.data.max) return '';
-									const precision = value % 1 === 0 ? 0 : 2;
-									return value.toFixed(precision);
-								},
-								color: homeyLightTextColor,
-							},
-							axisLine: {
-								lineStyle: {
-									color: [[1, 'rgba(0,0,0,0)']], // transparent, only pointer visible
-								}
-							},
-
-							min: this.data.min,
-							max: this.data.max,
-							data: [
-								{
-									value: parseFloat(this.data.value.toFixed(2)),
-								},
-							],
-						},
+						mainGauge,
 
 						// Right part of the gauge
 						{

@@ -22,6 +22,7 @@ type Settings = {
 	color1?: string;
 	color2?: string;
 	color3?: string;
+	gradualColors?: boolean;
 	isMinNegative: boolean;
 	isMaxNegative: boolean;
 };
@@ -105,6 +106,18 @@ class SimpleGaugeWidgetScript {
 				break;
 		}
 
+		// Without gradual transitions, every selected color gets an equally sized solid band.
+		const gradualColors = this.settings.gradualColors !== false;
+		const colorBands: [number, string][] = this.colors.map((stop, index) => [
+			(index + 1) / this.colors.length,
+			stop.color,
+		]);
+		const axisLineColor = (): unknown[] => {
+			if (!gradualColors) return colorBands;
+			// @ts-expect-error This is expexted
+			return [[1, new echarts.graphic.LinearGradient(0, 0, 1, 0, this.colors)]];
+		};
+
 		switch (this.settings.style) {
 			case 'style1': {
 				this.chart.setOption({
@@ -145,14 +158,7 @@ class SimpleGaugeWidgetScript {
 							},
 							axisLine: {
 								lineStyle: {
-									color: [
-										[
-											1,
-											// @ts-expect-error This is expexted
-											new echarts.graphic.LinearGradient(0, 0, 1, 0, this.colors),
-										],
-										// [1, "#F6C74C"],
-									],
+									color: axisLineColor(),
 									width: 10,
 								},
 							},
@@ -174,11 +180,17 @@ class SimpleGaugeWidgetScript {
 					this.data.min != null && this.data.max != null
 						? (value - this.data.min) / (this.data.max - this.data.min)
 						: 0;
-				const closestColorStop = this.colors.reduce((prev, curr) => {
-					const prevDiff = Math.abs((prev.offset ?? 0) - normalizedValue);
-					const currDiff = Math.abs((curr.offset ?? 0) - normalizedValue);
-					return prevDiff < currDiff ? prev : curr;
-				});
+				let progressColor: string;
+				if (gradualColors) {
+					progressColor = this.colors.reduce((prev, curr) => {
+						const prevDiff = Math.abs((prev.offset ?? 0) - normalizedValue);
+						const currDiff = Math.abs((curr.offset ?? 0) - normalizedValue);
+						return prevDiff < currDiff ? prev : curr;
+					}).color;
+				} else {
+					// get the color of the band the value falls in
+					progressColor = (colorBands.find(([end]) => normalizedValue <= end) ?? colorBands[colorBands.length - 1])[1];
+				}
 
 				this.chart.setOption({
 					series: [
@@ -217,13 +229,7 @@ class SimpleGaugeWidgetScript {
 							},
 							axisLine: {
 								lineStyle: {
-									color: [
-										[
-											1,
-											// @ts-expect-error This is expexted
-											new echarts.graphic.LinearGradient(0, 0, 1, 0, this.colors),
-										],
-									],
+									color: axisLineColor(),
 									width: 10,
 								},
 							},
@@ -244,7 +250,7 @@ class SimpleGaugeWidgetScript {
 							min: this.data.min,
 							max: this.data.max,
 							itemStyle: {
-								color: closestColorStop.color,
+								color: progressColor,
 							},
 							progress: {
 								show: true,
@@ -280,61 +286,67 @@ class SimpleGaugeWidgetScript {
 			}
 
 			case 'circular': {
+				const mainGauge = {
+					type: 'gauge',
+					startAngle: 90,
+					endAngle: -270,
+					splitNumber: this.settings.segments,
+					radius: '100%',
+					detail: {
+						valueAnimation: true,
+						formatter: this.spinnerTimeout == null ? detailFormatter : 'Configure me',
+						fontSize: 20,
+						offsetCenter: [0, 0],
+						color: homeyTextColor,
+					},
+					pointer: {
+						icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+						length: '12%',
+						width: 10,
+						offsetCenter: [0, '-80%'],
+						itemStyle: {
+							color: homeyTextColor,
+						},
+					},
+					splitLine: {
+						distance: 7,
+						length: 10,
+					},
+					axisTick: {
+						distance: 7,
+					},
+					axisLabel: {
+						formatter: (value: number): string => {
+							if (value === this.data.max) return '';
+							const precision = value % 1 === 0 ? 0 : 2;
+							return value.toFixed(precision);
+						},
+						color: homeyLightTextColor,
+					},
+					axisLine: {
+						lineStyle: gradualColors
+							? { color: [[1, 'rgba(0,0,0,0)']] } // transparent, only pointer visible
+							: { color: colorBands, width: 10 }, // solid bands follow the arc natively
+					},
+					min: this.data.min,
+					max: this.data.max,
+					data: [
+						{
+							value: value,
+						},
+					],
+				};
+
+				if (!gradualColors) {
+					this.chart.setOption({ series: [mainGauge] });
+					break;
+				}
+
 				const { firstHalf, secondHalf } = await this.splitColorStops(this.colors);
 
 				this.chart.setOption({
 					series: [
-						// Main gauge
-						{
-							type: 'gauge',
-							startAngle: 90,
-							endAngle: -270,
-							splitNumber: this.settings.segments,
-							radius: '100%',
-							detail: {
-								valueAnimation: true,
-								formatter: this.spinnerTimeout == null ? detailFormatter : 'Configure me',
-								fontSize: 20,
-								offsetCenter: [0, 0],
-								color: homeyTextColor,
-							},
-							pointer: {
-								icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
-								length: '12%',
-								width: 10,
-								offsetCenter: [0, '-80%'],
-								itemStyle: {
-									color: homeyTextColor,
-								},
-							},
-							splitLine: {
-								distance: 7,
-								length: 10,
-							},
-							axisTick: {
-								distance: 7,
-							},
-							axisLabel: {
-								formatter: (value: number): string => {
-									if (value === this.data.max) return '';
-									const precision = value % 1 === 0 ? 0 : 2;
-									return value.toFixed(precision);
-								},
-								color: homeyLightTextColor,
-							},
-							axisLine: {
-								lineStyle: {
-									color: [[1, 'rgba(0,0,0,0)']], // transparent, only pointer visible
-								}
-							},
-							min: this.data.min,
-							max: this.data.max,
-							data: [
-								{
-									value: value,
-								},
-							],
-						},
+						mainGauge,
 
 						// Right part of the gauge
 						{
