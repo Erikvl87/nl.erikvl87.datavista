@@ -148,5 +148,8 @@
   },
   "1.8.0": {
     "en": "Added a countdown widget with a couple visual styles and three flow cards for setting countdowns by date, duration, or ISO 8601 string"
+  },
+  "1.9.0": {
+    "en": "Added a \"Gradual color transitions\" option to the gauge widgets to show solid color bands instead of a gradient"
   }
 }
