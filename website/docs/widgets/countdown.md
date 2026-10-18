@@ -14,6 +14,8 @@ The **Countdown** widget displays a live, second-by-second countdown to a target
 4. Pick the **Countdown** widget.
 5. Click the preview to add it to your dashboard.
 
+![Countdown widget preview](/img/docs/countdown-widget-preview.png)
+
 ## Configure the widget
 
 | Setting | Description |
