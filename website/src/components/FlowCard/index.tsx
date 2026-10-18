@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styles from './styles.module.css';
 import './variables.css';
 import appConfig from '@homeycompose/app.json';
@@ -315,15 +315,11 @@ export default function FlowCard({
   iconColor = appConfig.brandColor,
   clampTitle = false,
 }: FlowCardProps): React.ReactElement | null {
-  const [flowData, setFlowData] = useState<FlowCardData | null>(data ?? null);
-
-  useEffect(() => {
-    if (source && !data) {
-      import(`@homeycompose/flow/${source}`)
-        .then((module) => setFlowData(module.default))
-        .catch((err) => console.error(`Failed to load flow card: ${source}`, err));
-    }
-  }, [source, data]);
+  // Loaded synchronously so the card is part of the server-rendered HTML. An async
+  // import would render nothing at first and shift the page after the browser has
+  // already scrolled to a URL anchor.
+  const flowData: FlowCardData | null =
+    data ?? (source ? require(`@homeycompose/flow/${source}`) : null);
 
   if (!flowData) {
     return null;
