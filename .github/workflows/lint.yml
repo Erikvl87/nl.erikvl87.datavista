@@ -17,8 +17,8 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '22.6.0'
+        node-version: '22'
     - name: Install dependencies
       run: npm ci
     - name: Run ESLint
-      run: npx eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'widgets/**/*.js'
+      run: npx eslint .
