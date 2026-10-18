@@ -795,6 +795,19 @@
           ]
         },
         {
+          "id": "gradualColors",
+          "type": "checkbox",
+          "title": {
+            "en": "Gradual color transitions",
+            "nl": "Geleidelijke kleurovergangen"
+          },
+          "hint": {
+            "en": "When disabled, each color is shown as a solid band starting at its configured value, up to the value of the next color.",
+            "nl": "Wanneer uitgeschakeld wordt elke kleur getoond als een effen band vanaf de ingestelde waarde tot aan de waarde van de volgende kleur."
+          },
+          "value": true
+        },
+        {
           "id": "transparent",
           "type": "checkbox",
           "title": {
@@ -3888,6 +3901,19 @@
               }
             }
           ]
+        },
+        {
+          "id": "gradualColors",
+          "type": "checkbox",
+          "title": {
+            "en": "Gradual color transitions",
+            "nl": "Geleidelijke kleurovergangen"
+          },
+          "hint": {
+            "en": "When disabled, the gauge is divided into equally sized solid bands, one for each selected color.",
+            "nl": "Wanneer uitgeschakeld wordt de meter verdeeld in even grote effen banden, één voor elke gekozen kleur."
+          },
+          "value": true
         }
       ],
       "api": {
