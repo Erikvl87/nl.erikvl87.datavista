@@ -41,7 +41,11 @@
       "data",
       "visualization",
       "line chart",
-      "chart"
+      "chart",
+      "scatter plot",
+      "countdown",
+      "timer",
+      "status badge"
     ],
     "nl": [
       "dashboard",
@@ -54,7 +58,11 @@
       "data",
       "visualisatie",
       "lijndiagram",
-      "diagram"
+      "diagram",
+      "spreidingsdiagram",
+      "aftellen",
+      "timer",
+      "statusbadge"
     ]
   },
   "brandColor": "#1E3A8A",
