@@ -1,17 +1,52 @@
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
+import { get } from 'https';
 import { ExtendedError } from '../common/ExtendedError.mjs';
 import DataVistaLogger from '../DataVistaLogger.mjs';
 
-let fetch: typeof globalThis.fetch;
+const ALLOWED_ORIGIN = 'https://icons-cdn.athom.com';
+const TIMEOUT_MS = 10_000;
+const MAX_BYTES = 512 * 1024;
 
-void (async (): Promise<void> => {
+type IconResponse = { status: number; contentType: string | null; body: string };
+
+/**
+ * Fetch an icon with native fetch, or with the https module on runtimes without it (Node 16). Redirects are not followed.
+ */
+async function fetchIcon(url: URL): Promise<IconResponse> {
 	if (typeof globalThis.fetch === 'function') {
-		fetch = globalThis.fetch;
-	} else {
-		const { default: nodeFetch } = await import('node-fetch');
-		fetch = nodeFetch as unknown as typeof fetch;
+		const response = await globalThis.fetch(url, { redirect: 'error', signal: AbortSignal.timeout(TIMEOUT_MS) });
+		const contentLength = Number(response.headers.get('content-length'));
+		if (contentLength > MAX_BYTES) throw new ExtendedError('Icon is too large.', { url: url.href, contentLength });
+		const body = await response.text();
+		if (body.length > MAX_BYTES) throw new ExtendedError('Icon is too large.', { url: url.href });
+		return { status: response.status, contentType: response.headers.get('content-type'), body };
 	}
-})();
+
+	return new Promise((resolve, reject) => {
+		const request = get(url, { timeout: TIMEOUT_MS, headers: { 'User-Agent': 'DataVista' } }, response => {
+			const chunks: Buffer[] = [];
+			let size = 0;
+			response.on('data', (chunk: Buffer) => {
+				size += chunk.length;
+				if (size > MAX_BYTES) {
+					request.destroy(new ExtendedError('Icon is too large.', { url: url.href }));
+					return;
+				}
+				chunks.push(chunk);
+			});
+			response.on('end', () =>
+				resolve({
+					status: response.statusCode ?? 0,
+					contentType: response.headers['content-type'] ?? null,
+					body: Buffer.concat(chunks).toString('utf8'),
+				}),
+			);
+			response.on('error', reject);
+		});
+		request.on('timeout', () => request.destroy(new ExtendedError('Timeout while fetching icon.', { url: url.href })));
+		request.on('error', reject);
+	});
+}
 
 /**
  * Create a function to get the svg source for a given url.
@@ -19,13 +54,17 @@ void (async (): Promise<void> => {
 export function createGetSvgForUrl(logger: DataVistaLogger) {
 	return async (url: string, color: string | null): Promise<string> => {
 		try {
-			const response = await fetch(url);
-			if (!response.ok) throw new ExtendedError('Invalid response while fetching icon. Status: ', { response });
+			const iconUrl = new URL(url);
+			if (iconUrl.origin !== ALLOWED_ORIGIN) throw new ExtendedError('Icon url is not allowed.', { url });
 
-			if (!response.headers.get('content-type')?.includes('image/svg+xml'))
-				throw new ExtendedError('Invalid content type while fetching icon.', { response });
+			const response = await fetchIcon(iconUrl);
+			if (response.status !== 200)
+				throw new ExtendedError('Invalid response while fetching icon.', { url, status: response.status });
 
-			let iconSvgSource = await response.text();
+			if (!response.contentType?.includes('image/svg+xml'))
+				throw new ExtendedError('Invalid content type while fetching icon.', { url, contentType: response.contentType });
+
+			let iconSvgSource = response.body;
 			if (color == null) return iconSvgSource;
 
 			const parser = new DOMParser();

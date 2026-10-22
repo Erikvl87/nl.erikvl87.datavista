@@ -4,6 +4,10 @@ import { rename, unlink, rmdir, readdir } from 'fs/promises';
 import { glob } from 'glob';
 import { join } from 'path';
 
+// ESM bundles have no `require`, so CommonJS dependencies that require Node built-ins would throw
+// "Dynamic require of ... is not supported". Provide one.
+const banner = { js: "import { createRequire as __createRequire } from 'module'; const require = __createRequire(import.meta.url);" };
+
 // Bundle only main entry points (not widget APIs to avoid code duplication)
 const results = await Promise.all([
 	// Main app entry - bundle everything
@@ -18,6 +22,7 @@ const results = await Promise.all([
 		minify: false,
 		sourcemap: false,
 		metafile: true,
+		banner,
 	}),
 	// Main API entry - bundle with dependencies
 	esbuild.build({
@@ -31,6 +36,7 @@ const results = await Promise.all([
 		minify: false,
 		sourcemap: false,
 		metafile: true,
+		banner,
 	}),
 ]);
 
