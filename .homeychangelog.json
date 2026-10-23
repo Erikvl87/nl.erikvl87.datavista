@@ -151,5 +151,8 @@
   },
   "1.9.0": {
     "en": "Added a \"Gradual color transitions\" option to the gauge widgets to show solid color bands instead of a gradient"
+  },
+  "1.9.1": {
+    "en": "Fixed device and capability icons not loading on Homey firmware older than 12.9.0, which also caused an error when the app started."
   }
 }
